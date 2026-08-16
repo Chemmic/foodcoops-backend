@@ -1,22 +1,16 @@
- package de.dhbw.foodcoop.warehouse.plugins.rest;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+package de.dhbw.foodcoop.warehouse.plugins.rest;
 
 import java.io.IOException;
+import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-import javax.mail.MessagingException;
+import jakarta.mail.MessagingException;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,7 +25,6 @@ import de.dhbw.foodcoop.warehouse.adapters.representations.EinkaufRepresentation
 import de.dhbw.foodcoop.warehouse.adapters.representations.FrischBestandRepresentation;
 import de.dhbw.foodcoop.warehouse.adapters.representations.mappers.EinkaufCreateToEntityMapper;
 import de.dhbw.foodcoop.warehouse.adapters.representations.mappers.EinkaufToRepresentationMapper;
-import de.dhbw.foodcoop.warehouse.adapters.representations.mappers.RepresentationToEinkaufMapper;
 import de.dhbw.foodcoop.warehouse.application.admin.ConfigurationService;
 import de.dhbw.foodcoop.warehouse.application.einkauf.EinkaufService;
 import de.dhbw.foodcoop.warehouse.domain.entities.BestandBuyEntity;
@@ -44,7 +37,7 @@ import de.dhbw.foodcoop.warehouse.plugins.email.EmailService;
 import de.dhbw.foodcoop.warehouse.plugins.helpObjects.BestandBuyCreator;
 import de.dhbw.foodcoop.warehouse.plugins.helpObjects.Einkaufsmanagement;
 import de.dhbw.foodcoop.warehouse.plugins.pdf.PdfService;
-import de.dhbw.foodcoop.warehouse.plugins.rest.assembler.EinkaufModelAssembler;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -53,233 +46,401 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 @RestController
 public class EinkaufController {
-	
-    private final EinkaufService einkaufService;
-    
-    @Autowired
-    private  RepresentationToEinkaufMapper toEinkauf;
-    
-    @Autowired
-    private PdfService pdf;
-    @Autowired
-    private  EinkaufToRepresentationMapper toPresentation;
-    
-    @Autowired
-    private  EinkaufCreateToEntityMapper createMapper;
-    
-    @Autowired
-    private  EinkaufModelAssembler assembler;
-    
-    @Autowired
-    private EmailService emailService;
-    
-    @Autowired
-    private ConfigurationService configService;
-    
-    
-    
-    
 
-    @Autowired
-    public EinkaufController(EinkaufService einkaufService) {
-    	this.einkaufService = einkaufService;
-    }
-    
+	private final EinkaufService einkaufService;
+	private final PdfService pdf;
+	private final EinkaufToRepresentationMapper toPresentation;
+	private final EinkaufCreateToEntityMapper createMapper;
+	private final EmailService emailService;
+	private final ConfigurationService configService;
 
-    @GetMapping("/einkauf")
-    public CollectionModel<EntityModel<EinkaufRepresentation>> all() {
-    	
-     	List<EinkaufEntity> einkauf = einkaufService.all();
-    	List<EntityModel<EinkaufRepresentation>> e = new ArrayList<>();
-    	for(EinkaufEntity f : einkauf) {
-    		EinkaufRepresentation fr = (EinkaufRepresentation) toPresentation.apply(f);
-    		EntityModel<EinkaufRepresentation> em = assembler.toModel(fr);
-    		e.add(em);
-    	}
-       
-        return CollectionModel.of(e,
-                linkTo(methodOn(EinkaufController.class).all()).withSelfRel());
-    }
-    
-    @PostMapping("/einkauf/pdf/{id}")
-    public byte[] sendPdfAndMail(@RequestBody String email, @PathVariable String id) {
-    		
-  	       try {
-  	    	  EinkaufEntity einkauf = einkaufService.findById(id);
-  	    	  String fileName = "Einkauf-FoodCoop-" + einkauf.getPersonId() + "-" + LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")) + ".pdf";
-  	    	  byte[] pdfd = pdf.createEinkauf(einkauf);
-  	      
-  	        
-	  	        StringBuilder frischString = new StringBuilder();
-	  	        if(einkauf.getBestellungsEinkauf() != null) {
-		  	        einkauf.getBestellungsEinkauf().stream()
-		  	    	.forEach(item -> {
-		  	    		if(item.getBestellung() instanceof FrischBestellung) {
-		  	    			FrischBestellung item2 = (FrischBestellung) item.getBestellung();
-		  	    	        	frischString.append(item2.getFrischbestand().getName() + "  je ");
-		  	    	        	frischString.append(item2.getFrischbestand().getPreis() + " €   ");
-		  	    	        	frischString.append("Bestellt: " + item2.getBestellmenge() + "   ");
-		  	    	        	frischString.append("Genommen: " + item.getAmount() + "\n");
-		  	    		}
-		  	    	});
-	  	        }
-	
-	  	        StringBuilder brotString = new StringBuilder();
-	  	        if(einkauf.getBestellungsEinkauf() != null) {
-		  	        einkauf.getBestellungsEinkauf().stream()
-		  	    	.forEach(item -> {
-		  	    		if(item.getBestellung() instanceof BrotBestellung) {
-		  	    			BrotBestellung item2 = (BrotBestellung) item.getBestellung();
-		  	    			brotString.append(item2.getBrotBestand().getName() + "  je ");
-		  	    			brotString.append(item2.getBrotBestand().getPreis() + " €   ");
-		  	    			brotString.append("Bestellt: " + item2.getBestellmenge() + "   ");
-		  	    			brotString.append("Genommen: " + item.getAmount() + "\n");
-		  	    		}
-		  	    	});
-	  	        }
-	  	        
-	  	        StringBuilder zuVielString = new StringBuilder();
-	  	        if(einkauf.getTooMuchEinkauf() != null) {
-		  	        einkauf.getTooMuchEinkauf().forEach(item -> {
-		  	        	zuVielString.append(item.getDiscrepancy().getBestand().getName() + " je ");
-		  	        	zuVielString.append(item.getDiscrepancy().getBestand().getPreis() + " €  ");
-		  	        	zuVielString.append("Genommen: " + item.getAmount() + "\n");
-		  	        });
-	  	        }
-	  	        
-	  	        StringBuilder lagerString = new StringBuilder();
-	  	        if(einkauf.getBestandEinkauf() != null) {
-		  	        einkauf.getBestandEinkauf().forEach(item -> {
-		  	        	lagerString.append(item.getBestand().getName() + "  je ");
-		  	        	lagerString.append(item.getBestand().getPreis() + " €   ");
-		  	        	lagerString.append("Genommen: " + item.getAmount() + "\n");
-		  	        });
-	  	        }
-	  	        
-	  	        double lieferkosten = (float) (Math.round( einkauf.getDeliveryCostAtTime() * 100.0) / 100.0);
-	  	        double brotkosten = (float) (Math.round(einkauf.getBreadPriceAtTime() * 100.0) / 100.0);
-			    double frischkosten = (float) (Math.round(einkauf.getFreshPriceAtTime() * 100.0) / 100.0);
-			    double lagerkosten = (float) (Math.round(einkauf.getBestandPriceAtTime() * 100.0) / 100.0);
-			    double zuvielkosten = (float) (Math.round(einkauf.getTooMuchPriceAtTime() * 100.0) / 100.0);
-	  	        float gesamt = (float) (lieferkosten + einkauf.getTotalPriceAtTime());
-	  	        gesamt = (float) (Math.round( gesamt * 100.0) / 100.0);
-	  	        Optional<ConfigurationEntity> optionalE = configService.getConfig();
-	  	        if(optionalE.isPresent()) {
-	  	        	String text = optionalE.get().getEinkaufEmailText()
-	  	        			.replaceAll(ConstantsUtils.EINKAUF_PLACEHOLDER_DATE, LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
-	  	        			.replaceAll(ConstantsUtils.EINKAUF_PLACEHOLDER_FRISCH, frischString.toString())
-	  	        			.replaceAll(ConstantsUtils.EINKAUF_PLACEHOLDER_BROT, brotString.toString())
-	  	        			.replaceAll(ConstantsUtils.EINKAUF_PLACEHOLDER_LAGER, lagerString.toString())
-	  	        			.replaceAll(ConstantsUtils.EINKAUF_PLACEHOLDER_ZUVIEL, zuVielString.toString())
-	  	        			.replaceAll(ConstantsUtils.PLACEHOLDER_BROT_KOSTEN, brotkosten + "")
-			    			.replaceAll(ConstantsUtils.PLACEHOLDER_FRISCH_KOSTEN, frischkosten + "")
-			    			.replaceAll(ConstantsUtils.PLACEHOLDER_ZUVIEL_KOSTEN, zuvielkosten + "")
-			    			.replaceAll(ConstantsUtils.PLACEHOLDER_LIEFER_KOSTEN, lieferkosten + "")
-			    			.replaceAll(ConstantsUtils.PLACEHOLDER_LAGER_KOSTEN, lagerkosten + "")
-	  	        			.replaceAll(ConstantsUtils.PLACEHOLDER_GESAMT_KOSTEN, "" + gesamt )
-	  	        			.replaceAll(ConstantsUtils.PLACEHOLDER_PERSONID, einkauf.getPersonId());
-  	      
-	  	        	emailService.sendEmailWithPDF(email, "Einkauf bei der FoodCoop Karlsruhe am " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), text, pdfd, fileName);
-  	        }
-		} catch (IOException | MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-  	       
-    }
-    
-    @PostMapping("/einkauf/mailToEinkaufsmanagement/{id}")
-    public void sendPdfAndMailToEinkaufsmanagement(@RequestBody List<Einkaufsmanagement> management, @PathVariable String id) {
-    		
-  	       EinkaufEntity einkauf = einkaufService.findById(id);
-		 
- 	   
-		    
-		    double lieferkosten = (double) (Math.round( einkauf.getDeliveryCostAtTime() * 100.0) / 100.0);
-		    double brotkosten = (float) (Math.round(einkauf.getBreadPriceAtTime() * 100.0) / 100.0);
-		    double frischkosten = (float) (Math.round(einkauf.getFreshPriceAtTime() * 100.0) / 100.0);
-		    double lagerkosten = (float) (Math.round(einkauf.getBestandPriceAtTime() * 100.0) / 100.0);
-		    double zuvielkosten = (float) (Math.round(einkauf.getTooMuchPriceAtTime() * 100.0) / 100.0);
-		    float gesamt = (float) (lieferkosten + einkauf.getTotalPriceAtTime());
-		    gesamt = (float) (Math.round( gesamt * 100.0) / 100.0);
-		    Optional<ConfigurationEntity> optionalE = configService.getConfig();
-		    if(optionalE.isPresent()) {
+	public EinkaufController(
+			EinkaufService einkaufService,
+			PdfService pdf,
+			EinkaufToRepresentationMapper toPresentation,
+			EinkaufCreateToEntityMapper createMapper,
+			EmailService emailService,
+			ConfigurationService configService) {
 
-		    	for(Einkaufsmanagement m : management) {
-		    	String text = optionalE.get().getEinkaufsmanagementEmailText()
-		    			.replaceAll(ConstantsUtils.EINKAUF_PLACEHOLDER_DATE, LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
-		    			.replaceAll(ConstantsUtils.PLACEHOLDER_BROT_KOSTEN, brotkosten + "")
-		    			.replaceAll(ConstantsUtils.PLACEHOLDER_FRISCH_KOSTEN, frischkosten + "")
-		    			.replaceAll(ConstantsUtils.PLACEHOLDER_ZUVIEL_KOSTEN, zuvielkosten + "")
-		    			.replaceAll(ConstantsUtils.PLACEHOLDER_LIEFER_KOSTEN, lieferkosten + "")
-		    			.replaceAll(ConstantsUtils.PLACEHOLDER_LAGER_KOSTEN, lagerkosten + "")
-		    			.replaceAll(ConstantsUtils.PLACEHOLDER_GESAMT_KOSTEN, "" + gesamt )
-		    			.replaceAll(ConstantsUtils.PLACEHOLDER_SHOPPER_PERSONID, einkauf.getPersonId() + "")
-		    			.replaceAll(ConstantsUtils.PLACEHOLDER_PERSONID, m.getUsername());
-	      
-		    	emailService.sendSimpleMessage(m.getEmail(), "Einkaufs Rechnung von " + einkauf.getPersonId() + " bei der FoodCoop am " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), text);
-		    	}
-		    }
-  	       
-    }
-    
-    @GetMapping("/einkauf/{id}")
-    public EntityModel<EinkaufRepresentation> one(@PathVariable String id) {
-    	EinkaufEntity einkauf = einkaufService.findById(id);
-    	EinkaufRepresentation presentation = (EinkaufRepresentation) toPresentation.apply(einkauf);
-        return assembler.toModel(presentation);
-    }
+		this.einkaufService = einkaufService;
+		this.pdf = pdf;
+		this.toPresentation = toPresentation;
+		this.createMapper = createMapper;
+		this.emailService = emailService;
+		this.configService = configService;
+	}
 
+	@GetMapping("/einkauf")
+	public List<EinkaufRepresentation> all() {
+		return einkaufService.all().stream()
+				.map(toPresentation)
+				.collect(Collectors.toList());
+	}
 
-    
-    @PostMapping(value = "/einkaufe/create/bestandBuyObject")
-    public BestandBuyEntity getBBEFromData(@RequestBody BestandBuyCreator creator) {
-    	return einkaufService.createBestandBuyEntityForPersonOrder(creator.getBestandEntity(), creator.getAmount());
-    } 
-    
-    
-    @PostMapping("/einkauf")
-    @Operation(summary = "Führe einen Einkauf durch", description = "Liefert ein Einkaufs Entity zurück")
-    @ApiResponses(value = {
-			@ApiResponse(responseCode = "200", description = "Success", content = {
-					@Content(schema = @Schema(implementation = EinkaufRepresentation.class)) }),
-			@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content),
-			@ApiResponse(responseCode = "401", description = "Not Authorized", content = @Content),
-			@ApiResponse(responseCode = "403", description = "Forbidden", content = @Content) })
-    public ResponseEntity<?> executeShopping(@io.swagger.v3.oas.annotations.parameters.RequestBody(content = {@Content(schema = @Schema(implementation = EinkaufCreateRepresentation.class)),@Content(schema = @Schema(implementation = FrischBestandRepresentation.class)) }) @RequestBody EinkaufCreateRepresentation newEinkauf) {
-        String id = newEinkauf.getId() == null ||
-        		newEinkauf.getId().equals("undefined") ?
-                UUID.randomUUID().toString() :
-                	newEinkauf.getId();
-        newEinkauf.setId(id);
-        newEinkauf.getBestellungsEinkauf().stream().forEach(d -> d.setId(UUID.randomUUID().toString()));
-        newEinkauf.getTooMuchEinkauf().stream().forEach(d -> d.setId(UUID.randomUUID().toString()));
-        EinkaufEntity e = createMapper.apply(newEinkauf);
-        EinkaufEntity einkauf;
+	@PostMapping("/einkauf/pdf/{id}")
+	public byte[] sendPdfAndMail(
+			@RequestBody String email,
+			@PathVariable String id) {
+
 		try {
-			einkauf = einkaufService.einkaufDurchführen(e.getPersonId(), e.getBestellungsEinkauf(), e.getBestandEinkauf(), e.getTooMuchEinkauf());
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(e1.getCause().toString());
+			EinkaufEntity einkauf = einkaufService.findById(id);
+
+			String fileName = "Einkauf-FoodCoop-"
+					+ einkauf.getPersonId()
+					+ "-"
+					+ LocalDate.now().format(
+					DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+					+ ".pdf";
+
+			byte[] pdfd = pdf.createEinkauf(einkauf);
+
+			StringBuilder frischString = new StringBuilder();
+
+			if (einkauf.getBestellungsEinkauf() != null) {
+				einkauf.getBestellungsEinkauf().forEach(item -> {
+					if (item.getBestellung() instanceof FrischBestellung item2) {
+						frischString.append(item2.getFrischbestand().getName())
+								.append("  je ");
+						frischString.append(item2.getFrischbestand().getPreis())
+								.append(" €   ");
+						frischString.append("Bestellt: ")
+								.append(item2.getBestellmenge())
+								.append("   ");
+						frischString.append("Genommen: ")
+								.append(item.getAmount())
+								.append("\n");
+					}
+				});
+			}
+
+			StringBuilder brotString = new StringBuilder();
+
+			if (einkauf.getBestellungsEinkauf() != null) {
+				einkauf.getBestellungsEinkauf().forEach(item -> {
+					if (item.getBestellung() instanceof BrotBestellung item2) {
+						brotString.append(item2.getBrotBestand().getName())
+								.append("  je ");
+						brotString.append(item2.getBrotBestand().getPreis())
+								.append(" €   ");
+						brotString.append("Bestellt: ")
+								.append(item2.getBestellmenge())
+								.append("   ");
+						brotString.append("Genommen: ")
+								.append(item.getAmount())
+								.append("\n");
+					}
+				});
+			}
+
+			StringBuilder zuVielString = new StringBuilder();
+
+			if (einkauf.getTooMuchEinkauf() != null) {
+				einkauf.getTooMuchEinkauf().forEach(item -> {
+					zuVielString.append(
+									item.getDiscrepancy()
+											.getBestand()
+											.getName())
+							.append(" je ");
+
+					zuVielString.append(
+									item.getDiscrepancy()
+											.getBestand()
+											.getPreis())
+							.append(" €  ");
+
+					zuVielString.append("Genommen: ")
+							.append(item.getAmount())
+							.append("\n");
+				});
+			}
+
+			StringBuilder lagerString = new StringBuilder();
+
+			if (einkauf.getBestandEinkauf() != null) {
+				einkauf.getBestandEinkauf().forEach(item -> {
+					lagerString.append(item.getBestand().getName())
+							.append("  je ");
+					lagerString.append(item.getBestand().getPreis())
+							.append(" €   ");
+					lagerString.append("Genommen: ")
+							.append(item.getAmount())
+							.append("\n");
+				});
+			}
+
+			double lieferkosten =
+					Math.round(einkauf.getDeliveryCostAtTime() * 100.0) / 100.0;
+
+			double brotkosten =
+					Math.round(einkauf.getBreadPriceAtTime() * 100.0) / 100.0;
+
+			double frischkosten =
+					Math.round(einkauf.getFreshPriceAtTime() * 100.0) / 100.0;
+
+			double lagerkosten =
+					Math.round(einkauf.getBestandPriceAtTime() * 100.0) / 100.0;
+
+			double zuvielkosten =
+					Math.round(einkauf.getTooMuchPriceAtTime() * 100.0) / 100.0;
+
+			double gesamt =
+					Math.round(
+							(lieferkosten + einkauf.getTotalPriceAtTime())
+									* 100.0)
+							/ 100.0;
+
+			Optional<ConfigurationEntity> optionalConfig =
+					configService.getConfig();
+
+			if (optionalConfig.isPresent()) {
+				String text = optionalConfig.get()
+						.getEinkaufEmailText()
+						.replace(
+								ConstantsUtils.EINKAUF_PLACEHOLDER_DATE,
+								LocalDate.now().format(
+										DateTimeFormatter.ofPattern(
+												"dd.MM.yyyy")))
+						.replace(
+								ConstantsUtils.EINKAUF_PLACEHOLDER_FRISCH,
+								frischString.toString())
+						.replace(
+								ConstantsUtils.EINKAUF_PLACEHOLDER_BROT,
+								brotString.toString())
+						.replace(
+								ConstantsUtils.EINKAUF_PLACEHOLDER_LAGER,
+								lagerString.toString())
+						.replace(
+								ConstantsUtils.EINKAUF_PLACEHOLDER_ZUVIEL,
+								zuVielString.toString())
+						.replace(
+								ConstantsUtils.PLACEHOLDER_BROT_KOSTEN,
+								String.valueOf(brotkosten))
+						.replace(
+								ConstantsUtils.PLACEHOLDER_FRISCH_KOSTEN,
+								String.valueOf(frischkosten))
+						.replace(
+								ConstantsUtils.PLACEHOLDER_ZUVIEL_KOSTEN,
+								String.valueOf(zuvielkosten))
+						.replace(
+								ConstantsUtils.PLACEHOLDER_LIEFER_KOSTEN,
+								String.valueOf(lieferkosten))
+						.replace(
+								ConstantsUtils.PLACEHOLDER_LAGER_KOSTEN,
+								String.valueOf(lagerkosten))
+						.replace(
+								ConstantsUtils.PLACEHOLDER_GESAMT_KOSTEN,
+								String.valueOf(gesamt))
+						.replace(
+								ConstantsUtils.PLACEHOLDER_PERSONID,
+								einkauf.getPersonId());
+
+				emailService.sendEmailWithPDF(
+						email,
+						"Einkauf bei der FoodCoop Karlsruhe am "
+								+ LocalDate.now().format(
+								DateTimeFormatter.ofPattern(
+										"dd.MM.yyyy")),
+						text,
+						pdfd,
+						fileName);
+			}
+
+			return pdfd;
+
+		} catch (IOException | MessagingException e) {
+			e.printStackTrace();
+			return null;
 		}
-        EntityModel<EinkaufRepresentation> entityModel = assembler.toModel( toPresentation.apply(einkauf));
-        
-      
-        
-        return ResponseEntity
-                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
-                .body(entityModel);
-    }
-    
-    
-    @DeleteMapping("/einkauf/{id}")
-    public ResponseEntity<?> delete(@PathVariable String id) {
+	}
 
-        einkaufService.deleteById(id);
+	@PostMapping("/einkauf/mailToEinkaufsmanagement/{id}")
+	public void sendPdfAndMailToEinkaufsmanagement(
+			@RequestBody List<Einkaufsmanagement> management,
+			@PathVariable String id) {
 
-        return ResponseEntity.noContent().build();
-    }
-    
+		EinkaufEntity einkauf = einkaufService.findById(id);
+
+		double lieferkosten =
+				Math.round(einkauf.getDeliveryCostAtTime() * 100.0) / 100.0;
+
+		double brotkosten =
+				Math.round(einkauf.getBreadPriceAtTime() * 100.0) / 100.0;
+
+		double frischkosten =
+				Math.round(einkauf.getFreshPriceAtTime() * 100.0) / 100.0;
+
+		double lagerkosten =
+				Math.round(einkauf.getBestandPriceAtTime() * 100.0) / 100.0;
+
+		double zuvielkosten =
+				Math.round(einkauf.getTooMuchPriceAtTime() * 100.0) / 100.0;
+
+		double gesamt =
+				Math.round(
+						(lieferkosten + einkauf.getTotalPriceAtTime())
+								* 100.0)
+						/ 100.0;
+
+		Optional<ConfigurationEntity> optionalConfig =
+				configService.getConfig();
+
+		if (optionalConfig.isPresent()) {
+			for (Einkaufsmanagement managementEntry : management) {
+
+				String text = optionalConfig.get()
+						.getEinkaufsmanagementEmailText()
+						.replace(
+								ConstantsUtils.EINKAUF_PLACEHOLDER_DATE,
+								LocalDate.now().format(
+										DateTimeFormatter.ofPattern(
+												"dd.MM.yyyy")))
+						.replace(
+								ConstantsUtils.PLACEHOLDER_BROT_KOSTEN,
+								String.valueOf(brotkosten))
+						.replace(
+								ConstantsUtils.PLACEHOLDER_FRISCH_KOSTEN,
+								String.valueOf(frischkosten))
+						.replace(
+								ConstantsUtils.PLACEHOLDER_ZUVIEL_KOSTEN,
+								String.valueOf(zuvielkosten))
+						.replace(
+								ConstantsUtils.PLACEHOLDER_LIEFER_KOSTEN,
+								String.valueOf(lieferkosten))
+						.replace(
+								ConstantsUtils.PLACEHOLDER_LAGER_KOSTEN,
+								String.valueOf(lagerkosten))
+						.replace(
+								ConstantsUtils.PLACEHOLDER_GESAMT_KOSTEN,
+								String.valueOf(gesamt))
+						.replace(
+								ConstantsUtils.PLACEHOLDER_SHOPPER_PERSONID,
+								String.valueOf(einkauf.getPersonId()))
+						.replace(
+								ConstantsUtils.PLACEHOLDER_PERSONID,
+								managementEntry.getUsername());
+
+				emailService.sendSimpleMessage(
+						managementEntry.getEmail(),
+						"Einkaufs Rechnung von "
+								+ einkauf.getPersonId()
+								+ " bei der FoodCoop am "
+								+ LocalDate.now().format(
+								DateTimeFormatter.ofPattern(
+										"dd.MM.yyyy")),
+						text);
+			}
+		}
+	}
+
+	@GetMapping("/einkauf/{id}")
+	public EinkaufRepresentation one(@PathVariable String id) {
+		EinkaufEntity einkauf = einkaufService.findById(id);
+
+		return toPresentation.apply(einkauf);
+	}
+
+	@PostMapping("/einkaufe/create/bestandBuyObject")
+	public BestandBuyEntity getBBEFromData(
+			@RequestBody BestandBuyCreator creator) {
+
+		return einkaufService.createBestandBuyEntityForPersonOrder(
+				creator.getBestandEntity(),
+				creator.getAmount());
+	}
+
+	@PostMapping("/einkauf")
+	@Operation(
+			summary = "Führe einen Einkauf durch",
+			description = "Liefert ein Einkaufs Entity zurück")
+	@ApiResponses(value = {
+			@ApiResponse(
+					responseCode = "200",
+					description = "Success",
+					content = {
+							@Content(
+									schema = @Schema(
+											implementation = EinkaufRepresentation.class))
+					}),
+			@ApiResponse(
+					responseCode = "400",
+					description = "Bad Request",
+					content = @Content),
+			@ApiResponse(
+					responseCode = "401",
+					description = "Not Authorized",
+					content = @Content),
+			@ApiResponse(
+					responseCode = "403",
+					description = "Forbidden",
+					content = @Content)
+	})
+	public ResponseEntity<?> executeShopping(
+			@io.swagger.v3.oas.annotations.parameters.RequestBody(
+					content = {
+							@Content(
+									schema = @Schema(
+											implementation = EinkaufCreateRepresentation.class)),
+							@Content(
+									schema = @Schema(
+											implementation = FrischBestandRepresentation.class))
+					})
+			@RequestBody EinkaufCreateRepresentation newEinkauf) {
+
+		String id = newEinkauf.getId() == null
+				|| newEinkauf.getId().isBlank()
+				|| newEinkauf.getId().equals("undefined")
+				? UUID.randomUUID().toString()
+				: newEinkauf.getId();
+
+		newEinkauf.setId(id);
+
+		if (newEinkauf.getBestellungsEinkauf() != null) {
+			newEinkauf.getBestellungsEinkauf()
+					.forEach(item ->
+							item.setId(UUID.randomUUID().toString()));
+		}
+
+		if (newEinkauf.getTooMuchEinkauf() != null) {
+			newEinkauf.getTooMuchEinkauf()
+					.forEach(item ->
+							item.setId(UUID.randomUUID().toString()));
+		}
+
+		EinkaufEntity entity = createMapper.apply(newEinkauf);
+
+		try {
+			EinkaufEntity einkauf =
+					einkaufService.einkaufDurchführen(
+							entity.getPersonId(),
+							entity.getBestellungsEinkauf(),
+							entity.getBestandEinkauf(),
+							entity.getTooMuchEinkauf());
+
+			EinkaufRepresentation response =
+					toPresentation.apply(einkauf);
+
+			return ResponseEntity
+					.created(URI.create("/einkauf/" + response.getId()))
+					.body(response);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+
+			String message = e.getMessage() != null
+					? e.getMessage()
+					: "Einkauf konnte nicht durchgeführt werden.";
+
+			return ResponseEntity
+					.status(HttpStatus.NOT_ACCEPTABLE)
+					.body(message);
+		}
+	}
+
+	@DeleteMapping("/einkauf/{id}")
+	public ResponseEntity<Void> delete(@PathVariable String id) {
+
+		einkaufService.deleteById(id);
+
+		return ResponseEntity.noContent().build();
+	}
 }

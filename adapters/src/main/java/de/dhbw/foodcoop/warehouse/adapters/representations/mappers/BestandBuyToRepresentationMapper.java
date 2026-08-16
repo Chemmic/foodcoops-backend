@@ -2,6 +2,7 @@ package de.dhbw.foodcoop.warehouse.adapters.representations.mappers;
 
 import java.util.function.Function;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

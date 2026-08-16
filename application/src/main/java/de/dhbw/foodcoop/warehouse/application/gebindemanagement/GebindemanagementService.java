@@ -26,12 +26,17 @@ import de.dhbw.foodcoop.warehouse.domain.entities.Kategorie;
 
 @Service
 public class GebindemanagementService {
-	
-	@Autowired
-	private DeadlineService deadlineService;
-	
-	@Autowired
-	private FrischBestellungService frischBestellungService;
+
+	private final DeadlineService deadlineService;
+	private final FrischBestellungService frischBestellungService;
+
+	public GebindemanagementService(
+			DeadlineService deadlineService,
+			FrischBestellungService frischBestellungService) {
+
+		this.deadlineService = deadlineService;
+		this.frischBestellungService = frischBestellungService;
+	}
 	
 	/** Vorgehen beim Vorschlag Berechnen:
 	 *  1. Es wird geschaut ob jemand in der Kategorie die Woche eine Bestellung bereits aufgegeben hat
@@ -418,7 +423,7 @@ public class GebindemanagementService {
 
 
         return liste;
-        //##ENDE
+
 
     }
 
