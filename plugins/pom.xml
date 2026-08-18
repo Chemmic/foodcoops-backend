@@ -16,22 +16,27 @@
     <artifactId>plugins</artifactId>
 
     <dependencies>
+
+        <!-- HTML Parsing -->
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
             <version>1.21.2</version>
         </dependency>
+
         <!-- REST / Spring MVC -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
+
+        <!-- Tabula -->
         <dependency>
             <groupId>technology.tabula</groupId>
             <artifactId>tabula</artifactId>
             <version>1.0.5</version>
-            <scope>compile</scope>
         </dependency>
+
         <!-- JPA / Hibernate -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -58,14 +63,14 @@
             <version>${springdoc.version}</version>
         </dependency>
 
-        <!-- Eigene Module -->
+        <!-- Eigenes Adapter-Modul -->
         <dependency>
             <groupId>de.dhbw.foodcoop</groupId>
             <artifactId>adapters</artifactId>
             <version>${project.version}</version>
         </dependency>
 
-        <!-- PDF -->
+        <!-- PDFBox -->
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
@@ -99,14 +104,46 @@
     <build>
         <plugins>
 
+            <!--
+                WICHTIG:
+                Seit JDK 23 muss Lombok explizit als Annotation Processor
+                eingetragen werden.
+
+                Ohne diesen Block wird @SuperBuilder unter Java 25
+                nicht verarbeitet.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.15.0</version>
+
+                <configuration>
+
+                    <!--
+                        Deine Build-Ausgabe zeigt bereits "release 25".
+                        Dadurch stellen wir hier explizit Java 25 sicher.
+                    -->
+                    <release>25</release>
+
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+
+                </configuration>
+            </plugin>
+
+
+            <!-- Spring Boot -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
 
                 <configuration>
-                    <mainClass>
-                        ${start-class}
-                    </mainClass>
+                    <mainClass>${start-class}</mainClass>
                 </configuration>
 
                 <executions>
