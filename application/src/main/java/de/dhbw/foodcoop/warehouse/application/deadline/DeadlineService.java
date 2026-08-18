@@ -13,24 +13,25 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import de.dhbw.foodcoop.warehouse.application.bestellungsliste.BestellÜbersichtService;
 import de.dhbw.foodcoop.warehouse.domain.entities.Deadline;
 import de.dhbw.foodcoop.warehouse.domain.exceptions.DeadlineNotFoundException;
 import de.dhbw.foodcoop.warehouse.domain.repositories.DeadlineRepository;
 
 @Service
 public class DeadlineService {
-    private final DeadlineRepository repository;
-    
-    @Autowired
-    BestellÜbersichtService gbmService;
 
-    @Autowired
-    public DeadlineService(DeadlineRepository repository) {
+    private final DeadlineRepository repository;
+    private final ApplicationEventPublisher eventPublisher;
+
+    public DeadlineService(
+            DeadlineRepository repository,
+            ApplicationEventPublisher eventPublisher) {
+
         this.repository = repository;
+        this.eventPublisher = eventPublisher;
     }
 
     public List<Deadline> all() {
@@ -38,13 +39,17 @@ public class DeadlineService {
     }
 
     public Deadline last() {
-        return repository.letzte().orElseThrow(() -> new DeadlineNotFoundException());
+        return repository.letzte()
+                .orElseThrow(DeadlineNotFoundException::new);
     }
 
     public Deadline save(Deadline deadline) {
-        Deadline d = repository.speichern(deadline);
-        gbmService.createList();
-        return d;
+        Deadline saved = repository.speichern(deadline);
+
+        eventPublisher.publishEvent(
+                new DeadlineSavedEvent(saved));
+
+        return saved;
     }
 
     public Optional<Deadline> findById(String id) {
@@ -54,60 +59,84 @@ public class DeadlineService {
     public void deleteById(String id) {
         repository.deleteById(id);
     }
-    
-    public Optional<Deadline> getByPosition(int position) {
-    	return repository.findeNachReihenfolge(position);
-    }
-    
-    public Deadline coldStart(Deadline deadline) {
-    	return repository.speichern(deadline);
-    }
-    /**
-     * 
-     * Berechne vom gesetzten Tag + Uhrzeit das Datum für die nächste Deadline, abhängig vom aktuellen Timestamp
-     * also: Montag, 23.3 es wird auf Donnerstag 12:00 gesetzt = > bekomme Donnerstag 27.3 12:00 als LocaleDateTime
-     * 
-     * Wenn aktuelles Datum > 27.3 12:00
-     * 
-     * Aktualisiere Deadline auf 27.3 12:00 + 7 Tage
 
-     * 
-     * 
-     */
-    
+    public Optional<Deadline> getByPosition(int position) {
+        return repository.findeNachReihenfolge(position);
+    }
+
+    public Deadline coldStart(Deadline deadline) {
+        return repository.speichern(deadline);
+    }
+
     public Optional<Deadline> updateDeadline() {
-    	Optional<Deadline> optDead = repository.letzte();
-    	if(optDead.isEmpty()) return Optional.empty();
-    	Deadline d = optDead.get();
-    	LocalDateTime dateForDeadline = calculateDateFromDeadline(d);
-    	if(LocalDateTime.now().isAfter(dateForDeadline)) {
-    		Deadline deadline = new Deadline(UUID.randomUUID().toString(), d.getWeekday(), d.getTime(), LocalDateTime.now());
-    		return Optional.of(save(deadline));
-    	}
-		return Optional.empty();
+        Optional<Deadline> optionalDeadline = repository.letzte();
+
+        if (optionalDeadline.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Deadline currentDeadline = optionalDeadline.get();
+
+        LocalDateTime dateForDeadline =
+                calculateDateFromDeadline(currentDeadline);
+
+        if (LocalDateTime.now().isAfter(dateForDeadline)) {
+
+            Deadline newDeadline = new Deadline(
+                    UUID.randomUUID().toString(),
+                    currentDeadline.getWeekday(),
+                    currentDeadline.getTime(),
+                    LocalDateTime.now());
+
+            return Optional.of(save(newDeadline));
+        }
+
+        return Optional.empty();
     }
-    
+
     public static final Map<String, DayOfWeek> germanDaysOfWeek =
-    	    Arrays.stream(DayOfWeek.values()).collect(
-    	        Collectors.toMap(
-    	            d -> d.getDisplayName(TextStyle.FULL, Locale.GERMAN), d -> d));
-    
+            Arrays.stream(DayOfWeek.values())
+                    .collect(Collectors.toMap(
+                            day -> day.getDisplayName(
+                                    TextStyle.FULL,
+                                    Locale.GERMAN),
+                            day -> day));
+
     public static final Map<DayOfWeek, String> germanDaysOfWeekReversed =
-    	    Arrays.stream(DayOfWeek.values()).collect(
-    	        Collectors.toMap(d -> d,
-    	            d -> d.getDisplayName(TextStyle.FULL, Locale.GERMAN)));
-    
-    public LocalDateTime calculateDateFromDeadline(Deadline d) {
-    	LocalDateTime date = d.getDatum(); 
-    	LocalTime t = date.toLocalTime();
-    	LocalTime target = LocalTime.of(d.getTime().getHours(), d.getTime().getMinutes(), d.getTime().getSeconds());
-    	if(germanDaysOfWeek.get(d.getWeekday()).getValue() == date.getDayOfWeek().getValue()) {
-    		if(t.isBefore(target)) {
-    			return LocalDateTime.of(date.toLocalDate(), target);
-    		} else {
-    			return LocalDateTime.of(date.toLocalDate().plusDays(7), target);
-    		}
-    	}
-    	return LocalDateTime.of(date.with(TemporalAdjusters.next(germanDaysOfWeek.get(d.getWeekday()))).toLocalDate(), target);
+            Arrays.stream(DayOfWeek.values())
+                    .collect(Collectors.toMap(
+                            day -> day,
+                            day -> day.getDisplayName(
+                                    TextStyle.FULL,
+                                    Locale.GERMAN)));
+
+    public LocalDateTime calculateDateFromDeadline(Deadline deadline) {
+
+        LocalDateTime date = deadline.getDatum();
+        LocalTime currentTime = date.toLocalTime();
+        LocalTime targetTime = deadline.getTime().toLocalTime();
+
+        DayOfWeek targetDay =
+                germanDaysOfWeek.get(deadline.getWeekday());
+
+        if (targetDay.getValue()
+                == date.getDayOfWeek().getValue()) {
+
+            if (currentTime.isBefore(targetTime)) {
+                return LocalDateTime.of(
+                        date.toLocalDate(),
+                        targetTime);
+            }
+
+            return LocalDateTime.of(
+                    date.toLocalDate().plusDays(7),
+                    targetTime);
+        }
+
+        return LocalDateTime.of(
+                date.with(
+                                TemporalAdjusters.next(targetDay))
+                        .toLocalDate(),
+                targetTime);
     }
-}   
+}

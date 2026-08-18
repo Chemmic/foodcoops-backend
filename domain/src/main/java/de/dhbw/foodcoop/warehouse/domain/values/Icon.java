@@ -4,8 +4,8 @@ import de.dhbw.foodcoop.warehouse.domain.utils.TestUtils;
 import de.dhbw.foodcoop.warehouse.domain.utils.ValidateUtils;
 import org.apache.commons.lang3.Validate;
 
-import javax.persistence.Embeddable;
-import javax.persistence.Lob;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Lob;
 import java.util.Objects;
 
 @Embeddable

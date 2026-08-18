@@ -1,14 +1,10 @@
 package de.dhbw.foodcoop.warehouse.adapters.representations;
 
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
-import de.dhbw.foodcoop.warehouse.domain.entities.BrotBestand;
-import de.dhbw.foodcoop.warehouse.domain.entities.FrischBestand;
-import de.dhbw.foodcoop.warehouse.domain.entities.Produkt;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({

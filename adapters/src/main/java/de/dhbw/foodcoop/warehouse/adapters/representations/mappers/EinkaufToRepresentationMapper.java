@@ -3,9 +3,9 @@ package de.dhbw.foodcoop.warehouse.adapters.representations.mappers;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.internal.Function;
 import org.springframework.stereotype.Component;
 
 import de.dhbw.foodcoop.warehouse.adapters.representations.BestandBuyRepresentation;

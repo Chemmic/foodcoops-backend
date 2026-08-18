@@ -2,8 +2,8 @@ package de.dhbw.foodcoop.warehouse.adapters.representations;
 
 import java.time.LocalDateTime;
 
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

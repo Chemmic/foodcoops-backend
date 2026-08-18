@@ -1,85 +1,140 @@
 package de.dhbw.foodcoop.warehouse.application.deadline;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.sql.Time;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import de.dhbw.foodcoop.warehouse.domain.entities.Deadline;
-import de.dhbw.foodcoop.warehouse.domain.repositories.DeadlineRepository;
 import java.util.Optional;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
+
+import de.dhbw.foodcoop.warehouse.domain.entities.Deadline;
+import de.dhbw.foodcoop.warehouse.domain.exceptions.DeadlineNotFoundException;
+import de.dhbw.foodcoop.warehouse.domain.repositories.DeadlineRepository;
+
 @ExtendWith(MockitoExtension.class)
-public class DeadlineServiceTest {
-    @InjectMocks
-    DeadlineService toBeTested;
+class DeadlineServiceTest {
+
     @Mock
-    DeadlineRepository mockRepository;
+    private DeadlineRepository repository;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+
+    @InjectMocks
+    private DeadlineService service;
 
     @Test
-    void testAll() {
-        Deadline d0 = new Deadline("1234", "Montag", time, ts);
-        Deadline d1 = new Deadline("2345", "Dienstag", time, ts);
-        Deadline d2 = new Deadline("3456", "Nittwoch", time, ts);
+    void saveSpeichertDeadlineUndPubliziertEvent() {
+        Deadline deadline = new Deadline(
+                "deadline-1",
+                "Montag",
+                Time.valueOf("12:00:00"),
+                LocalDateTime.of(2026, 8, 17, 10, 0));
 
-        when(mockRepository.alle()).thenReturn(Arrays.asList(d0, d1, d2));
-        List<Deadline> whenReturn = toBeTested.all();
+        when(repository.speichern(deadline)).thenReturn(deadline);
 
-        Assertions.assertEquals("1234", whenReturn.get(0).getId());
-        Assertions.assertEquals("2345", whenReturn.get(1).getId());
-        Assertions.assertEquals("3456", whenReturn.get(2).getId());
-    }
+        Deadline result = service.save(deadline);
 
-    // @Test
-    // void testDeleteById() {
-    //     Deadline deadline = new Deadline("1234", "Montag", time, ts);
+        assertSame(deadline, result);
 
-    //     when(mockRepository.findeMitId(deadline.getId())).thenReturn(Optional.empty());
-    //     toBeTested.deleteById(deadline.getId());
+        verify(repository).speichern(deadline);
 
-    //     verify(mockRepository, Mockito.never()).deleteById(any());
-    // }
+        ArgumentCaptor<DeadlineSavedEvent> eventCaptor =
+                ArgumentCaptor.forClass(DeadlineSavedEvent.class);
 
-    @Test
-    void testFindById() {
-        Deadline deadline = new Deadline("1234", "Montag", time, ts);
+        verify(eventPublisher).publishEvent(eventCaptor.capture());
 
-        when(mockRepository.findeMitId(deadline.getId())).thenReturn(Optional.of(deadline));
-        Optional<Deadline> whenReturn = toBeTested.findById(deadline.getId());
-
-        Assertions.assertEquals(deadline.getId(), whenReturn.get().getId());
+        assertSame(
+                deadline,
+                eventCaptor.getValue().deadline());
     }
 
     @Test
-    void testSave() {
-        Deadline newDeadline = new Deadline("1234", "Montag", time, ts);
-        
-        lenient().when(mockRepository.alle()).thenReturn(List.of(new Deadline("1234", "Montag", time, ts)));
-        lenient().when(mockRepository.speichern(newDeadline)).thenReturn(newDeadline);
-        Deadline returnVal = toBeTested.save(newDeadline);
+    void coldStartSpeichertOhneEvent() {
+        Deadline deadline = new Deadline(
+                "deadline-1",
+                "Montag",
+                Time.valueOf("12:00:00"),
+                LocalDateTime.of(2026, 8, 17, 10, 0));
 
-        Assertions.assertEquals("1234", returnVal.getId());
-        Assertions.assertEquals("Montag", returnVal.getWeekday());
-        Assertions.assertEquals(time, returnVal.getTime());
-        Assertions.assertEquals(ts, returnVal.getDatum());
+        when(repository.speichern(deadline)).thenReturn(deadline);
+
+        Deadline result = service.coldStart(deadline);
+
+        assertSame(deadline, result);
+
+        verify(repository).speichern(deadline);
+        verify(eventPublisher, never()).publishEvent(any());
     }
 
-    long milli = 123456789999l;
-    Time time = new Time(milli);
-    LocalDateTime ts = LocalDateTime.now();
+    @Test
+    void lastWirftExceptionWennKeineDeadlineExistiert() {
+        when(repository.letzte())
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                DeadlineNotFoundException.class,
+                service::last);
+    }
+
+    @Test
+    void deadlineAmGleichenTagVorDeadlineBleibtAmGleichenTag() {
+        Deadline deadline = new Deadline(
+                "deadline-1",
+                "Montag",
+                Time.valueOf("12:00:00"),
+                LocalDateTime.of(2026, 8, 17, 10, 0));
+
+        LocalDateTime result =
+                service.calculateDateFromDeadline(deadline);
+
+        assertEquals(
+                LocalDateTime.of(2026, 8, 17, 12, 0),
+                result);
+    }
+
+    @Test
+    void deadlineAmGleichenTagNachDeadlineWirdEineWocheVerschoben() {
+        Deadline deadline = new Deadline(
+                "deadline-1",
+                "Montag",
+                Time.valueOf("12:00:00"),
+                LocalDateTime.of(2026, 8, 17, 13, 0));
+
+        LocalDateTime result =
+                service.calculateDateFromDeadline(deadline);
+
+        assertEquals(
+                LocalDateTime.of(2026, 8, 24, 12, 0),
+                result);
+    }
+
+    @Test
+    void deadlineAnAnderemWochentagWirdAufNaechstenPassendenTagBerechnet() {
+        Deadline deadline = new Deadline(
+                "deadline-1",
+                "Mittwoch",
+                Time.valueOf("18:30:00"),
+                LocalDateTime.of(2026, 8, 17, 10, 0));
+
+        LocalDateTime result =
+                service.calculateDateFromDeadline(deadline);
+
+        assertEquals(
+                LocalDateTime.of(2026, 8, 19, 18, 30),
+                result);
+    }
 }

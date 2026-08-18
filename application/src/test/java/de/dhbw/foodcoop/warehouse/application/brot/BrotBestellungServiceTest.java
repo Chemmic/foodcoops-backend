@@ -55,17 +55,26 @@ public class BrotBestellungServiceTest {
 
     @Test
     void testSave() {
-        BrotBestellung newBrotBestellung = new BrotBestellung("1234", "Peter_Meier", bb, 4, ts);
-        
-        lenient().when(mockRepository.alle()).thenReturn(List.of(new BrotBestellung("1234", "Peter_Meier", bb, 4, ts)));
-        lenient().when(mockRepository.speichern(newBrotBestellung)).thenReturn(newBrotBestellung);
-        BrotBestellung returnVal = toBeTested.save(newBrotBestellung);
+        BrotBestellung newBrotBestellung =
+                new BrotBestellung("1234", "Peter_Meier", bb, 4, ts);
+
+        when(mockRepository.speichern(newBrotBestellung))
+                .thenReturn(newBrotBestellung);
+
+        LocalDateTime beforeSave = LocalDateTime.now();
+
+        BrotBestellung returnVal =
+                toBeTested.save(newBrotBestellung);
+
+        LocalDateTime afterSave = LocalDateTime.now();
 
         Assertions.assertEquals("1234", returnVal.getId());
         Assertions.assertEquals("Peter_Meier", returnVal.getPersonId());
         Assertions.assertEquals(bb, returnVal.getBrotBestand());
         Assertions.assertEquals(4, returnVal.getBestellmenge());
-        Assertions.assertEquals(ts, returnVal.getDatum());
+
+        Assertions.assertFalse(returnVal.getDatum().isBefore(beforeSave));
+        Assertions.assertFalse(returnVal.getDatum().isAfter(afterSave));
     }
 
     BrotBestand bb = new BrotBestand("1234", "Bauernbrot", true, 500, (float) 1.5);

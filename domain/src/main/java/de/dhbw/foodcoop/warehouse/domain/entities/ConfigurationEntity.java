@@ -3,11 +3,11 @@ package de.dhbw.foodcoop.warehouse.domain.entities;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
+import jakarta.persistence.Table;
 
 import de.dhbw.foodcoop.warehouse.domain.utils.ConstantsUtils;
 
@@ -15,16 +15,14 @@ import de.dhbw.foodcoop.warehouse.domain.utils.ConstantsUtils;
 @Table(name = "AdminConfiguration")
 public class ConfigurationEntity {
 
-	@Lob
-	@Column
+	@Column(length = 32600)
 	private String einkaufEmailText;
-	
-	@Lob
-	@Column
+
+
+	@Column(length = 32600)
 	private String einkaufsmanagementEmailText;
-	
-	@Lob
-	@Column
+
+	@Column(length = 32600)
 	private String lagermeisterEmailText;
 
 	@Column

@@ -16,49 +16,73 @@ import de.dhbw.foodcoop.warehouse.domain.entities.FrischBestand;
 import de.dhbw.foodcoop.warehouse.domain.entities.Produkt;
 
 @Component
-public class BestandToRepresentationMapper implements Function<BestandEntity, BestandRepresentation> {
+public class BestandToRepresentationMapper
+		implements Function<BestandEntity, BestandRepresentation> {
 
-    @Autowired
-    private KategorieToRepresentationMapper kategorieMapper;
-    
-    @Autowired
-    private EinheitToRepresentationMapper einheitMapper;
-    
-    @Autowired
-    private LagerbestandToRepresentationMapper lagerbestandMapper;
-	
+	@Autowired
+	private KategorieToRepresentationMapper kategorieMapper;
+
+	@Autowired
+	private EinheitToRepresentationMapper einheitMapper;
+
+	@Autowired
+	private LagerbestandToRepresentationMapper lagerbestandMapper;
+
+	@Autowired
+	private AllergenInfoToRepresentationMapper allergenInfoMapper;
+
 	@Lazy
-    @Autowired
-    public BestandToRepresentationMapper() {
-
-    }
+	public BestandToRepresentationMapper() {
+	}
 
 	@Override
 	public BestandRepresentation apply(BestandEntity t) {
-		// TODO Auto-generated method stub
-		if(t instanceof BrotBestand) {
-			BrotBestand bb = (BrotBestand)t;
-			return new BrotBestandRepresentation(bb.getId(),
+
+		if (t instanceof BrotBestand) {
+			BrotBestand bb = (BrotBestand) t;
+
+			return new BrotBestandRepresentation(
+					bb.getId(),
 					bb.getName(),
 					bb.getVerfuegbarkeit(),
-					bb.getPreis(), bb.getGewicht());
-		} if(t instanceof FrischBestand) {
-			FrischBestand bb = (FrischBestand)t;
-			return new FrischBestandRepresentation(bb.getId(),
+					bb.getPreis(),
+					bb.getGewicht(),
+					allergenInfoMapper.apply(
+							bb.getAllergenInfo()
+					)
+			);
+		}
+
+		if (t instanceof FrischBestand) {
+			FrischBestand bb = (FrischBestand) t;
+
+			return new FrischBestandRepresentation(
+					bb.getId(),
 					bb.getName(),
 					bb.getVerfuegbarkeit(),
 					bb.getHerkunftsland(),
 					bb.getGebindegroesse(),
-					einheitMapper.apply( bb.getEinheit()),
+					einheitMapper.apply(bb.getEinheit()),
 					kategorieMapper.apply(bb.getKategorie()),
 					bb.getPreis(),
 					bb.getVerband(),
-					bb.isSpezialfallBestelleinheit());
+					bb.isSpezialfallBestelleinheit()
+			);
 		}
-		if(t instanceof Produkt) {
+
+		if (t instanceof Produkt) {
 			Produkt p = (Produkt) t;
-			return new ProduktRepresentation(p.getId(), p.getName(), p.getProduktBezeichnung(), kategorieMapper.apply(p.getKategorie()), lagerbestandMapper.apply(p.getLagerbestand()), p.getPreis());
+
+			return new ProduktRepresentation(
+					p.getId(),
+					p.getName(),
+					p.getProduktBezeichnung(),
+					kategorieMapper.apply(p.getKategorie()),
+					lagerbestandMapper.apply(p.getLagerbestand()),
+					p.getPreis()
+			);
 		}
+
 		return null;
 	}
 }

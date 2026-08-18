@@ -2,7 +2,7 @@ package de.dhbw.foodcoop.warehouse.domain.entities;
 
 import de.dhbw.foodcoop.warehouse.domain.values.Einheit;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Objects;
 import java.util.UUID;
 

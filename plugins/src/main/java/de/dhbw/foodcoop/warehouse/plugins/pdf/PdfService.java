@@ -67,34 +67,38 @@ import de.dhbw.foodcoop.warehouse.domain.entities.FrischBestellung;
 @Service
 public class PdfService {
 
-    public PdfService() {
+
+    private final GebindemanagementService gebindemanagementService;
+    private final BestellÜbersichtService service;
+    private final ResourceLoader resourceLoader;
+    private final FrischBestandService frischBestandService;
+    private final BrotBestandService brotBestandService;
+    private final ConfigurationService configService;
+    private final FrischBestellungService frischService;
+    private final BrotBestellungService brotService;
+    private final DeadlineService deadService;
+
+    public PdfService(
+            GebindemanagementService gebindemanagementService,
+            BestellÜbersichtService service,
+            ResourceLoader resourceLoader,
+            FrischBestandService frischBestandService,
+            BrotBestandService brotBestandService,
+            ConfigurationService configService,
+            FrischBestellungService frischService,
+            BrotBestellungService brotService,
+            DeadlineService deadService) {
+
+        this.gebindemanagementService = gebindemanagementService;
+        this.service = service;
+        this.resourceLoader = resourceLoader;
+        this.frischBestandService = frischBestandService;
+        this.brotBestandService = brotBestandService;
+        this.configService = configService;
+        this.frischService = frischService;
+        this.brotService = brotService;
+        this.deadService = deadService;
     }
-
-    private final GebindemanagementService gebindemanagementService = new GebindemanagementService();
-    
-    @Autowired
-    private BestellÜbersichtService service;
-    
-    @Autowired
-    private ResourceLoader resourceLoader;
-    
-    @Autowired
-    private FrischBestandService frischBestandService;
-
-    @Autowired
-	private BrotBestandService brotBestandService;
-
-    @Autowired
-	private ConfigurationService configService;
-    
-    @Autowired
-	private FrischBestellungService frischService;
-    
-    @Autowired
-	private BrotBestellungService brotService;
-    
-    @Autowired
-	private DeadlineService deadService;
     public byte[] createEinkauf(EinkaufEntity einkauf) throws IOException {
         try (PDDocument document = new PDDocument()) {
             PDPage page = new PDPage(PDRectangle.A4);

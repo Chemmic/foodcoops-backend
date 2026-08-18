@@ -1,12 +1,5 @@
 package de.dhbw.foodcoop.warehouse.adapters.representations;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-
-import de.dhbw.foodcoop.warehouse.domain.entities.BestandEntity;
-
 public class DiscrepancyRepresentation {
 	
 	private String id;

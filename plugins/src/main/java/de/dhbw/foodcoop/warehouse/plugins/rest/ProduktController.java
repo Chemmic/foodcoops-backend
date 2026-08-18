@@ -1,16 +1,10 @@
 package de.dhbw.foodcoop.warehouse.plugins.rest;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
-import java.util.ArrayList;
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,77 +21,87 @@ import de.dhbw.foodcoop.warehouse.application.lager.ProduktService;
 import de.dhbw.foodcoop.warehouse.domain.entities.Produkt;
 import de.dhbw.foodcoop.warehouse.domain.exceptions.ProduktInUseException;
 import de.dhbw.foodcoop.warehouse.domain.exceptions.ProduktNotFoundException;
-import de.dhbw.foodcoop.warehouse.plugins.rest.assembler.ProduktModelAssembler;
 
 @RestController
 public class ProduktController {
+
     private final ProduktService service;
     private final RepresentationToBestandMapper toProdukt;
     private final BestandToRepresentationMapper toPresentation;
-    private final ProduktModelAssembler assembler;
 
-    @Autowired
-    public ProduktController(ProduktService service, RepresentationToBestandMapper toProdukt, BestandToRepresentationMapper toPresentation, ProduktModelAssembler assembler) {
+    public ProduktController(
+            ProduktService service,
+            RepresentationToBestandMapper toProdukt,
+            BestandToRepresentationMapper toPresentation) {
+
         this.service = service;
         this.toProdukt = toProdukt;
         this.toPresentation = toPresentation;
-        this.assembler = assembler;
     }
 
     @GetMapping("/produkte/{id}")
-    public EntityModel<ProduktRepresentation> one(@PathVariable String id) {
+    public ProduktRepresentation one(@PathVariable String id) {
         Produkt produkt = service.findById(id)
                 .orElseThrow(() -> new ProduktNotFoundException(id));
-        ProduktRepresentation presentation = (ProduktRepresentation) toPresentation.apply(produkt);
-        return assembler.toModel(presentation);
+
+        return (ProduktRepresentation) toPresentation.apply(produkt);
     }
 
     @GetMapping("/produkte")
-    public CollectionModel<EntityModel<ProduktRepresentation>> all() {
-    	
-     	List<Produkt> produkte = service.all();
-    	List<EntityModel<ProduktRepresentation>> produkt = new ArrayList<>();
-    	for(Produkt p : produkte) {
-    		ProduktRepresentation pr = (ProduktRepresentation) toPresentation.apply(p);
-    		EntityModel<ProduktRepresentation> em = assembler.toModel(pr);
-    		produkt.add(em);
-    	}
-      
-        return CollectionModel.of(produkt,
-                linkTo(methodOn(ProduktController.class).all()).withSelfRel());
+    public List<ProduktRepresentation> all() {
+        return service.all().stream()
+                .map(produkt ->
+                        (ProduktRepresentation) toPresentation.apply(produkt))
+                .collect(Collectors.toList());
     }
 
     @PostMapping("/produkte")
-    public ResponseEntity<?> newProdukt(@RequestBody ProduktRepresentation newProdukt) {
-        String id = newProdukt.getId() == null ||
-                newProdukt.getId().equals("undefined") ?
-                UUID.randomUUID().toString() :
-                newProdukt.getId();
+    public ResponseEntity<ProduktRepresentation> newProdukt(
+            @RequestBody ProduktRepresentation newProdukt) {
+
+        String id = newProdukt.getId() == null
+                || newProdukt.getId().isBlank()
+                || newProdukt.getId().equals("undefined")
+                ? UUID.randomUUID().toString()
+                : newProdukt.getId();
+
         newProdukt.setId(id);
-        Produkt produkt = service.save((Produkt) toProdukt.apply(newProdukt));
-        EntityModel<ProduktRepresentation> entityModel = assembler.toModel((ProduktRepresentation) toPresentation.apply(produkt));
+
+        Produkt saved = service.save(
+                (Produkt) toProdukt.apply(newProdukt));
+
+        ProduktRepresentation response =
+                (ProduktRepresentation) toPresentation.apply(saved);
+
         return ResponseEntity
-                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
-                .body(entityModel);
+                .created(URI.create("/produkte/" + response.getId()))
+                .body(response);
     }
 
     @PutMapping("/produkte/{id}")
-    public ResponseEntity<?> update(@RequestBody ProduktRepresentation changedProdukt, @PathVariable String id) {
-        Produkt oldProdukt = service.findById(id).orElseThrow(() -> new ProduktNotFoundException(id));
-        Produkt updateProdukt = (Produkt) toProdukt.update(oldProdukt, changedProdukt);
+    public ResponseEntity<ProduktRepresentation> update(
+            @RequestBody ProduktRepresentation changedProdukt,
+            @PathVariable String id) {
 
-        Produkt saved = service.save(updateProdukt);
+        Produkt oldProdukt = service.findById(id)
+                .orElseThrow(() -> new ProduktNotFoundException(id));
 
-        EntityModel<ProduktRepresentation> entityModel = assembler.toModel((ProduktRepresentation) toPresentation.apply(saved));
+        Produkt updatedProdukt =
+                (Produkt) toProdukt.update(
+                        oldProdukt,
+                        changedProdukt);
 
-        return ResponseEntity //
-                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()) //
-                .body(entityModel);
+        Produkt saved = service.save(updatedProdukt);
+
+        ProduktRepresentation response =
+                (ProduktRepresentation) toPresentation.apply(saved);
+
+        return ResponseEntity.ok(response);
     }
 
-
     @DeleteMapping("/produkte/{id}")
-    public ResponseEntity<?> delete(@PathVariable String id) throws ProduktInUseException {
+    public ResponseEntity<Void> delete(@PathVariable String id)
+            throws ProduktInUseException {
 
         service.deleteById(id);
 

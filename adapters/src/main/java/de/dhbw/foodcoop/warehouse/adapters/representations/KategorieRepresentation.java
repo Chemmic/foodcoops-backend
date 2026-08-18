@@ -3,11 +3,11 @@ package de.dhbw.foodcoop.warehouse.adapters.representations;
 public final class KategorieRepresentation {
     private final String name;
     private String id;
-    private boolean isMixable;
+    private boolean mixable;
 
-    public KategorieRepresentation(String id, String name, boolean isMixable) {
+    public KategorieRepresentation(String id, String name, Boolean mixable) {
         this.id = id;
-        this.isMixable = isMixable;
+        this.mixable = Boolean.TRUE.equals(mixable);
         this.name = name;
     }
     
@@ -15,14 +15,14 @@ public final class KategorieRepresentation {
     
 
 	public boolean isMixable() {
-		return isMixable;
+		return mixable;
 	}
 
 
 
 
 	public void setMixable(boolean isMixable) {
-		this.isMixable = isMixable;
+		this.mixable = isMixable;
 	}
 
 
