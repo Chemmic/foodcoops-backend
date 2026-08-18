@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
+
 import jakarta.persistence.Table;
 
 import de.dhbw.foodcoop.warehouse.domain.utils.ConstantsUtils;
@@ -15,16 +15,14 @@ import de.dhbw.foodcoop.warehouse.domain.utils.ConstantsUtils;
 @Table(name = "AdminConfiguration")
 public class ConfigurationEntity {
 
-	@Lob
-	@Column
+	@Column(length = 32600)
 	private String einkaufEmailText;
-	
-	@Lob
-	@Column
+
+
+	@Column(length = 32600)
 	private String einkaufsmanagementEmailText;
-	
-	@Lob
-	@Column
+
+	@Column(length = 32600)
 	private String lagermeisterEmailText;
 
 	@Column

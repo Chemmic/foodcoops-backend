@@ -55,17 +55,33 @@ public class FrischBestellungServiceTest {
 
     @Test
     void testSave() {
-        FrischBestellung newFrischBestellung = new FrischBestellung("1234", "Peter_Meier", fb, 4, ts, false);
-        
-        lenient().when(mockRepository.alle()).thenReturn(List.of(new FrischBestellung("1234", "Peter_Meier", fb, 4, ts, false)));
-        lenient().when(mockRepository.speichern(newFrischBestellung)).thenReturn(newFrischBestellung);
-        FrischBestellung returnVal = toBeTested.save(newFrischBestellung);
+        FrischBestellung newFrischBestellung =
+                new FrischBestellung(
+                        "1234",
+                        "Peter_Meier",
+                        fb,
+                        4,
+                        ts,
+                        false
+                );
+
+        when(mockRepository.speichern(newFrischBestellung))
+                .thenReturn(newFrischBestellung);
+
+        LocalDateTime beforeSave = LocalDateTime.now();
+
+        FrischBestellung returnVal =
+                toBeTested.save(newFrischBestellung);
+
+        LocalDateTime afterSave = LocalDateTime.now();
 
         Assertions.assertEquals("1234", returnVal.getId());
         Assertions.assertEquals("Peter_Meier", returnVal.getPersonId());
         Assertions.assertEquals(fb, returnVal.getFrischbestand());
         Assertions.assertEquals(4, returnVal.getBestellmenge());
-        Assertions.assertEquals(ts, returnVal.getDatum());
+
+        Assertions.assertFalse(returnVal.getDatum().isBefore(beforeSave));
+        Assertions.assertFalse(returnVal.getDatum().isAfter(afterSave));
     }
 
     Einheit e1 = new Einheit("111", "Stück");

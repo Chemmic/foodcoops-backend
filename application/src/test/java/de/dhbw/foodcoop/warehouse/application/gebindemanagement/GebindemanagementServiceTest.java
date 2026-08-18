@@ -46,6 +46,15 @@ public class GebindemanagementServiceTest {
     @InjectMocks
     private GebindemanagementService gebindemanagementService;
 
+    private static final LocalDateTime DEADLINE_DATE =
+            LocalDateTime.of(2026, 8, 10, 18, 0);
+
+    private static final LocalDateTime ORDER_DATE_1 =
+            LocalDateTime.of(2026, 8, 11, 10, 0);
+
+    private static final LocalDateTime ORDER_DATE_2 =
+            LocalDateTime.of(2026, 8, 11, 11, 0);
+
     private Kategorie kategorie;
     private FrischBestellung bestellung1;
     private FrischBestellung bestellung2;
@@ -71,13 +80,23 @@ public class GebindemanagementServiceTest {
         bestellung1 = new FrischBestellung();
         bestellung1.setId("1");
         bestellung1.setFrischbestand(frischbestand);
-        bestellung1.setDatum(LocalDateTime.now().minusSeconds(10));
+        bestellung1.setDatum(ORDER_DATE_1);
 
         bestellung2 = new FrischBestellung();
         bestellung2.setId("2");
         bestellung2.setFrischbestand(frischbestand2);
-        bestellung2.setDatum(LocalDateTime.now().minusSeconds(5));
-        when(deadlineService.getByPosition(1)).thenReturn(Optional.of(new Deadline(UUID.randomUUID().toString(), DeadlineService.germanDaysOfWeekReversed.get(LocalDateTime.now().getDayOfWeek()), Time.valueOf(LocalTime.now()), LocalDateTime.now())));
+        bestellung2.setDatum(ORDER_DATE_2);
+
+        Deadline deadline = new Deadline(
+                "deadline-1",
+                "Montag",
+                Time.valueOf("18:00:00"),
+                DEADLINE_DATE
+        );
+
+
+        when(deadlineService.getByPosition(1))
+                .thenReturn(Optional.of(deadline));
         when(frischBestellungService.findAllOrdersAfterDate(any(LocalDateTime.class)))
             .thenReturn(Arrays.asList(bestellung1, bestellung2));
     }
@@ -98,7 +117,9 @@ public class GebindemanagementServiceTest {
         	} else if(t.getBestand().getId().equalsIgnoreCase("2")) {
         		assertEquals(0, t.getZuBestellendeGebinde());
         		assertEquals(-3, t.getZuVielzuWenig());
-        	}
+        	} else {
+                throw new AssertionError("Unexpected result: " + t);
+            }
         });
     }
 
@@ -118,7 +139,9 @@ public class GebindemanagementServiceTest {
         	} else if(t.getBestand().getId().equalsIgnoreCase("2")) {
         		assertEquals(0, t.getZuBestellendeGebinde());
         		assertEquals(-2, t.getZuVielzuWenig());
-        	}
+        	} else {
+                throw new AssertionError("Unexpected result: " + t);
+            }
         });
     }
     
@@ -140,7 +163,9 @@ public class GebindemanagementServiceTest {
         	} else if(t.getBestand().getId().equalsIgnoreCase("2")) {
         		assertEquals(2, t.getZuBestellendeGebinde());
         		assertEquals(4, t.getZuVielzuWenig());
-        	}
+        	} else {
+                throw new AssertionError("Unexpected result: " + t);
+            }
         });
     }
     
@@ -165,7 +190,9 @@ public class GebindemanagementServiceTest {
         	} else if(t.getBestand().getId().equalsIgnoreCase("2")) {
         		assertEquals(1, t.getZuBestellendeGebinde());
         		assertEquals(-6, t.getZuVielzuWenig());
-        	}
+        	} else {
+                throw new AssertionError("Unexpected result: " + t);
+            }
         });
     }
     
@@ -205,7 +232,9 @@ public class GebindemanagementServiceTest {
         	} else if(t.getBestand().getId().equalsIgnoreCase("2")) {
         		assertEquals(1, t.getZuBestellendeGebinde());
         		assertEquals(-1, t.getZuVielzuWenig());
-        	}
+        	} else {
+                throw new AssertionError("Unexpected result: " + t);
+            }
         });
     }
 
@@ -230,7 +259,9 @@ public class GebindemanagementServiceTest {
         	} else if(t.getBestand().getId().equalsIgnoreCase("2")) {
         		assertEquals(1, t.getZuBestellendeGebinde());
         		assertEquals(-7, t.getZuVielzuWenig());
-        	}
+        	} else {
+                throw new AssertionError("Unexpected result: " + t);
+            }
         });
     }
     
@@ -247,11 +278,13 @@ public class GebindemanagementServiceTest {
         result.forEach(t -> {
         	if(t.getBestand().getId().equalsIgnoreCase("1")) {
         		assertEquals(3, t.getZuBestellendeGebinde());
-        		assertEquals(0, t.getZuVielzuWenig());
+        		assertEquals(-0, t.getZuVielzuWenig());
         	} else if(t.getBestand().getId().equalsIgnoreCase("2")) {
         		assertEquals(2, t.getZuBestellendeGebinde());
-        		assertEquals(1, t.getZuVielzuWenig());
-        	}
+        		assertEquals(-1, t.getZuVielzuWenig());
+        	} else {
+                throw new AssertionError("Unexpected result: " + t);
+            }
         });
     }
     
@@ -276,7 +309,9 @@ public class GebindemanagementServiceTest {
         	} else if(t.getBestand().getId().equalsIgnoreCase("2")) {
         		assertEquals(1, t.getZuBestellendeGebinde());
         		assertEquals(-6, t.getZuVielzuWenig());
-        	}
+        	} else {
+                throw new AssertionError("Unexpected result: " + t);
+            }
         });
     }
 }

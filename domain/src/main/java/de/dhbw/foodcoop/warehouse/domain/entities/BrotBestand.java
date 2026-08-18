@@ -1,5 +1,6 @@
 package de.dhbw.foodcoop.warehouse.domain.entities;
 
+import de.dhbw.foodcoop.warehouse.domain.values.AllergenInfo;
 import jakarta.persistence.*;
 import java.util.Objects;
 import java.util.UUID;
@@ -10,6 +11,9 @@ public class BrotBestand extends BestandEntity{
 
     @Column
     private double gewicht;
+
+    @Embedded
+    private AllergenInfo allergenInfo = AllergenInfo.empty();;
 
 
     public BrotBestand(String id, String name, boolean verfuegbarkeit, double gewicht, float preis) {
@@ -33,7 +37,13 @@ public class BrotBestand extends BestandEntity{
 
     }
 
+    public AllergenInfo getAllergenInfo() {
+        return allergenInfo;
+    }
 
+    public void setAllergenInfo(AllergenInfo allergenInfo) {
+        this.allergenInfo = Objects.requireNonNull(allergenInfo);
+    }
 
     public double getGewicht() {
         return gewicht;

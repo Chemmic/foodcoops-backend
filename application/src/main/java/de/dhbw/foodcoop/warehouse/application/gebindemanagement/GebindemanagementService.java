@@ -291,7 +291,12 @@ public class GebindemanagementService {
 					 zuVielZuWenig = -(entry.getValue() - ((float)gesamtZuBestellend * gebindegroesse));
 				 }
 			 }
-			 de.setZuVielzuWenig(zuVielZuWenig);
+			 // Fix für IEEE-754, hier kann -0.0 rauskommen -> Problem für Tests
+			 if (zuVielZuWenig == 0.0) {
+				 zuVielZuWenig = 0.0f;
+			 }
+
+				de.setZuVielzuWenig(zuVielZuWenig);
 			 de.setZuBestellendeGebinde(gesamtZuBestellend);
 			 de.setGewollteMenge(entry.getValue());
 			 done.add(de);

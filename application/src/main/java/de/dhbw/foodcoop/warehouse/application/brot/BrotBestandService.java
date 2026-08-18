@@ -12,7 +12,7 @@ import java.util.Optional;
 @Service
 public class BrotBestandService {
     private final BrotBestandRepository repository;
-    
+
     @Autowired
     public BrotBestandService(BrotBestandRepository repository) {
         this.repository = repository;
