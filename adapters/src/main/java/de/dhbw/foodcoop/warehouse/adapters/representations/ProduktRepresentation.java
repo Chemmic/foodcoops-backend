@@ -6,8 +6,8 @@ public final class ProduktRepresentation extends BestandRepresentation {
     
     private String produktBezeichnung;
 
-    public ProduktRepresentation(String id, String name, String produktBezeichnung, KategorieRepresentation kategorie, LagerbestandRepresentation lagerbestand, float price) {
-    	super(id, name, lagerbestand == null ? false : lagerbestand.getIstLagerbestand() > 0 ? true : false, price);
+    public ProduktRepresentation(String id, String name, String produktBezeichnung, KategorieRepresentation kategorie, LagerbestandRepresentation lagerbestand, float preis) {
+    	super(id, name, lagerbestand == null ? false : lagerbestand.getIstLagerbestand() > 0 ? true : false, preis);
 
         this.kategorie = kategorie;
         this.produktBezeichnung = produktBezeichnung;

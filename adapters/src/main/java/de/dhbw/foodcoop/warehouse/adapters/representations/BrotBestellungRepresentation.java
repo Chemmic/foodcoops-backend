@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 public class BrotBestellungRepresentation extends BestellungRepresentation {
     private BrotBestandRepresentation brotbestand;
 
-    public BrotBestellungRepresentation(String id, String person_id, BrotBestandRepresentation brotbestand, double bestellmenge, LocalDateTime datum, boolean isDone) {
-     super(id, person_id, datum, bestellmenge, isDone);
+    public BrotBestellungRepresentation(String id, String personId, BrotBestandRepresentation brotbestand, double bestellmenge, LocalDateTime datum, Boolean done) {
+     super(id, personId, datum, bestellmenge, Boolean.TRUE.equals(done));
         this.brotbestand = brotbestand;
     }
 
