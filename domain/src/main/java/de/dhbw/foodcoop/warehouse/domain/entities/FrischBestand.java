@@ -3,6 +3,8 @@ package de.dhbw.foodcoop.warehouse.domain.entities;
 import de.dhbw.foodcoop.warehouse.domain.values.Einheit;
 
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -30,7 +32,7 @@ public class FrischBestand extends BestandEntity{
     private boolean spezialfallBestelleinheit;
 
 
-    public FrischBestand(String id, String name, boolean verfuegbarkeit, String herkunftsland, float gebindegroesse, Einheit einheit, Kategorie kategorie, float preis, String verband, boolean spezialfallBestelleinheit) {
+    public FrischBestand(String id, String name, boolean verfuegbarkeit, String herkunftsland, float gebindegroesse, Einheit einheit, Kategorie kategorie, BigDecimal preis, String verband, boolean spezialfallBestelleinheit) {
         // Validate.notBlank(id);
         // Validate.notBlank(name);
         // Validate.notNull(verfuegbarkeit);
@@ -49,7 +51,7 @@ public class FrischBestand extends BestandEntity{
         this.verband = verband;
     }
 
-    public FrischBestand(String name, boolean verfuegbarkeit, String herkunftsland, float gebindegroesse, Einheit einheit, Kategorie kategorie, float preis, String verband, boolean spezialfallBestelleinheit) {
+    public FrischBestand(String name, boolean verfuegbarkeit, String herkunftsland, float gebindegroesse, Einheit einheit, Kategorie kategorie, BigDecimal  preis, String verband, boolean spezialfallBestelleinheit) {
         this(UUID.randomUUID().toString(), name, verfuegbarkeit, herkunftsland, gebindegroesse, einheit, kategorie, preis, verband, spezialfallBestelleinheit);
     }
 

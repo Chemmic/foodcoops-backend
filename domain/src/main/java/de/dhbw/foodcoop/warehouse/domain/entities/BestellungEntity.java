@@ -2,12 +2,7 @@ package de.dhbw.foodcoop.warehouse.domain.entities;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -24,6 +19,7 @@ import de.dhbw.foodcoop.warehouse.domain.shopping.Buyable;
 })
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "bestellung")
+
 public abstract class BestellungEntity implements Buyable {
 
 	
@@ -34,6 +30,10 @@ public abstract class BestellungEntity implements Buyable {
 	protected String personId;
 	
 	@Column
+	@Deprecated
+	/**
+	 * @deprecated use deadline instead
+	 */
 	protected LocalDateTime datum;
 	
 	@Column
@@ -41,8 +41,12 @@ public abstract class BestellungEntity implements Buyable {
 	
 	@Column
 	protected boolean done;
-	
-	
+
+	@ManyToOne
+	@JoinColumn(
+			name = "deadline_id"
+	)
+	protected DeadlineEntity deadline;
 
 	public BestellungEntity() {
 	
@@ -84,7 +88,15 @@ public abstract class BestellungEntity implements Buyable {
     public double getBestellmenge(){
         return bestellmenge;
     }
+	public DeadlineEntity getDeadline() {
+		return deadline;
+	}
 
+	public void setDeadline(
+			DeadlineEntity deadline
+	) {
+		this.deadline = deadline;
+	}
     public void setBestellmenge(double bestellmenge){
         this.bestellmenge = bestellmenge;
     }

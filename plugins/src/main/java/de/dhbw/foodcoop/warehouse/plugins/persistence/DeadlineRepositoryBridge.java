@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import de.dhbw.foodcoop.warehouse.domain.entities.Deadline;
+import de.dhbw.foodcoop.warehouse.domain.entities.DeadlineEntity;
 import de.dhbw.foodcoop.warehouse.domain.repositories.DeadlineRepository;
 
 @Repository
@@ -19,22 +19,22 @@ public class DeadlineRepositoryBridge implements DeadlineRepository{
     }
 
     @Override
-    public List<Deadline> alle() {
+    public List<DeadlineEntity> alle() {
         return springDataDeadlineRepository.findAll();
     }
 
     @Override
-    public Optional<Deadline> letzte() {
+    public Optional<DeadlineEntity> letzte() {
         return springDataDeadlineRepository.findLast();
     }
 
     @Override
-    public Deadline speichern(Deadline deadline) {
+    public DeadlineEntity speichern(DeadlineEntity deadline) {
         return springDataDeadlineRepository.save(deadline);
     }
 
     @Override
-    public Optional<Deadline> findeMitId(String id) {
+    public Optional<DeadlineEntity> findeMitId(String id) {
         return springDataDeadlineRepository.findById(id);
     }
 
@@ -44,7 +44,7 @@ public class DeadlineRepositoryBridge implements DeadlineRepository{
     }
 
 	@Override
-	public Optional<Deadline> findeNachReihenfolge(int position) {
+	public Optional<DeadlineEntity> findeNachReihenfolge(int position) {
 		// TODO Auto-generated method stub
 		return springDataDeadlineRepository.findFromSortedPosition(position);
 	}

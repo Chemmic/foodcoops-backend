@@ -1,5 +1,6 @@
 package de.dhbw.foodcoop.warehouse.application.brot;
 
+import de.dhbw.foodcoop.warehouse.application.preishistorie.PreisHistorieService;
 import de.dhbw.foodcoop.warehouse.domain.entities.BrotBestand;
 import de.dhbw.foodcoop.warehouse.domain.repositories.BrotBestandRepository;
 
@@ -12,10 +13,12 @@ import java.util.Optional;
 @Service
 public class BrotBestandService {
     private final BrotBestandRepository repository;
+    private final PreisHistorieService preisHistorieService;
 
     @Autowired
-    public BrotBestandService(BrotBestandRepository repository) {
+    public BrotBestandService(BrotBestandRepository repository, PreisHistorieService preisHistorieService) {
         this.repository = repository;
+        this.preisHistorieService = preisHistorieService;
     }
 
     public Optional<BrotBestand> findById(String id) {
@@ -26,8 +29,20 @@ public class BrotBestandService {
         return repository.alle();
     }
 
-    public BrotBestand save(BrotBestand newBrotBestand) {
-        return repository.speichern(newBrotBestand);
+    public BrotBestand save(
+            BrotBestand newBrotBestand
+    ) {
+        BrotBestand gespeichert =
+                repository.speichern(
+                        newBrotBestand
+                );
+
+        preisHistorieService
+                .speichereAktuellenPreis(
+                        gespeichert
+                );
+
+        return gespeichert;
     }
 
     

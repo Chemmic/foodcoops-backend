@@ -1,5 +1,6 @@
 package de.dhbw.foodcoop.warehouse.application.lager;
 
+import de.dhbw.foodcoop.warehouse.application.preishistorie.PreisHistorieService;
 import de.dhbw.foodcoop.warehouse.domain.entities.Produkt;
 import de.dhbw.foodcoop.warehouse.domain.exceptions.ProduktInUseException;
 import de.dhbw.foodcoop.warehouse.domain.repositories.ProduktRepository;
@@ -12,10 +13,13 @@ import java.util.Optional;
 @Service
 public class ProduktService {
     private final ProduktRepository repository;
+    private final PreisHistorieService preisHistorieService;
+
 
     @Autowired
-    public ProduktService(ProduktRepository repository) {
+    public ProduktService(ProduktRepository repository, PreisHistorieService preisHistorieService) {
         this.repository = repository;
+        this.preisHistorieService = preisHistorieService;
     }
 
     public Optional<Produkt> findById(String id) {
@@ -26,8 +30,20 @@ public class ProduktService {
         return repository.alle();
     }
 
-    public Produkt save(Produkt newProdukt) {
-        return repository.speichern(newProdukt);
+    public Produkt save(
+            Produkt newProdukt
+    ) {
+        Produkt gespeichert =
+                repository.speichern(
+                        newProdukt
+                );
+
+        preisHistorieService
+                .speichereAktuellenPreis(
+                        gespeichert
+                );
+
+        return gespeichert;
     }
 
     public void deleteById(String id) throws ProduktInUseException {

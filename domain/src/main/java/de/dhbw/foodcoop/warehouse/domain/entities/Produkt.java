@@ -1,5 +1,6 @@
 package de.dhbw.foodcoop.warehouse.domain.entities;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -30,7 +31,7 @@ public class Produkt extends BestandEntity {
     private Kategorie kategorie;
     
 
-    public Produkt(String id, String name, String produktBezeichnung, Kategorie kategorie, Lagerbestand lagerbestand, float preis) {
+    public Produkt(String id, String name, String produktBezeichnung, Kategorie kategorie, Lagerbestand lagerbestand, BigDecimal preis) {
         Validate.notBlank(id);
         Validate.notBlank(name);
         Validate.notNull(lagerbestand);
@@ -42,7 +43,7 @@ public class Produkt extends BestandEntity {
         this.lagerbestand = lagerbestand;
     }
 
-    public Produkt(String name, String produktBezeichnung, Kategorie kategorie, Lagerbestand lagerbestand, float preis) {
+    public Produkt(String name, String produktBezeichnung, Kategorie kategorie, Lagerbestand lagerbestand, BigDecimal  preis) {
         this(UUID.randomUUID().toString(), name,produktBezeichnung,  kategorie, lagerbestand, preis);
     }
 

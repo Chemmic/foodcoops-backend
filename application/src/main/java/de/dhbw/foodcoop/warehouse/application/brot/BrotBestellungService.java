@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import de.dhbw.foodcoop.warehouse.application.deadline.DeadlineService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,9 +14,11 @@ import de.dhbw.foodcoop.warehouse.domain.repositories.BrotBestellungRepository;
 @Service
 public class BrotBestellungService {
     private final BrotBestellungRepository repository;
+    private final DeadlineService deadlineService;
     @Autowired
-    public BrotBestellungService(BrotBestellungRepository repository) {
+    public BrotBestellungService(BrotBestellungRepository repository, DeadlineService deadlineService) {
         this.repository = repository;
+        this.deadlineService = deadlineService;
     }
 
     public List<BrotBestellung> all() {
@@ -42,15 +45,27 @@ public class BrotBestellungService {
         return repository.findeMitDatumZwischen(datum1, datum2);
     }
 
-    public BrotBestellung save(BrotBestellung bestellung) {
-    	//Person p = personService.getOrCreatePerson(bestellung.getPersonId());
+    public BrotBestellung save(
+            BrotBestellung bestellung
+    ) {
 
-    	bestellung.setDatum(LocalDateTime.now());
-        BrotBestellung brotBestellung = repository.speichern(bestellung);
-       // EinkaufBestellungVergleich ebv = einkaufBestellungVergleichRepository.speichern(new EinkaufBestellungVergleich(UUID.randomUUID().toString(), brotBestellung, 0, false));
-      //  p.getBestellungen().add(brotBestellung);
-      //  personService.save(p);
-        return brotBestellung;
+        deadlineService.updateDeadline();
+
+        if (bestellung.getDatum() == null) {
+            bestellung.setDatum(
+                    LocalDateTime.now()
+            );
+        }
+
+        if (bestellung.getDeadline() == null) {
+            bestellung.setDeadline(
+                    deadlineService.last()
+            );
+        }
+
+        return repository.speichern(
+                bestellung
+        );
     }
 
     public Optional<BrotBestellung> findById(String id) {
@@ -60,6 +75,41 @@ public class BrotBestellungService {
     public void deleteById(String id) {
         repository.deleteById(id);
     }
-    
-    
+
+    public List<BrotBestellung> alleVonPersonUndDeadline(
+            String personId,
+            String deadlineId
+    ) {
+        return repository
+                .findeVonPersonUndDeadline(
+                        personId,
+                        deadlineId
+                );
+    }
+
+    public List<BrotBestellung> findAllByPerson(
+            String personId) {
+
+        return repository.alleVonPerson(
+                personId
+        );
+    }
+
+    public List<BrotBestellung> findByDeadlineAndPerson(
+            String deadlineId,
+            String personId) {
+
+        return repository.findeVonPersonUndDeadline(
+                personId,
+                deadlineId
+        );
+    }
+
+    public List<BrotBestellung> findAllByDeadline(
+            String deadlineId) {
+
+        return repository.findeAlleVonDeadline(
+                deadlineId
+        );
+    }
 }   

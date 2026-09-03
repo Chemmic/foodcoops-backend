@@ -11,16 +11,17 @@ import de.dhbw.foodcoop.warehouse.domain.entities.BrotBestellung;
 import de.dhbw.foodcoop.warehouse.domain.entities.FrischBestellung;
 
 public interface SpringDataBrotBestellungRepository extends JpaRepository<BrotBestellung, String>{
-
+    @Deprecated
     @Query("SELECT b FROM BrotBestellung b WHERE b.datum > :date AND b.personId = :person_id")
     List<BrotBestellung> findByDateAfterAndPerson(@Param("date") LocalDateTime date, @Param("person_id") String person_id);
-
+    @Deprecated
     @Query("SELECT b FROM BrotBestellung b WHERE b.datum <= :date1 AND b.datum > :date2 AND b.personId = :person_id")
     List<BrotBestellung> findByDateBetween(@Param("date1") LocalDateTime date1, @Param("date2") LocalDateTime date2, @Param("person_id") String person_id);
-
+    @Deprecated
     @Query("SELECT f FROM BrotBestellung f WHERE f.datum <= :date1 AND f.datum > :date2")
     List<BrotBestellung> findByDateBetween(@Param("date1") LocalDateTime date1, @Param("date2") LocalDateTime date2);
-    
+
+    @Deprecated
     @Query("SELECT new BrotBestellung(b.id, b.personId, b.brotbestand,  SUM(b.bestellmenge)) " +
             "FROM BrotBestellung b " +
             "WHERE b.datum > :date " +
@@ -32,4 +33,13 @@ public interface SpringDataBrotBestellungRepository extends JpaRepository<BrotBe
     
     @Query("SELECT f FROM BrotBestellung f WHERE f.datum > :date")
     List<BrotBestellung> findAllAfter(@Param("date") LocalDateTime date);
+
+    List<BrotBestellung> findAllByPersonIdAndDeadline_Id(
+            String personId,
+            String deadlineId
+    );
+
+    List<BrotBestellung> findAllByDeadline_Id(
+            String deadlineId
+    );
 }

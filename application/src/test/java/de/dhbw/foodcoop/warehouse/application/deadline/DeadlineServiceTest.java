@@ -20,7 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
-import de.dhbw.foodcoop.warehouse.domain.entities.Deadline;
+import de.dhbw.foodcoop.warehouse.domain.entities.DeadlineEntity;
 import de.dhbw.foodcoop.warehouse.domain.exceptions.DeadlineNotFoundException;
 import de.dhbw.foodcoop.warehouse.domain.repositories.DeadlineRepository;
 
@@ -38,7 +38,7 @@ class DeadlineServiceTest {
 
     @Test
     void saveSpeichertDeadlineUndPubliziertEvent() {
-        Deadline deadline = new Deadline(
+        DeadlineEntity deadline = new DeadlineEntity(
                 "deadline-1",
                 "Montag",
                 Time.valueOf("12:00:00"),
@@ -46,7 +46,7 @@ class DeadlineServiceTest {
 
         when(repository.speichern(deadline)).thenReturn(deadline);
 
-        Deadline result = service.save(deadline);
+        DeadlineEntity result = service.save(deadline);
 
         assertSame(deadline, result);
 
@@ -64,7 +64,7 @@ class DeadlineServiceTest {
 
     @Test
     void coldStartSpeichertOhneEvent() {
-        Deadline deadline = new Deadline(
+        DeadlineEntity deadline = new DeadlineEntity(
                 "deadline-1",
                 "Montag",
                 Time.valueOf("12:00:00"),
@@ -72,7 +72,7 @@ class DeadlineServiceTest {
 
         when(repository.speichern(deadline)).thenReturn(deadline);
 
-        Deadline result = service.coldStart(deadline);
+        DeadlineEntity result = service.coldStart(deadline);
 
         assertSame(deadline, result);
 
@@ -92,7 +92,7 @@ class DeadlineServiceTest {
 
     @Test
     void deadlineAmGleichenTagVorDeadlineBleibtAmGleichenTag() {
-        Deadline deadline = new Deadline(
+        DeadlineEntity deadline = new DeadlineEntity(
                 "deadline-1",
                 "Montag",
                 Time.valueOf("12:00:00"),
@@ -108,7 +108,7 @@ class DeadlineServiceTest {
 
     @Test
     void deadlineAmGleichenTagNachDeadlineWirdEineWocheVerschoben() {
-        Deadline deadline = new Deadline(
+        DeadlineEntity deadline = new DeadlineEntity(
                 "deadline-1",
                 "Montag",
                 Time.valueOf("12:00:00"),
@@ -124,7 +124,7 @@ class DeadlineServiceTest {
 
     @Test
     void deadlineAnAnderemWochentagWirdAufNaechstenPassendenTagBerechnet() {
-        Deadline deadline = new Deadline(
+        DeadlineEntity deadline = new DeadlineEntity(
                 "deadline-1",
                 "Mittwoch",
                 Time.valueOf("18:30:00"),

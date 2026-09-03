@@ -12,12 +12,9 @@ import static org.mockito.Mockito.when;
 import java.lang.invoke.WrongMethodTypeException;
 import java.sql.Time;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import de.dhbw.foodcoop.warehouse.application.deadline.DeadlineService;
 import de.dhbw.foodcoop.warehouse.application.frischbestellung.FrischBestellungService;
-import de.dhbw.foodcoop.warehouse.domain.entities.Deadline;
+import de.dhbw.foodcoop.warehouse.domain.entities.DeadlineEntity;
 import de.dhbw.foodcoop.warehouse.domain.entities.DiscrepancyEntity;
 import de.dhbw.foodcoop.warehouse.domain.entities.FrischBestand;
 import de.dhbw.foodcoop.warehouse.domain.entities.FrischBestellung;
@@ -87,7 +84,7 @@ public class GebindemanagementServiceTest {
         bestellung2.setFrischbestand(frischbestand2);
         bestellung2.setDatum(ORDER_DATE_2);
 
-        Deadline deadline = new Deadline(
+        DeadlineEntity deadline = new DeadlineEntity(
                 "deadline-1",
                 "Montag",
                 Time.valueOf("18:00:00"),

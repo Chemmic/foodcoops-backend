@@ -1,14 +1,12 @@
 package de.dhbw.foodcoop.warehouse.domain.repositories;
 
-import java.util.List;
 import java.util.Optional;
 
 import de.dhbw.foodcoop.warehouse.domain.entities.BestellUebersicht;
-import de.dhbw.foodcoop.warehouse.domain.entities.BrotBestand;
-import de.dhbw.foodcoop.warehouse.domain.entities.Deadline;
+import de.dhbw.foodcoop.warehouse.domain.entities.DeadlineEntity;
 
 public interface BestellÜbersichtRepository {
-	BestellUebersicht findeMitDeadline(Deadline deadline);
+	BestellUebersicht findeMitDeadline(DeadlineEntity deadline);
 
     BestellUebersicht speichern(BestellUebersicht bestellÜbersicht);
 

@@ -45,7 +45,7 @@ public class BestandToRepresentationMapper
 					bb.getId(),
 					bb.getName(),
 					bb.getVerfuegbarkeit(),
-					bb.getPreis(),
+					bb.getPreis().floatValue(),
 					bb.getGewicht(),
 					allergenInfoMapper.apply(
 							bb.getAllergenInfo()
@@ -64,7 +64,7 @@ public class BestandToRepresentationMapper
 					bb.getGebindegroesse(),
 					einheitMapper.apply(bb.getEinheit()),
 					kategorieMapper.apply(bb.getKategorie()),
-					bb.getPreis(),
+					bb.getPreis().floatValue(),
 					bb.getVerband(),
 					bb.isSpezialfallBestelleinheit()
 			);
@@ -79,7 +79,7 @@ public class BestandToRepresentationMapper
 					p.getProduktBezeichnung(),
 					kategorieMapper.apply(p.getKategorie()),
 					lagerbestandMapper.apply(p.getLagerbestand()),
-					p.getPreis()
+					p.getPreis().floatValue()
 			);
 		}
 

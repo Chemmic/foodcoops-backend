@@ -15,15 +15,15 @@ import de.dhbw.foodcoop.warehouse.domain.repositories.FrischBestellungRepository
 
 @Service
 public class FrischBestellungService {
+
     private final FrischBestellungRepository repository;
-    
-    @Autowired
-    private DeadlineService deadlineService;
-    
+    private final DeadlineService deadlineService;
+
 
     @Autowired
-    public FrischBestellungService(FrischBestellungRepository repository) {
+    public FrischBestellungService(FrischBestellungRepository repository, DeadlineService deadlineService) {
         this.repository = repository;
+        this.deadlineService = deadlineService;
     }
 
     public List<FrischBestellung> all() {
@@ -37,9 +37,34 @@ public class FrischBestellungService {
         return repository.findeMitDatumNachUndPerson(datum, person_id);
     }
 
-    public List<FrischBestellung> findByDateAfterAndSum(LocalDateTime datum){
-        return repository.findeMitDatumNachUndSum(datum);
+    public List<FrischBestellung> findAllByDeadline(
+            String deadlineId
+    ) {
+        return repository
+                .findeAlleVonDeadline(
+                        deadlineId
+                );
     }
+
+    public List<FrischBestellung> findAllByPerson(
+            String personId) {
+
+        return repository.findeAlleVonPerson(
+                personId
+        );
+    }
+
+    public List<FrischBestellung> findByDeadlineAndPerson(
+            String deadlineId,
+            String personId) {
+
+        return repository.findeVonPersonUndDeadline(
+                personId,
+                deadlineId
+        );
+    }
+
+
 
     public List<FrischBestellung> findByDateBetween(LocalDateTime datum1, LocalDateTime datum2, String person_id){
         return repository.findeMitDatumZwischen(datum1, datum2, person_id);
@@ -59,15 +84,40 @@ public class FrischBestellungService {
     }
 
     //Hier wird für den Einkauf direkt ein Vergleichs Objekt angelegt
-    public FrischBestellung save(FrischBestellung bestellung) {
-    //	Person p = personService.getOrCreatePerson(bestellung.getPersonId());
+    public FrischBestellung save(
+            FrischBestellung bestellung) {
 
-    	bestellung.setDatum(LocalDateTime.now());
-        FrischBestellung frischBestellung = repository.speichern(bestellung);
-       // EinkaufBestellungVergleich ebv = einkaufBestellungVergleichRepository.speichern(new EinkaufBestellungVergleich(UUID.randomUUID().toString(), frischBestellung, 0, false));
-     //   p.getBestellungen().add(frischBestellung);
-     //   personService.save(p);
-        return frischBestellung;
+        /*
+         * Falls die Deadline mittlerweile vorbei ist:
+         * neue Bestellrunde erzeugen.
+         */
+        deadlineService.updateDeadline();
+
+        /*
+         * Datum ist nur noch Erstellzeitpunkt.
+         *
+         * Beim PUT darf es nicht wieder auf now()
+         * gesetzt werden.
+         */
+        if (bestellung.getDatum() == null) {
+            bestellung.setDatum(
+                    LocalDateTime.now()
+            );
+        }
+
+        /*
+         * Neue Bestellung:
+         * aktuelle Bestellrunde setzen.
+         */
+        if (bestellung.getDeadline() == null) {
+            bestellung.setDeadline(
+                    deadlineService.last()
+            );
+        }
+
+        return repository.speichern(
+                bestellung
+        );
     }
 
     public Optional<FrischBestellung> findById(String id) {

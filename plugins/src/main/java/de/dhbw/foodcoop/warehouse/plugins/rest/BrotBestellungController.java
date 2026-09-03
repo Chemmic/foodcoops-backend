@@ -1,10 +1,7 @@
 package de.dhbw.foodcoop.warehouse.plugins.rest;
 
 import java.net.URI;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
@@ -16,13 +13,16 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import de.dhbw.foodcoop.warehouse.adapters.representations.BrotBestandRepresentation;
 import de.dhbw.foodcoop.warehouse.adapters.representations.BrotBestellungRepresentation;
+import de.dhbw.foodcoop.warehouse.adapters.representations.BrotBestellSummeRepresentation;
+import de.dhbw.foodcoop.warehouse.adapters.representations.mappers.BestandToRepresentationMapper;
 import de.dhbw.foodcoop.warehouse.adapters.representations.mappers.BestellungToRepresentationMapper;
 import de.dhbw.foodcoop.warehouse.adapters.representations.mappers.RepresentationToBestellungMapper;
 import de.dhbw.foodcoop.warehouse.application.brot.BrotBestellungService;
 import de.dhbw.foodcoop.warehouse.application.deadline.DeadlineService;
 import de.dhbw.foodcoop.warehouse.domain.entities.BrotBestellung;
-import de.dhbw.foodcoop.warehouse.domain.entities.Deadline;
+import de.dhbw.foodcoop.warehouse.domain.entities.DeadlineEntity;
 import de.dhbw.foodcoop.warehouse.domain.exceptions.BrotBestellungInUseException;
 import de.dhbw.foodcoop.warehouse.domain.exceptions.BrotBestellungNotFoundException;
 
@@ -30,143 +30,315 @@ import de.dhbw.foodcoop.warehouse.domain.exceptions.BrotBestellungNotFoundExcept
 public class BrotBestellungController {
 
     private final BrotBestellungService service;
-    private final RepresentationToBestellungMapper toBrotBestellung;
-    private final BestellungToRepresentationMapper toPresentation;
+
+    private final RepresentationToBestellungMapper
+            toBrotBestellung;
+
+    private final BestellungToRepresentationMapper
+            toPresentation;
+
+    private final BestandToRepresentationMapper
+            bestandToPresentation;
+
     private final DeadlineService deadlineService;
 
     public BrotBestellungController(
             BrotBestellungService service,
             RepresentationToBestellungMapper toBrotBestellung,
             BestellungToRepresentationMapper toPresentation,
+            BestandToRepresentationMapper bestandToPresentation,
             DeadlineService deadlineService) {
 
         this.service = service;
         this.toBrotBestellung = toBrotBestellung;
         this.toPresentation = toPresentation;
+        this.bestandToPresentation = bestandToPresentation;
         this.deadlineService = deadlineService;
     }
 
-    @GetMapping("/brotBestellung/{id}")
-    public BrotBestellungRepresentation one(@PathVariable String id) {
-        BrotBestellung brot = service.findById(id)
-                .orElseThrow(() -> new BrotBestellungNotFoundException(id));
+    // -------------------------------------------------------------------------
+    // Einzelne Bestellung
+    // -------------------------------------------------------------------------
 
-        return (BrotBestellungRepresentation) toPresentation.apply(brot);
+    @GetMapping("/brotBestellung/{id}")
+    public BrotBestellungRepresentation one(
+            @PathVariable String id) {
+
+        BrotBestellung brotBestellung =
+                service.findById(id)
+                        .orElseThrow(
+                                () ->
+                                        new BrotBestellungNotFoundException(
+                                                id
+                                        )
+                        );
+
+        return (BrotBestellungRepresentation)
+                toPresentation.apply(
+                        brotBestellung
+                );
     }
+
+    // -------------------------------------------------------------------------
+    // Alle Bestellungen
+    // -------------------------------------------------------------------------
 
     @GetMapping("/brotBestellung")
     public List<BrotBestellungRepresentation> all() {
-        return service.all().stream()
-                .map(b -> (BrotBestellungRepresentation) toPresentation.apply(b))
-                .collect(Collectors.toList());
+
+        return service.all()
+                .stream()
+                .map(
+                        b ->
+                                (BrotBestellungRepresentation)
+                                        toPresentation.apply(b)
+                )
+                .toList();
     }
 
-    @GetMapping("/brotBestellung/datum/{person_id}")
-    public List<BrotBestellungRepresentation> findByDateAfterAndPerson(
+    // -------------------------------------------------------------------------
+    // Aktuelle Bestellrunde eines Users
+    // -------------------------------------------------------------------------
+
+    @GetMapping("/brotBestellung/current/person/{person_id}")
+    public List<BrotBestellungRepresentation>
+    findCurrentByPerson(
             @PathVariable String person_id) {
 
-        Optional<Deadline> deadline = deadlineService.getByPosition(0);
+        DeadlineEntity deadline =
+                getCurrentDeadline();
 
-        if (deadline.isEmpty()) {
-            return null;
-        }
-
-        LocalDateTime datum = deadline.get().getDatum();
-
-        return service.findByDateAfterAndPerson(datum, person_id).stream()
-                .map(b -> (BrotBestellungRepresentation) toPresentation.apply(b))
-                .collect(Collectors.toList());
+        return service
+                .findByDeadlineAndPerson(
+                        deadline.getId(),
+                        person_id
+                )
+                .stream()
+                .map(
+                        b ->
+                                (BrotBestellungRepresentation)
+                                        toPresentation.apply(b)
+                )
+                .toList();
     }
+
+    // -------------------------------------------------------------------------
+    // Komplette Bestellhistorie eines Users
+    // -------------------------------------------------------------------------
 
     @GetMapping("/brotBestellung/person/{person_id}")
-    public List<BrotBestellungRepresentation> findByDateBetween(
+    public List<BrotBestellungRepresentation>
+    findAllByPerson(
             @PathVariable String person_id) {
 
-        Optional<Deadline> date1 = deadlineService.getByPosition(0);
-        Optional<Deadline> date2 = deadlineService.getByPosition(1);
-
-        if (date1.isEmpty()) {
-            return null;
-        }
-
-        if (date2.isEmpty()) {
-            return findByDateAfterAndPerson(person_id);
-        }
-
-        LocalDateTime datum1 = date1.get().getDatum();
-        LocalDateTime datum2 = date2.get().getDatum();
-
-        return service.findByDateBetween(datum1, datum2, person_id).stream()
-                .map(b -> (BrotBestellungRepresentation) toPresentation.apply(b))
-                .collect(Collectors.toList());
+        return service
+                .findAllByPerson(person_id)
+                .stream()
+                .map(
+                        b ->
+                                (BrotBestellungRepresentation)
+                                        toPresentation.apply(b)
+                )
+                .toList();
     }
 
-    @GetMapping("/brotBestellung/datum/menge")
-    public List<BrotBestellungRepresentation> findByDateAfterAndSum() {
+    // -------------------------------------------------------------------------
+    // Summierte Mengen der aktuellen Bestellrunde
+    // -------------------------------------------------------------------------
 
-        Optional<Deadline> deadline = deadlineService.getByPosition(0);
+    @GetMapping("/brotBestellung/current/menge")
+    public List<BrotBestellSummeRepresentation>
+    findCurrentSum() {
 
-        if (deadline.isEmpty()) {
-            return null;
-        }
+        DeadlineEntity deadline =
+                getCurrentDeadline();
 
-        LocalDateTime datum = deadline.get().getDatum();
+        List<BrotBestellung> bestellungen =
+                service.findAllByDeadline(
+                        deadline.getId()
+                );
 
-        return service.findByDateAfterAndSum(datum).stream()
-                .map(b -> (BrotBestellungRepresentation) toPresentation.apply(b))
-                .collect(Collectors.toList());
+        Map<String, List<BrotBestellung>> gruppiert =
+                bestellungen
+                        .stream()
+                        .collect(
+                                Collectors.groupingBy(
+                                        bestellung ->
+                                                bestellung
+                                                        .getBrotBestand()
+                                                        .getId(),
+
+                                        LinkedHashMap::new,
+
+                                        Collectors.toList()
+                                )
+                        );
+
+        return gruppiert
+                .values()
+                .stream()
+                .map(
+                        gruppe -> {
+
+                            BrotBestellung first =
+                                    gruppe.getFirst();
+
+                            double summe =
+                                    gruppe
+                                            .stream()
+                                            .mapToDouble(
+                                                    BrotBestellung::
+                                                            getBestellmenge
+                                            )
+                                            .sum();
+
+                            BrotBestandRepresentation bestand =
+                                    (BrotBestandRepresentation)
+                                            bestandToPresentation.apply(
+                                                    first.getBrotBestand()
+                                            );
+
+                            return new BrotBestellSummeRepresentation(
+                                    bestand,
+                                    summe
+                            );
+                        }
+                )
+                .toList();
     }
+
+    // -------------------------------------------------------------------------
+    // Create
+    // -------------------------------------------------------------------------
 
     @PostMapping("/brotBestellung")
-    public ResponseEntity<BrotBestellungRepresentation> newBrotBestellung(
-            @RequestBody BrotBestellungRepresentation newBrotBestellung) {
+    public ResponseEntity<BrotBestellungRepresentation>
+    newBrotBestellung(
+            @RequestBody
+            BrotBestellungRepresentation newBrotBestellung) {
 
-        String id = newBrotBestellung.getId() == null
-                || newBrotBestellung.getId().isBlank()
-                || newBrotBestellung.getId().equals("undefined")
-                ? UUID.randomUUID().toString()
-                : newBrotBestellung.getId();
+        String id =
+                newBrotBestellung.getId() == null
+                        || newBrotBestellung.getId().isBlank()
+                        || newBrotBestellung.getId().equals("undefined")
+
+                        ? UUID.randomUUID().toString()
+                        : newBrotBestellung.getId();
 
         newBrotBestellung.setId(id);
 
-        BrotBestellung saved = service.save(
-                (BrotBestellung) toBrotBestellung.apply(newBrotBestellung));
+        BrotBestellung saved =
+                service.save(
+                        (BrotBestellung)
+                                toBrotBestellung.apply(
+                                        newBrotBestellung
+                                )
+                );
 
         BrotBestellungRepresentation response =
-                (BrotBestellungRepresentation) toPresentation.apply(saved);
+                (BrotBestellungRepresentation)
+                        toPresentation.apply(saved);
 
         return ResponseEntity
-                .created(URI.create("/brotBestellung/" + response.getId()))
+                .created(
+                        URI.create(
+                                "/brotBestellung/"
+                                        + response.getId()
+                        )
+                )
                 .body(response);
     }
 
-    @PutMapping("/brotBestellung/{id}")
-    public ResponseEntity<BrotBestellungRepresentation> update(
-            @RequestBody BrotBestellungRepresentation brotBestellung,
-            @PathVariable String id) {
+    // -------------------------------------------------------------------------
+    // Update
+    // -------------------------------------------------------------------------
 
-        BrotBestellung oldBrotBestellung = service.findById(id)
-                .orElseThrow(() -> new BrotBestellungNotFoundException(id));
+    @PutMapping("/brotBestellung/{id}")
+    public ResponseEntity<BrotBestellungRepresentation>
+    update(
+            @RequestBody
+            BrotBestellungRepresentation changedBrotBestellung,
+
+            @PathVariable
+            String id) {
+
+        BrotBestellung oldBrotBestellung =
+                service.findById(id)
+                        .orElseThrow(
+                                () ->
+                                        new BrotBestellungNotFoundException(
+                                                id
+                                        )
+                        );
 
         BrotBestellung updatedBrotBestellung =
-                (BrotBestellung) toBrotBestellung.update(
-                        oldBrotBestellung,
-                        brotBestellung);
+                (BrotBestellung)
+                        toBrotBestellung.update(
+                                oldBrotBestellung,
+                                changedBrotBestellung
+                        );
 
-        BrotBestellung saved = service.save(updatedBrotBestellung);
+        BrotBestellung saved =
+                service.save(
+                        updatedBrotBestellung
+                );
 
         BrotBestellungRepresentation response =
-                (BrotBestellungRepresentation) toPresentation.apply(saved);
+                (BrotBestellungRepresentation)
+                        toPresentation.apply(saved);
 
         return ResponseEntity.ok(response);
     }
 
+    // -------------------------------------------------------------------------
+    // Delete
+    // -------------------------------------------------------------------------
+    @GetMapping(
+            "/brotBestellung/previous/person/{person_id}"
+    )
+    public List<BrotBestellungRepresentation>
+    findPreviousByPerson(
+            @PathVariable
+            String person_id) {
+
+        Optional<DeadlineEntity> deadline =
+                deadlineService
+                        .getByPosition(1);
+
+        return deadline.map(deadlineEntity -> service
+                .findByDeadlineAndPerson(
+                        deadlineEntity.getId(),
+                        person_id
+                )
+                .stream()
+                .map(
+                        b ->
+                                (BrotBestellungRepresentation)
+                                        toPresentation.apply(b)
+                )
+                .toList()).orElseGet(List::of);
+
+    }
     @DeleteMapping("/brotBestellung/{id}")
-    public ResponseEntity<Void> delete(@PathVariable String id)
+    public ResponseEntity<Void> delete(
+            @PathVariable String id)
             throws BrotBestellungInUseException {
 
         service.deleteById(id);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity
+                .noContent()
+                .build();
+    }
+
+    // -------------------------------------------------------------------------
+    // Helper
+    // -------------------------------------------------------------------------
+
+    private DeadlineEntity getCurrentDeadline() {
+
+        deadlineService.updateDeadline();
+
+        return deadlineService.last();
     }
 }

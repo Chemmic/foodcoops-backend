@@ -23,7 +23,8 @@ public abstract class BestellungRepresentation {
 	private LocalDateTime datum;
 	private double bestellmenge;
 	private boolean done;
-	public BestellungRepresentation(String id, String personId, LocalDateTime datum, double bestellmenge, boolean done
+	private String deadlineId;
+	public BestellungRepresentation(String id, String personId, LocalDateTime datum, double bestellmenge, boolean done, String deadlineId
 		) {
 		super();
 		this.id = id;
@@ -31,6 +32,7 @@ public abstract class BestellungRepresentation {
 		this.datum = datum;
 		this.bestellmenge = bestellmenge;
 		this.done = done;
+		this.deadlineId = deadlineId;
 	}
 	
 	public String getId() {
@@ -50,6 +52,8 @@ public abstract class BestellungRepresentation {
 		return done;
 	}
 
-	
+	public String getDeadlineId() {
+		return deadlineId;
+	}
 	
 }

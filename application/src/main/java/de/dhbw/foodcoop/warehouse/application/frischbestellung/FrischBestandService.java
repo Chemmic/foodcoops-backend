@@ -1,5 +1,6 @@
 package de.dhbw.foodcoop.warehouse.application.frischbestellung;
 
+import de.dhbw.foodcoop.warehouse.application.preishistorie.PreisHistorieService;
 import de.dhbw.foodcoop.warehouse.domain.entities.FrischBestand;
 import de.dhbw.foodcoop.warehouse.domain.repositories.FrischBestandRepository;
 
@@ -12,10 +13,12 @@ import java.util.Optional;
 @Service
 public class FrischBestandService {
     private final FrischBestandRepository repository;
+    private final PreisHistorieService preisHistorieService;
 
     @Autowired
-    public FrischBestandService(FrischBestandRepository repository) {
+    public FrischBestandService(FrischBestandRepository repository, PreisHistorieService preisHistorieService) {
         this.repository = repository;
+        this.preisHistorieService = preisHistorieService;
     }
 
     public Optional<FrischBestand> findById(String id) {
@@ -27,7 +30,10 @@ public class FrischBestandService {
     }
 
     public FrischBestand save(FrischBestand newFrischBestand) {
-        return repository.speichern(newFrischBestand);
+
+        FrischBestand gespeichert = repository.speichern(newFrischBestand);
+        preisHistorieService.speichereAktuellenPreis(gespeichert);
+        return gespeichert;
     }
 
     

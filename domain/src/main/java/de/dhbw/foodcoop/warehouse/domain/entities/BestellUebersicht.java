@@ -27,14 +27,14 @@ public class BestellUebersicht {
 
     @OneToOne
     @JoinColumn(name = "toOrderWithinDeadline_id")
-	private Deadline toOrderWithinDeadline; 
+	private DeadlineEntity toOrderWithinDeadline;
 	
 	public BestellUebersicht() {
 		// TODO Auto-generated constructor stub
 	}
 	
 	
-	public BestellUebersicht(List<DiscrepancyEntity> discrepancy, List<BrotBestellung> brotBestellung, Deadline toOrderWithinDeadline, String id) {
+	public BestellUebersicht(List<DiscrepancyEntity> discrepancy, List<BrotBestellung> brotBestellung, DeadlineEntity toOrderWithinDeadline, String id) {
 		super();
 		this.discrepancy = discrepancy;
 		this.brotBestellung = brotBestellung;
@@ -73,12 +73,12 @@ public class BestellUebersicht {
 	}
 
 
-	public Deadline getToOrderWithinDeadline() {
+	public DeadlineEntity getToOrderWithinDeadline() {
 		return toOrderWithinDeadline;
 	}
 
 
-	public void setToOrderWithinDeadline(Deadline toOrderWithinDeadline) {
+	public void setToOrderWithinDeadline(DeadlineEntity toOrderWithinDeadline) {
 		this.toOrderWithinDeadline = toOrderWithinDeadline;
 	}
 	

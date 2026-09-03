@@ -18,7 +18,7 @@ import de.dhbw.foodcoop.warehouse.application.frischbestellung.FrischBestellungS
 import de.dhbw.foodcoop.warehouse.application.gebindemanagement.GebindemanagementService;
 import de.dhbw.foodcoop.warehouse.domain.entities.BestellUebersicht;
 import de.dhbw.foodcoop.warehouse.domain.entities.BrotBestellung;
-import de.dhbw.foodcoop.warehouse.domain.entities.Deadline;
+import de.dhbw.foodcoop.warehouse.domain.entities.DeadlineEntity;
 import de.dhbw.foodcoop.warehouse.domain.entities.DiscrepancyEntity;
 import de.dhbw.foodcoop.warehouse.domain.entities.FrischBestellung;
 import de.dhbw.foodcoop.warehouse.domain.entities.Kategorie;
@@ -56,11 +56,11 @@ public class BestellÜbersichtService {
 	}
 
 	public BestellUebersicht getLastUebersicht() {
-		Deadline deadline = deadlineService.last();
+		DeadlineEntity deadline = deadlineService.last();
 		return repo.findeMitDeadline(deadline);
 	}
 
-	public BestellUebersicht getByDeadline(Deadline deadline) {
+	public BestellUebersicht getByDeadline(DeadlineEntity deadline) {
 		return repo.findeMitDeadline(deadline);
 	}
 
@@ -91,16 +91,16 @@ public class BestellÜbersichtService {
 				.orElseThrow()
 				.getThreshold();
 
-		Deadline neuErstellte =
+		DeadlineEntity neuErstellte =
 				deadlineService.last();
 
 		bestellÜbersicht.setToOrderWithinDeadline(
 				neuErstellte);
 
-		Optional<Deadline> date1 =
+		Optional<DeadlineEntity> date1 =
 				deadlineService.getByPosition(0);
 
-		Optional<Deadline> date2 =
+		Optional<DeadlineEntity> date2 =
 				deadlineService.getByPosition(1);
 
 		if (date1.isEmpty() || date2.isEmpty()) {

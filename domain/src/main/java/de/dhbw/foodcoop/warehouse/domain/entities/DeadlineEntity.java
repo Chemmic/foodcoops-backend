@@ -11,7 +11,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "deadline")
-public class Deadline {
+public class DeadlineEntity {
     @Id
     private String id;
     @Column
@@ -21,18 +21,18 @@ public class Deadline {
     @Column
     private LocalDateTime datum;
 
-    public Deadline(String id, String weekday, Time time, LocalDateTime datum){
+    public DeadlineEntity(String id, String weekday, Time time, LocalDateTime datum){
         this.id = id;
         this.weekday = weekday;
         this.time = time;
         this.datum = datum;
     }
 
-    public Deadline(String weekday, Time time,LocalDateTime datum){
+    public DeadlineEntity(String weekday, Time time, LocalDateTime datum){
         this(UUID.randomUUID().toString(), weekday, time, datum);
     }
 
-    public Deadline(){
+    public DeadlineEntity(){
         
     }
 
@@ -87,7 +87,7 @@ public class Deadline {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        Deadline other = (Deadline) obj;
+        DeadlineEntity other = (DeadlineEntity) obj;
         if (id == null) {
             if (other.id != null)
                 return false;

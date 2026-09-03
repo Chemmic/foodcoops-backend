@@ -13,6 +13,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import de.dhbw.foodcoop.warehouse.domain.shopping.Buyable;
 
+import java.math.BigDecimal;
+
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
@@ -32,7 +34,7 @@ public abstract class BestandEntity implements Buyable {
     protected boolean verfuegbarkeit;
     
     @Column
-    protected float preis;
+    protected BigDecimal preis;
 
 	public String getId() {
 		return id;
@@ -58,11 +60,11 @@ public abstract class BestandEntity implements Buyable {
 		this.verfuegbarkeit = verfuegbarkeit;
 	}
 
-	public float getPreis() {
+	public BigDecimal  getPreis() {
 		return preis;
 	}
 
-	public void setPreis(float preis) {
+	public void setPreis(BigDecimal  preis) {
 		this.preis = preis;
 	}
     

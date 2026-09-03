@@ -6,17 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import de.dhbw.foodcoop.warehouse.adapters.representations.DeadlineRepresentation;
-import de.dhbw.foodcoop.warehouse.domain.entities.Deadline;
+import de.dhbw.foodcoop.warehouse.domain.entities.DeadlineEntity;
 
 @Component
-public class DeadlineToRepresentationMapper implements Function<Deadline, DeadlineRepresentation> {
+public class DeadlineToRepresentationMapper implements Function<DeadlineEntity, DeadlineRepresentation> {
    
     @Autowired
     public DeadlineToRepresentationMapper() {
     }
 
     @Override
-    public DeadlineRepresentation apply(Deadline deadline) {
+    public DeadlineRepresentation apply(DeadlineEntity deadline) {
         return new DeadlineRepresentation(
                 deadline.getId(),
                 deadline.getWeekday(),

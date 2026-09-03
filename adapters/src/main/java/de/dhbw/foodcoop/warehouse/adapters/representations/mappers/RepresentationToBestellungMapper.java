@@ -2,102 +2,233 @@ package de.dhbw.foodcoop.warehouse.adapters.representations.mappers;
 
 import java.util.function.Function;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import de.dhbw.foodcoop.warehouse.adapters.representations.BestellungRepresentation;
 import de.dhbw.foodcoop.warehouse.adapters.representations.BrotBestellungRepresentation;
 import de.dhbw.foodcoop.warehouse.adapters.representations.FrischBestellungRepresentation;
-import de.dhbw.foodcoop.warehouse.adapters.representations.ProduktRepresentation;
 import de.dhbw.foodcoop.warehouse.application.brot.BrotBestandService;
 import de.dhbw.foodcoop.warehouse.application.frischbestellung.FrischBestandService;
-import de.dhbw.foodcoop.warehouse.application.lager.ProduktService;
 import de.dhbw.foodcoop.warehouse.domain.entities.BestellungEntity;
 import de.dhbw.foodcoop.warehouse.domain.entities.BrotBestand;
 import de.dhbw.foodcoop.warehouse.domain.entities.BrotBestellung;
 import de.dhbw.foodcoop.warehouse.domain.entities.FrischBestand;
 import de.dhbw.foodcoop.warehouse.domain.entities.FrischBestellung;
-import de.dhbw.foodcoop.warehouse.domain.entities.Produkt;
 import de.dhbw.foodcoop.warehouse.domain.exceptions.BrotBestandNotFoundException;
 import de.dhbw.foodcoop.warehouse.domain.exceptions.FrischBestandNotFoundException;
-import de.dhbw.foodcoop.warehouse.domain.exceptions.ProduktNotFoundException;
 
 @Component
-public class RepresentationToBestellungMapper implements Function<BestellungRepresentation, BestellungEntity> {
-    private final BrotBestandService brotBestandService;
+public class RepresentationToBestellungMapper
+		implements Function<BestellungRepresentation, BestellungEntity> {
 
-    @Autowired
-    private  FrischBestandService frischBestandService;
-    
-    
-    @Autowired
-    public RepresentationToBestellungMapper(BrotBestandService brotBestandService) {
-        this.brotBestandService = brotBestandService;
-    }
+	private final BrotBestandService brotBestandService;
+	private final FrischBestandService frischBestandService;
 
+	public RepresentationToBestellungMapper(
+			BrotBestandService brotBestandService,
+			FrischBestandService frischBestandService) {
 
+		this.brotBestandService = brotBestandService;
+		this.frischBestandService = frischBestandService;
+	}
 
-    public BestellungEntity update(BestellungEntity oldBestellung, BestellungRepresentation newBestellung) {
-      
-    	if(newBestellung instanceof BrotBestellungRepresentation) {
-    		
-    	BrotBestellungRepresentation bbr = (BrotBestellungRepresentation) newBestellung;
-    	BrotBestand brotBestand = brotBestandService.findById(bbr.getBrotbestand().getId()).orElseThrow
-                (() -> new BrotBestandNotFoundException(bbr.getBrotbestand().getId()));
-        return new BrotBestellung(
-        		oldBestellung.getId(),
-                bbr.getPersonId(),
-                brotBestand,
-                bbr.getBestellmenge(),
-                bbr.getDatum()
-        );
-    	}
-    	
-    	if(newBestellung instanceof FrischBestellungRepresentation) {
-    		
-    	FrischBestellungRepresentation fbr = (FrischBestellungRepresentation) newBestellung;
-    	FrischBestand frischBestand = frischBestandService.findById(fbr.getFrischbestand().getId()).orElseThrow
-                (() -> new FrischBestandNotFoundException(fbr.getFrischbestand().getId()));
-        return new FrischBestellung(
-        		oldBestellung.getId(),
-                fbr.getPersonId(),
-                frischBestand,
-                fbr.getBestellmenge(),
-                fbr.getDatum(),
-                fbr.isDone()
-        );
-    	}
-    	return null;
-    }
+	// =========================================================================
+	// Update
+	// =========================================================================
+
+	public BestellungEntity update(
+			BestellungEntity oldBestellung,
+			BestellungRepresentation newBestellung) {
+
+		// ---------------------------------------------------------------------
+		// Brot
+		// ---------------------------------------------------------------------
+
+		if (newBestellung instanceof BrotBestellungRepresentation bbr) {
+
+			BrotBestand brotBestand =
+					brotBestandService
+							.findById(
+									bbr.getBrotbestand().getId()
+							)
+							.orElseThrow(
+									() ->
+											new BrotBestandNotFoundException(
+													bbr.getBrotbestand().getId()
+											)
+							);
+
+			BrotBestellung updated =
+					new BrotBestellung(
+							oldBestellung.getId(),
+							bbr.getPersonId(),
+							brotBestand,
+							bbr.getBestellmenge(),
+
+							/*
+							 * Wichtig:
+							 *
+							 * Das ursprüngliche Datum behalten.
+							 * Ein PUT darf die Bestellung nicht
+							 * plötzlich zu einer neuen Bestellung machen.
+							 */
+							oldBestellung.getDatum()
+					);
+
+			/*
+			 * Extrem wichtig:
+			 *
+			 * Die Bestellung gehört weiterhin zur
+			 * ursprünglichen Bestellrunde.
+			 */
+			updated.setDeadline(
+					oldBestellung.getDeadline()
+			);
+
+			/*
+			 * Falls BrotBestellungRepresentation ebenfalls
+			 * das done-Feld besitzt.
+			 */
+			updated.setDone(
+					bbr.isDone()
+			);
+
+			return updated;
+		}
+
+		// ---------------------------------------------------------------------
+		// Frisch
+		// ---------------------------------------------------------------------
+
+		if (newBestellung instanceof FrischBestellungRepresentation fbr) {
+
+			FrischBestand frischBestand =
+					frischBestandService
+							.findById(
+									fbr.getFrischbestand().getId()
+							)
+							.orElseThrow(
+									() ->
+											new FrischBestandNotFoundException(
+													fbr.getFrischbestand().getId()
+											)
+							);
+
+			FrischBestellung updated =
+					new FrischBestellung(
+							oldBestellung.getId(),
+							fbr.getPersonId(),
+							frischBestand,
+							fbr.getBestellmenge(),
+
+							oldBestellung.getDatum(),
+
+							fbr.isDone()
+					);
+
+			/*
+			 * Ursprüngliche Bestellrunde behalten.
+			 */
+			updated.setDeadline(
+					oldBestellung.getDeadline()
+			);
+
+			return updated;
+		}
+
+		throw new IllegalArgumentException(
+				"Unbekannter Bestellungstyp: "
+						+ newBestellung.getClass().getName()
+		);
+	}
+
+	// =========================================================================
+	// Create
+	// =========================================================================
 
 	@Override
-	public BestellungEntity apply(BestellungRepresentation t) {
-		if(t instanceof BrotBestellungRepresentation) {
-			BrotBestellungRepresentation bb = (BrotBestellungRepresentation) t;
-	        BrotBestand brotBestand = brotBestandService.findById(bb.getBrotbestand().getId()).orElseThrow
-	                (() -> new BrotBestandNotFoundException(bb.getBrotbestand().getId()));
-	        return new BrotBestellung(
-	                bb.getId(),
-	                bb.getPersonId(),
-	                brotBestand,
-	                bb.getBestellmenge(),
-	                bb.getDatum()
-	        );
+	public BestellungEntity apply(
+			BestellungRepresentation representation) {
+
+		// ---------------------------------------------------------------------
+		// Brot
+		// ---------------------------------------------------------------------
+
+		if (representation instanceof BrotBestellungRepresentation bbr) {
+
+			BrotBestand brotBestand =
+					brotBestandService
+							.findById(
+									bbr.getBrotbestand().getId()
+							)
+							.orElseThrow(
+									() ->
+											new BrotBestandNotFoundException(
+													bbr.getBrotbestand().getId()
+											)
+							);
+
+			BrotBestellung bestellung =
+					new BrotBestellung(
+							bbr.getId(),
+							bbr.getPersonId(),
+							brotBestand,
+							bbr.getBestellmenge(),
+							bbr.getDatum()
+					);
+
+			bestellung.setDone(
+					bbr.isDone()
+			);
+
+			/*
+			 * Deadline absichtlich NICHT setzen.
+			 *
+			 * Das übernimmt BrotBestellungService.save()
+			 * mit deadlineService.last().
+			 */
+
+			return bestellung;
 		}
-		if(t instanceof FrischBestellungRepresentation) {
-			FrischBestellungRepresentation bb = (FrischBestellungRepresentation) t;
-	        FrischBestand frischBestand = frischBestandService.findById(bb.getFrischbestand().getId()).orElseThrow
-	                (() -> new BrotBestandNotFoundException(bb.getFrischbestand().getId()));
-	        return new FrischBestellung(
-	                bb.getId(),
-	                bb.getPersonId(),
-	                frischBestand,
-	                bb.getBestellmenge(),
-	                bb.getDatum(),
-	                bb.isDone()
-	        );
+
+		// ---------------------------------------------------------------------
+		// Frisch
+		// ---------------------------------------------------------------------
+
+		if (representation instanceof FrischBestellungRepresentation fbr) {
+
+			FrischBestand frischBestand =
+					frischBestandService
+							.findById(
+									fbr.getFrischbestand().getId()
+							)
+							.orElseThrow(
+									() ->
+											new FrischBestandNotFoundException(
+													fbr.getFrischbestand().getId()
+											)
+							);
+
+
+			return new FrischBestellung(
+					fbr.getId(),
+					fbr.getPersonId(),
+					frischBestand,
+					fbr.getBestellmenge(),
+					fbr.getDatum(),
+					fbr.isDone()
+			);
+
+			/*
+
+			 * FrischBestellungService.save()
+			 * setzt die aktuelle Deadline.
+			 */
 		}
-		return null;
+
+		throw new IllegalArgumentException(
+				"Unbekannter Bestellungstyp: "
+						+ representation.getClass().getName()
+		);
 	}
 }
-

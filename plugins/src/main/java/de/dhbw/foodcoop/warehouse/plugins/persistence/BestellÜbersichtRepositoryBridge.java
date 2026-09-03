@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import de.dhbw.foodcoop.warehouse.domain.entities.BestellUebersicht;
-import de.dhbw.foodcoop.warehouse.domain.entities.Deadline;
+import de.dhbw.foodcoop.warehouse.domain.entities.DeadlineEntity;
 import de.dhbw.foodcoop.warehouse.domain.repositories.BestellÜbersichtRepository;
 @Repository
 public class BestellÜbersichtRepositoryBridge implements BestellÜbersichtRepository{
@@ -15,7 +15,7 @@ public class BestellÜbersichtRepositoryBridge implements BestellÜbersichtRepos
 	private SpringDataBestellÜbersichtRepository repo;
 	
 	@Override
-	public BestellUebersicht findeMitDeadline(Deadline deadline) {
+	public BestellUebersicht findeMitDeadline(DeadlineEntity deadline) {
 		// TODO Auto-generated method stub
 		return repo.findByDeadline(deadline.getId());
 	}

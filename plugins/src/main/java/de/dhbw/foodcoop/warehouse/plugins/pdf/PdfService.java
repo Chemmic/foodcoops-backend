@@ -35,7 +35,6 @@ import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.vandeseer.easytable.OverflowOnSamePageRepeatableHeaderTableDrawer;
@@ -59,7 +58,7 @@ import de.dhbw.foodcoop.warehouse.application.gebindemanagement.Gebindemanagemen
 import de.dhbw.foodcoop.warehouse.domain.entities.BestellUebersicht;
 import de.dhbw.foodcoop.warehouse.domain.entities.BrotBestand;
 import de.dhbw.foodcoop.warehouse.domain.entities.BrotBestellung;
-import de.dhbw.foodcoop.warehouse.domain.entities.Deadline;
+import de.dhbw.foodcoop.warehouse.domain.entities.DeadlineEntity;
 import de.dhbw.foodcoop.warehouse.domain.entities.EinkaufEntity;
 import de.dhbw.foodcoop.warehouse.domain.entities.FrischBestand;
 import de.dhbw.foodcoop.warehouse.domain.entities.FrischBestellung;
@@ -494,8 +493,8 @@ public class PdfService {
              PDType0Font arialBold = PDType0Font.load(document, getResourceAsStream("/Arial_Bold.ttf"));
              
              String[] personNames = new String[20];
-             Optional<Deadline> date1 = deadService.getByPosition(0);
-         	Optional<Deadline> date2 = deadService.getByPosition(1);
+             Optional<DeadlineEntity> date1 = deadService.getByPosition(0);
+         	Optional<DeadlineEntity> date2 = deadService.getByPosition(1);
          	HashMap<Integer, HashMap<String, Double>> map= new HashMap<>();
          	Arrays.fill(personNames, " ");
          	if(!date1.isEmpty()) {
@@ -684,8 +683,8 @@ public class PdfService {
                   PDImageXObject pdImage =  PDImageXObject.createFromByteArray(document, in.readAllBytes(), "fasanbaecker.png");
                   in.close(); 
                   contentStream.drawImage(pdImage, 	2f *toPx, page.getBBox().getHeight() - 1.8f * toPx, 8f * toPx, 1.6f*toPx);
-              	Optional<Deadline> date1 = deadService.getByPosition(0);
-            	Optional<Deadline> date2 = deadService.getByPosition(1);
+              	Optional<DeadlineEntity> date1 = deadService.getByPosition(0);
+            	Optional<DeadlineEntity> date2 = deadService.getByPosition(1);
             	
             	Map<String, Integer> amountMapForBread = new HashMap<>();
             	if(date1.isPresent() && date2.isPresent()) {
@@ -876,8 +875,8 @@ public class PdfService {
             		 
             	 
           //    Queue<String> person = new  ConcurrentLinkedQueue<>();
-          	Optional<Deadline> date1 = deadService.getByPosition(0);
-        	Optional<Deadline> date2 = deadService.getByPosition(1);
+          	Optional<DeadlineEntity> date1 = deadService.getByPosition(0);
+        	Optional<DeadlineEntity> date2 = deadService.getByPosition(1);
         	HashMap<Integer, HashMap<String, Double>> map= new HashMap<>();
         	HashMap<String, Double> amount = new HashMap<>();
         	BestellUebersicht be = service.getLastUebersicht();

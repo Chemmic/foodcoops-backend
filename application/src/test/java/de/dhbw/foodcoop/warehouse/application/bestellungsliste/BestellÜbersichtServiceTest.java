@@ -28,7 +28,7 @@ import de.dhbw.foodcoop.warehouse.application.gebindemanagement.Gebindemanagemen
 import de.dhbw.foodcoop.warehouse.domain.entities.BestellUebersicht;
 import de.dhbw.foodcoop.warehouse.domain.entities.BrotBestellung;
 import de.dhbw.foodcoop.warehouse.domain.entities.ConfigurationEntity;
-import de.dhbw.foodcoop.warehouse.domain.entities.Deadline;
+import de.dhbw.foodcoop.warehouse.domain.entities.DeadlineEntity;
 import de.dhbw.foodcoop.warehouse.domain.entities.DiscrepancyEntity;
 import de.dhbw.foodcoop.warehouse.domain.entities.FrischBestand;
 import de.dhbw.foodcoop.warehouse.domain.entities.FrischBestellung;
@@ -80,8 +80,8 @@ class BestellÜbersichtServiceTest {
         when(cfgService.getConfig())
                 .thenReturn(Optional.of(configuration));
 
-        Deadline current =
-                mock(Deadline.class);
+        DeadlineEntity current =
+                mock(DeadlineEntity.class);
 
         when(deadlineService.last())
                 .thenReturn(current);
@@ -133,11 +133,11 @@ class BestellÜbersichtServiceTest {
                         18,
                         0);
 
-        Deadline current =
-                mock(Deadline.class);
+        DeadlineEntity current =
+                mock(DeadlineEntity.class);
 
-        Deadline previous =
-                mock(Deadline.class);
+        DeadlineEntity previous =
+                mock(DeadlineEntity.class);
 
         when(current.getDatum())
                 .thenReturn(currentDate);

@@ -1,20 +1,20 @@
 package de.dhbw.foodcoop.warehouse.domain.repositories;
 
-import de.dhbw.foodcoop.warehouse.domain.entities.Deadline;
+import de.dhbw.foodcoop.warehouse.domain.entities.DeadlineEntity;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface DeadlineRepository {
-    List<Deadline> alle();
+    List<DeadlineEntity> alle();
 
-    Optional<Deadline> letzte();
+    Optional<DeadlineEntity> letzte();
     
-    Deadline speichern(Deadline deadline);
+    DeadlineEntity speichern(DeadlineEntity deadline);
 
-    Optional<Deadline> findeMitId(String id);
+    Optional<DeadlineEntity> findeMitId(String id);
 
     void deleteById(String id);
     
-    Optional<Deadline> findeNachReihenfolge(int position);
+    Optional<DeadlineEntity> findeNachReihenfolge(int position);
 }

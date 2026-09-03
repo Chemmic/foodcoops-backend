@@ -2,6 +2,8 @@ package de.dhbw.foodcoop.warehouse.domain.entities;
 
 import de.dhbw.foodcoop.warehouse.domain.values.AllergenInfo;
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -16,7 +18,7 @@ public class BrotBestand extends BestandEntity{
     private AllergenInfo allergenInfo = AllergenInfo.empty();;
 
 
-    public BrotBestand(String id, String name, boolean verfuegbarkeit, double gewicht, float preis) {
+    public BrotBestand(String id, String name, boolean verfuegbarkeit, double gewicht, BigDecimal  preis) {
         // Validate.notBlank(id);
         // Validate.notBlank(name);
         // Validate.notNull(verfuegbarkeit);
@@ -29,7 +31,7 @@ public class BrotBestand extends BestandEntity{
         this.preis = preis;
     }
 
-    public BrotBestand(String name, boolean verfuegbarkeit, double gewicht, float preis) {
+    public BrotBestand(String name, boolean verfuegbarkeit, double gewicht, BigDecimal preis) {
         this(UUID.randomUUID().toString(), name, verfuegbarkeit, gewicht, preis);
     }
 

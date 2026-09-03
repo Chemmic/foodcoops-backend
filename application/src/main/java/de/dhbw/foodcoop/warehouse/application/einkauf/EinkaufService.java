@@ -1,5 +1,6 @@
 package de.dhbw.foodcoop.warehouse.application.einkauf;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,7 +23,7 @@ import de.dhbw.foodcoop.warehouse.domain.entities.BestandBuyEntity;
 import de.dhbw.foodcoop.warehouse.domain.entities.BestellUebersicht;
 import de.dhbw.foodcoop.warehouse.domain.entities.BestellungBuyEntity;
 import de.dhbw.foodcoop.warehouse.domain.entities.BrotBestellung;
-import de.dhbw.foodcoop.warehouse.domain.entities.Deadline;
+import de.dhbw.foodcoop.warehouse.domain.entities.DeadlineEntity;
 import de.dhbw.foodcoop.warehouse.domain.entities.DiscrepancyEntity;
 import de.dhbw.foodcoop.warehouse.domain.entities.EinkaufEntity;
 import de.dhbw.foodcoop.warehouse.domain.entities.FrischBestand;
@@ -123,7 +124,7 @@ public class EinkaufService {
         	List<DiscrepancyEntity> discrepancies = be.getDiscrepancy();
         	List<BestellungBuyEntity> bestellungen = einkauf.getBestellungsEinkauf();
         			
-        	Optional<Deadline> date1 = deadlineService.getByPosition(0);
+        	Optional<DeadlineEntity> date1 = deadlineService.getByPosition(0);
         	
         	if(date1.isPresent()) {
         	
@@ -244,7 +245,6 @@ public class EinkaufService {
      * 
      * 
      * @param personId
-     * @param updatedOrders
      */
   
     
@@ -268,31 +268,31 @@ public class EinkaufService {
     }
     
     public double calculatePriceForBread(EinkaufEntity einkauf) {
-    	double price = 0d;
+		BigDecimal price = BigDecimal.ZERO;
     	if(einkauf.getBestellungsEinkauf() != null) {
 	    	for(BestellungBuyEntity ebv : einkauf.getBestellungsEinkauf()) {
 	    		if(ebv.getBestellung() instanceof BrotBestellung) {
 	    			double real = ebv.getAmount();
 	    			BrotBestellung brot = (BrotBestellung) ebv.getBestellung();
-	    			price = price + real * brot.getBrotBestand().getPreis();
+	    			price = price.add( BigDecimal.valueOf(real).multiply( brot.getBrotBestand().getPreis()));
 	    		}
 	    	}
     	}
 
-    	return price;
+    	return price.doubleValue();
     }
     
     public double calculatePriceForBestandBuy(EinkaufEntity einkauf) {
-    	double price = 0d;
+		BigDecimal price = BigDecimal.ZERO;
     	if(einkauf.getBestandEinkauf() == null) {
-    		return price;
+    		return price.doubleValue();
     	}
     	for(BestandBuyEntity be : einkauf.getBestandEinkauf()) {
     		if(be.getBestand() instanceof Produkt) {
-    			price = price + be.getBestand().getPreis() * be.getAmount();
+    			price = price.add(be.getBestand().getPreis().multiply( BigDecimal.valueOf(be.getAmount())));
     		}
     	}
-    	return price;
+    	return price.doubleValue();
     }
     
     public double calculateDeliveryCostForShopping(EinkaufEntity ee) {
@@ -304,30 +304,30 @@ public class EinkaufService {
     }
     
     public double calculatePriceForFresh(EinkaufEntity einkauf) {
-    	double price = 0d;
+		BigDecimal price = BigDecimal.ZERO;
     	if(einkauf.getBestellungsEinkauf() != null) { 
 	    	for(BestellungBuyEntity ebv : einkauf.getBestellungsEinkauf()) {
 	    		if(ebv.getBestellung() instanceof FrischBestellung) {
 	    			double real = ebv.getAmount();
 	    			FrischBestellung frisch = (FrischBestellung) ebv.getBestellung();
-	    			price = price + real * frisch.getFrischbestand().getPreis();
+	    			price = price.add( BigDecimal.valueOf(real).multiply( frisch.getFrischbestand().getPreis()));
 	    		}
 	    	}
     	}
 
-    	return price;
+    	return price.doubleValue();
     }
     
     public double calculatePriceForTooMuch(EinkaufEntity einkauf) {
-    	double price = 0d;
+		BigDecimal price = BigDecimal.ZERO;
     	if(einkauf.getTooMuchEinkauf() != null) { 
 	    	for(TooMuchBuyEntity ebv : einkauf.getTooMuchEinkauf()) {
 	    			double real = ebv.getAmount();
-	    			price = price + real * ebv.getDiscrepancy().getBestand().getPreis();
+	    			price = price.add( BigDecimal.valueOf(real).multiply( ebv.getDiscrepancy().getBestand().getPreis()));
 	    	}
     	}
 
-    	return price;
+    	return price.doubleValue();
     }
     
 

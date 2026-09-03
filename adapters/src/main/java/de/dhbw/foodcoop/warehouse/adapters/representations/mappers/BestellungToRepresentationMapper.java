@@ -15,40 +15,55 @@ import de.dhbw.foodcoop.warehouse.domain.entities.BrotBestellung;
 import de.dhbw.foodcoop.warehouse.domain.entities.FrischBestellung;
 
 @Component
-public class BestellungToRepresentationMapper implements Function<BestellungEntity, BestellungRepresentation> {
-
+public class BestellungToRepresentationMapper
+		implements Function<BestellungEntity, BestellungRepresentation> {
 
 	@Autowired
 	private BestandToRepresentationMapper bestandMapper;
 
-    @Autowired
-    public BestellungToRepresentationMapper() {
-    }
-
-
-	
+	@Autowired
+	public BestellungToRepresentationMapper() {
+	}
 
 	@Override
 	public BestellungRepresentation apply(BestellungEntity t) {
-		// TODO Auto-generated method stub
-		if(t instanceof FrischBestellung) {
+
+		if (t instanceof FrischBestellung) {
 			FrischBestellung fb = (FrischBestellung) t;
-			return new FrischBestellungRepresentation(fb.getId(),
+
+			return new FrischBestellungRepresentation(
+					fb.getId(),
 					fb.getPersonId(),
-					((FrischBestandRepresentation)bestandMapper.apply(fb.getFrischbestand())),
+					(FrischBestandRepresentation) bestandMapper.apply(
+							fb.getFrischbestand()
+					),
 					fb.getBestellmenge(),
 					fb.getDatum(),
-					fb.isDone());
+					fb.isDone(),
+					fb.getDeadline() != null
+							? fb.getDeadline().getId()
+							: null
+			);
 		}
-		if(t instanceof BrotBestellung) {
+
+		if (t instanceof BrotBestellung) {
 			BrotBestellung bb = (BrotBestellung) t;
-			return new BrotBestellungRepresentation(bb.getId(),
+
+			return new BrotBestellungRepresentation(
+					bb.getId(),
 					bb.getPersonId(),
-					((BrotBestandRepresentation) bestandMapper.apply(bb.getBrotBestand())),
+					(BrotBestandRepresentation) bestandMapper.apply(
+							bb.getBrotBestand()
+					),
 					bb.getBestellmenge(),
 					bb.getDatum(),
-					bb.isDone());
+					bb.isDone(),
+					bb.getDeadline() != null
+							? bb.getDeadline().getId()
+							: null
+			);
 		}
+
 		return null;
 	}
 }

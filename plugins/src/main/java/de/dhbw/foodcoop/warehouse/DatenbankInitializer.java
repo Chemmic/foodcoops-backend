@@ -1,5 +1,6 @@
 package de.dhbw.foodcoop.warehouse;
 
+import java.math.BigDecimal;
 import java.sql.Time;
 import java.time.LocalDateTime;
 import java.util.TimeZone;
@@ -18,7 +19,7 @@ import de.dhbw.foodcoop.warehouse.application.lager.KategorieService;
 import de.dhbw.foodcoop.warehouse.application.lager.ProduktService;
 import de.dhbw.foodcoop.warehouse.domain.entities.BrotBestand;
 import de.dhbw.foodcoop.warehouse.domain.entities.ConfigurationEntity;
-import de.dhbw.foodcoop.warehouse.domain.entities.Deadline;
+import de.dhbw.foodcoop.warehouse.domain.entities.DeadlineEntity;
 import de.dhbw.foodcoop.warehouse.domain.entities.FrischBestand;
 import de.dhbw.foodcoop.warehouse.domain.entities.Kategorie;
 import de.dhbw.foodcoop.warehouse.domain.entities.Produkt;
@@ -55,6 +56,10 @@ public class DatenbankInitializer {
 		this.deadlineService = deadlineService;
 	}
 
+	private static BigDecimal bd(String value) {
+		return new BigDecimal(value);
+	}
+
 	@PostConstruct
 	public void init() {
 
@@ -78,7 +83,7 @@ public class DatenbankInitializer {
 				&& deadlineService.all().isEmpty()) {
 
 			deadlineService.coldStart(
-					new Deadline(
+					new DeadlineEntity(
 							UUID.randomUUID().toString(),
 							DeadlineService.germanDaysOfWeekReversed.get(
 									LocalDateTime.now().getDayOfWeek()),
@@ -86,7 +91,7 @@ public class DatenbankInitializer {
 							LocalDateTime.now()));
 
 			deadlineService.coldStart(
-					new Deadline(
+					new DeadlineEntity(
 							UUID.randomUUID().toString(),
 							DeadlineService.germanDaysOfWeekReversed.get(
 									LocalDateTime.now().plusDays(1).getDayOfWeek()),
@@ -140,306 +145,306 @@ public class DatenbankInitializer {
 
 			int counter = 1000;
 
-			fbService.save(new FrischBestand(counter++ + "", "Kartoffeln fk", true, "D", 12.50f, kg, kartoffeln, 1.60f, "e.E.", false));
-			fbService.save(new FrischBestand(counter++ + "", "Kartoffeln vfk", true, "D", 12.50f, kg, kartoffeln, 1.60f, "e.E.", false));
-			fbService.save(new FrischBestand(counter++ + "", "Kartoffeln ml", true, "D", 12.50f, kg, kartoffeln, 1.60f, "e.E.", false));
+			fbService.save(new FrischBestand(counter++ + "", "Kartoffeln fk", true, "D", 12.50f, kg, kartoffeln, bd("1.60"), "e.E.", false));
+			fbService.save(new FrischBestand(counter++ + "", "Kartoffeln vfk", true, "D", 12.50f, kg, kartoffeln, bd("1.60"), "e.E.", false));
+			fbService.save(new FrischBestand(counter++ + "", "Kartoffeln ml", true, "D", 12.50f, kg, kartoffeln, bd("1.60"), "e.E.", false));
 
-			fbService.save(new FrischBestand(counter++ + "", "Zwiebeln gelb", true, "D", 10f, kg, zwiebeln, 2.70f, "DB", false));
+			fbService.save(new FrischBestand(counter++ + "", "Zwiebeln gelb", true, "D", 10f, kg, zwiebeln, bd("2.70"), "DB", false));
 
-			fbService.save(new FrischBestand(counter++ + "", "Möhren", true, "D", 12.50f, kg, wurzelgemüse, 1.80f, "e.E.", false));
-			fbService.save(new FrischBestand(counter++ + "", "Rote Bete", true, "D", 5f, kg, wurzelgemüse, 2.90f, "DB", false));
-			fbService.save(new FrischBestand(counter++ + "", "Pastinaken", true, "D", 5f, kg, wurzelgemüse, 3.20f, "e.E.", false));
-			fbService.save(new FrischBestand(counter++ + "", "Knollensellerie", true, "F", 5f, kg, wurzelgemüse, 2.90f, "DB", false));
-			fbService.save(new FrischBestand(counter++ + "", "Staudensellerie", true, "E", 1f, kg, wurzelgemüse, 5.20f, "EG", false));
+			fbService.save(new FrischBestand(counter++ + "", "Möhren", true, "D", 12.50f, kg, wurzelgemüse, bd("1.80"), "e.E.", false));
+			fbService.save(new FrischBestand(counter++ + "", "Rote Bete", true, "D", 5f, kg, wurzelgemüse, bd("2.90"), "DB", false));
+			fbService.save(new FrischBestand(counter++ + "", "Pastinaken", true, "D", 5f, kg, wurzelgemüse, bd("3.20"), "e.E.", false));
+			fbService.save(new FrischBestand(counter++ + "", "Knollensellerie", true, "F", 5f, kg, wurzelgemüse, bd("2.90"), "DB", false));
+			fbService.save(new FrischBestand(counter++ + "", "Staudensellerie", true, "E", 1f, kg, wurzelgemüse, bd("5.20"), "EG", false));
 
-			fbService.save(new FrischBestand(counter++ + "", "Batavia grün", true, "D", 8f, st, salat, 2f, "DB", false));
-			fbService.save(new FrischBestand(counter++ + "", "Eichblatt grün", true, "D", 8f, st, salat, 2f, "DB", false));
-			fbService.save(new FrischBestand(counter++ + "", "Eichblatt rot", true, "D", 8f, st, salat, 2f, "DB", false));
-			fbService.save(new FrischBestand(counter++ + "", "Kopfsalat grün", true, "D", 8f, st, salat, 2f, "DB", false));
+			fbService.save(new FrischBestand(counter++ + "", "Batavia grün", true, "D", 8f, st, salat, bd("2.00"), "DB", false));
+			fbService.save(new FrischBestand(counter++ + "", "Eichblatt grün", true, "D", 8f, st, salat, bd("2.00"), "DB", false));
+			fbService.save(new FrischBestand(counter++ + "", "Eichblatt rot", true, "D", 8f, st, salat, bd("2.00"), "DB", false));
+			fbService.save(new FrischBestand(counter++ + "", "Kopfsalat grün", true, "D", 8f, st, salat, bd("2.00"), "DB", false));
 
-			fbService.save(new FrischBestand(counter++ + "", "Petersilie glatt", true, "I", 1f, bd, petersilie, 1.60f, "EG", false));
-			fbService.save(new FrischBestand(counter++ + "", "Petersilie kraus", true, "D", 1f, bd, petersilie, 2f, "DD", false));
+			fbService.save(new FrischBestand(counter++ + "", "Petersilie glatt", true, "I", 1f, bd, petersilie, bd("1.60"), "EG", false));
+			fbService.save(new FrischBestand(counter++ + "", "Petersilie kraus", true, "D", 1f, bd, petersilie, bd("2.00"), "DD", false));
 
-			fbService.save(new FrischBestand(counter++ + "", "Lauch", true, "D", 5f, kg, gemüse, 4.60f, "DB", false));
-			fbService.save(new FrischBestand(counter++ + "", "Fenchel", true, "I", 5f, kg, gemüse, 3.80f, "EG", false));
-			fbService.save(new FrischBestand(counter++ + "", "Spinat", true, "D", 3f, kg, spinat, 7f, "DD", false));
-			fbService.save(new FrischBestand(counter++ + "", "Mangold", true, "I", 6f, kg, spinat, 3.80f, "EG", false));
+			fbService.save(new FrischBestand(counter++ + "", "Lauch", true, "D", 5f, kg, gemüse, bd("4.60"), "DB", false));
+			fbService.save(new FrischBestand(counter++ + "", "Fenchel", true, "I", 5f, kg, gemüse, bd("3.80"), "EG", false));
+			fbService.save(new FrischBestand(counter++ + "", "Spinat", true, "D", 3f, kg, spinat, bd("7.00"), "DD", false));
+			fbService.save(new FrischBestand(counter++ + "", "Mangold", true, "I", 6f, kg, spinat, bd("3.80"), "EG", false));
 
-			fbService.save(new FrischBestand(counter++ + "", "Chinakohl", true, "E", 8f, kg, kreuzblüten, 4.30f, "EG", false));
-			fbService.save(new FrischBestand(counter++ + "", "Blumenkohl", true, "I", 1f, kg, kreuzblüten, 4.20f, "EG", true));
-			fbService.save(new FrischBestand(counter++ + "", "Brokkoli", true, "E", 5f, kg, kreuzblüten, 3.90f, "EG", false));
-			fbService.save(new FrischBestand(counter++ + "", "Spitzkohl", true, "E", 7f, kg, kreuzblüten, 3.70f, "EG", false));
-			fbService.save(new FrischBestand(counter++ + "", "Kohlrabi", true, "I", 14f, st, kreuzblüten, 1.60f, "EG", false));
-			fbService.save(new FrischBestand(counter++ + "", "Radieschen", true, "D", 1f, bd, kreuzblüten, 2.50f, "DD", false));
+			fbService.save(new FrischBestand(counter++ + "", "Chinakohl", true, "E", 8f, kg, kreuzblüten, bd("4.30"), "EG", false));
+			fbService.save(new FrischBestand(counter++ + "", "Blumenkohl", true, "I", 1f, kg, kreuzblüten, bd("4.20"), "EG", true));
+			fbService.save(new FrischBestand(counter++ + "", "Brokkoli", true, "E", 5f, kg, kreuzblüten, bd("3.90"), "EG", false));
+			fbService.save(new FrischBestand(counter++ + "", "Spitzkohl", true, "E", 7f, kg, kreuzblüten, bd("3.70"), "EG", false));
+			fbService.save(new FrischBestand(counter++ + "", "Kohlrabi", true, "I", 14f, st, kreuzblüten, bd("1.60"), "EG", false));
+			fbService.save(new FrischBestand(counter++ + "", "Radieschen", true, "D", 1f, bd, kreuzblüten, bd("2.50"), "DD", false));
 
-			fbService.save(new FrischBestand(counter++ + "", "Tomaten", true, "E", 5f, kg, gemüse, 3.80f, "EG", false));
-			fbService.save(new FrischBestand(counter++ + "", "Gurken", true, "E", 12f, st, gemüse, 1.60f, "EG", false));
-			fbService.save(new FrischBestand(counter++ + "", "Zucchini", true, "E", 6f, kg, gemüse, 3.60f, "EG", false));
-			fbService.save(new FrischBestand(counter++ + "", "Paprika rot", true, "E", 5f, kg, gemüse, 6.20f, "EG", false));
-			fbService.save(new FrischBestand(counter++ + "", "Süßkartoffeln", true, "D", 6f, kg, gemüse, 5.20f, "DB", false));
+			fbService.save(new FrischBestand(counter++ + "", "Tomaten", true, "E", 5f, kg, gemüse, bd("3.80"), "EG", false));
+			fbService.save(new FrischBestand(counter++ + "", "Gurken", true, "E", 12f, st, gemüse, bd("1.60"), "EG", false));
+			fbService.save(new FrischBestand(counter++ + "", "Zucchini", true, "E", 6f, kg, gemüse, bd("3.60"), "EG", false));
+			fbService.save(new FrischBestand(counter++ + "", "Paprika rot", true, "E", 5f, kg, gemüse, bd("6.20"), "EG", false));
+			fbService.save(new FrischBestand(counter++ + "", "Süßkartoffeln", true, "D", 6f, kg, gemüse, bd("5.20"), "DB", false));
 
-			fbService.save(new FrischBestand(counter++ + "", "Clementinen", true, "E", 6f, kg, zitrusfrüchte, 2.90f, "EG", false));
-			fbService.save(new FrischBestand(counter++ + "", "Grapefruit", true, "E", 1f, st, zitrusfrüchte, 1.30f, "EG", false));
-			fbService.save(new FrischBestand(counter++ + "", "Orangen", true, "E", 9f, kg, zitrusfrüchte, 2.80f, "EG", false));
-			fbService.save(new FrischBestand(counter++ + "", "Saftorangen", true, "E", 10f, kg, zitrusfrüchte, 2.30f, "EG", false));
-			fbService.save(new FrischBestand(counter++ + "", "Kiwi grün", true, "I", 1f, st, frucht, 0.50f, "EG", false));
-			fbService.save(new FrischBestand(counter++ + "", "Zitronen", true, "I", 1f, kg, zitrusfrüchte, 0.60f, "EG", false));
+			fbService.save(new FrischBestand(counter++ + "", "Clementinen", true, "E", 6f, kg, zitrusfrüchte, bd("2.90"), "EG", false));
+			fbService.save(new FrischBestand(counter++ + "", "Grapefruit", true, "E", 1f, st, zitrusfrüchte, bd("1.30"), "EG", false));
+			fbService.save(new FrischBestand(counter++ + "", "Orangen", true, "E", 9f, kg, zitrusfrüchte, bd("2.80"), "EG", false));
+			fbService.save(new FrischBestand(counter++ + "", "Saftorangen", true, "E", 10f, kg, zitrusfrüchte, bd("2.30"), "EG", false));
+			fbService.save(new FrischBestand(counter++ + "", "Kiwi grün", true, "I", 1f, st, frucht, bd("0.50"), "EG", false));
+			fbService.save(new FrischBestand(counter++ + "", "Zitronen", true, "I", 1f, kg, zitrusfrüchte, bd("0.60"), "EG", false));
 
-			fbService.save(new FrischBestand(counter++ + "", "Äpfel Topaz", true, "D", 10f, kg, apfel, 3.60f, "DB", false));
-			fbService.save(new FrischBestand(counter++ + "", "Äpfel Boskoop", true, "D", 10f, kg, apfel, 3.60f, "DB", false));
-			fbService.save(new FrischBestand(counter++ + "", "Äpfel Elstar", true, "D", 10f, kg, apfel, 3.60f, "DB", false));
+			fbService.save(new FrischBestand(counter++ + "", "Äpfel Topaz", true, "D", 10f, kg, apfel, bd("3.60"), "DB", false));
+			fbService.save(new FrischBestand(counter++ + "", "Äpfel Boskoop", true, "D", 10f, kg, apfel, bd("3.60"), "DB", false));
+			fbService.save(new FrischBestand(counter++ + "", "Äpfel Elstar", true, "D", 10f, kg, apfel, bd("3.60"), "DB", false));
 
-			fbService.save(new FrischBestand(counter++ + "", "Champignons", true, "D", 2f, kg, pilze, 9.80f, "DB", false));
-			fbService.save(new FrischBestand(counter++ + "", "Kräuterseitlinge", true, "D", 1f, kg, pilze, 22f, "DD", false));
-			fbService.save(new FrischBestand(counter++ + "", "Knoblauch", true, "Ar", 1f, kg, gemüse, 12f, "EG", true));
-			fbService.save(new FrischBestand(counter++ + "", "Eier", true, "D", 1f, st, eier, 0.55f, "DB", false));
+			fbService.save(new FrischBestand(counter++ + "", "Champignons", true, "D", 2f, kg, pilze, bd("9.80"), "DB", false));
+			fbService.save(new FrischBestand(counter++ + "", "Kräuterseitlinge", true, "D", 1f, kg, pilze, bd("22.00"), "DD", false));
+			fbService.save(new FrischBestand(counter++ + "", "Knoblauch", true, "Ar", 1f, kg, gemüse, bd("12.00"), "EG", true));
+			fbService.save(new FrischBestand(counter++ + "", "Eier", true, "D", 1f, st, eier, bd("0.55"), "DB", false));
 
-			brotService.save(new BrotBestand("11", "Demeter-Dinkellaib", true, 500, 3.3f));
-			brotService.save(new BrotBestand("12", "Dinkel-Wurzelbrot", true, 500, 3.1f));
-			brotService.save(new BrotBestand("14", "Schweizer Kruste", true, 750, 3.7f));
-			brotService.save(new BrotBestand("15", "Kamut-Brot", true, 750, 4.85f));
-			brotService.save(new BrotBestand("16", "Saftbrot ESSENER Art", true, 750, 4.05f));
-			brotService.save(new BrotBestand("20", "Genetztes Dinkelbrotb", true, 750, 3.95f));
-			brotService.save(new BrotBestand("22", "Dinkel Saatenbrot", true, 500, 3.25f));
-			brotService.save(new BrotBestand("23", "Hafer-Dinkelbrot", true, 500, 3.4f));
-			brotService.save(new BrotBestand("27", "Kürbisbrot mit Hirse", true, 500, 3.35f));
-			brotService.save(new BrotBestand("28", "Möhren-Kürbisbrot", true, 750, 4.25f));
-			brotService.save(new BrotBestand("30", "Sonnenblumenbrot", true, 750, 4.05f));
-			brotService.save(new BrotBestand("32", "Mischbrot", true, 750, 3.25f));
-			brotService.save(new BrotBestand("33", "Mehrkornbrot", true, 750, 3.85f));
-			brotService.save(new BrotBestand("34", "Blankenlocher", true, 500, 2.5f));
-			brotService.save(new BrotBestand("35", "Reichenbacher", true, 1000, 4.5f));
-			brotService.save(new BrotBestand("37", "Kasten-Weissbrot", true, 500, 2.65f));
-			brotService.save(new BrotBestand("40", "Hausbrot", true, 750, 3.25f));
-			brotService.save(new BrotBestand("41", "Walnußbrot", true, 500, 3.65f));
-			brotService.save(new BrotBestand("50", "Roggenbrot", true, 750, 3.4f));
-			brotService.save(new BrotBestand("56", "Rhein. Schwarzbrot", true, 500, 2.45f));
-			brotService.save(new BrotBestand("61", "Brauer KRUSTE", true, 500, 2.85f));
-			brotService.save(new BrotBestand("71", "Kleine Hirse", true, 500, 3f));
-			brotService.save(new BrotBestand("77", "Roggenmischbrot", true, 500, 2.7f));
-			brotService.save(new BrotBestand("92", "Low-Carb-Brot", true, 320, 4.85f));
-			brotService.save(new BrotBestand("95", "Glutenfreies Brot", true, 380, 2.75f));
-			brotService.save(new BrotBestand("120", "Dinkelbrötchen Vollkorn", true, 0, 0.7f));
-			brotService.save(new BrotBestand("124", "Dinkelbaguette Vollkorn", true, 0, 2f));
-			brotService.save(new BrotBestand("125", "Brötchen-Rad, verziert", true, 0, 7.7f));
-			brotService.save(new BrotBestand("130", "Mohnbrötchen", true, 0, 0.6f));
-			brotService.save(new BrotBestand("131", "Sonnenblumenbrötchen", true, 0, 0.6f));
-			brotService.save(new BrotBestand("132", "Sesambrötchen", true, 0, 0.6f));
-			brotService.save(new BrotBestand("133", "Kürbiskernbrötchen", true, 0, 0.6f));
-			brotService.save(new BrotBestand("135", "Thomasbrötchen", true, 0, 0.55f));
-			brotService.save(new BrotBestand("139", "Fladen Weizen-Vollkorn", true, 0, 1f));
-			brotService.save(new BrotBestand("142", "Sesambaguette, Vollkorn", true, 0, 2.2f));
-			brotService.save(new BrotBestand("146", "Dinkel-Krusti", true, 0, 1.2f));
-			brotService.save(new BrotBestand("147", "Dinkel-Bauernbaguette", true, 0, 2.35f));
-			brotService.save(new BrotBestand("150", "Elsässer Doppelweck", true, 0, 0.85f));
-			brotService.save(new BrotBestand("151", "Roggenweck", true, 0, 0.6f));
-			brotService.save(new BrotBestand("156", "Dinkel-Kamut-Panini", true, 0, 1.1f));
-			brotService.save(new BrotBestand("157", "Dinkel-Kamut Seele", true, 0, 1.3f));
-			brotService.save(new BrotBestand("158", "Dinkel-Kamut Ciabatta", true, 0, 2.35f));
-			brotService.save(new BrotBestand("159", "Dinkel-Kamut Ciabatta Olive", true, 0, 2.65f));
+			brotService.save(new BrotBestand("11", "Demeter-Dinkellaib", true, 500, bd("3.30")));
+			brotService.save(new BrotBestand("12", "Dinkel-Wurzelbrot", true, 500, bd("3.10")));
+			brotService.save(new BrotBestand("14", "Schweizer Kruste", true, 750, bd("3.70")));
+			brotService.save(new BrotBestand("15", "Kamut-Brot", true, 750, bd("4.85")));
+			brotService.save(new BrotBestand("16", "Saftbrot ESSENER Art", true, 750, bd("4.05")));
+			brotService.save(new BrotBestand("20", "Genetztes Dinkelbrotb", true, 750, bd("3.95")));
+			brotService.save(new BrotBestand("22", "Dinkel Saatenbrot", true, 500, bd("3.25")));
+			brotService.save(new BrotBestand("23", "Hafer-Dinkelbrot", true, 500, bd("3.40")));
+			brotService.save(new BrotBestand("27", "Kürbisbrot mit Hirse", true, 500, bd("3.35")));
+			brotService.save(new BrotBestand("28", "Möhren-Kürbisbrot", true, 750, bd("4.25")));
+			brotService.save(new BrotBestand("30", "Sonnenblumenbrot", true, 750, bd("4.05")));
+			brotService.save(new BrotBestand("32", "Mischbrot", true, 750, bd("3.25")));
+			brotService.save(new BrotBestand("33", "Mehrkornbrot", true, 750, bd("3.85")));
+			brotService.save(new BrotBestand("34", "Blankenlocher", true, 500, bd("2.50")));
+			brotService.save(new BrotBestand("35", "Reichenbacher", true, 1000, bd("4.50")));
+			brotService.save(new BrotBestand("37", "Kasten-Weissbrot", true, 500, bd("2.65")));
+			brotService.save(new BrotBestand("40", "Hausbrot", true, 750, bd("3.25")));
+			brotService.save(new BrotBestand("41", "Walnußbrot", true, 500, bd("3.65")));
+			brotService.save(new BrotBestand("50", "Roggenbrot", true, 750, bd("3.40")));
+			brotService.save(new BrotBestand("56", "Rhein. Schwarzbrot", true, 500, bd("2.45")));
+			brotService.save(new BrotBestand("61", "Brauer KRUSTE", true, 500, bd("2.85")));
+			brotService.save(new BrotBestand("71", "Kleine Hirse", true, 500, bd("3.00")));
+			brotService.save(new BrotBestand("77", "Roggenmischbrot", true, 500, bd("2.70")));
+			brotService.save(new BrotBestand("92", "Low-Carb-Brot", true, 320, bd("4.85")));
+			brotService.save(new BrotBestand("95", "Glutenfreies Brot", true, 380, bd("2.75")));
+			brotService.save(new BrotBestand("120", "Dinkelbrötchen Vollkorn", true, 0, bd("0.70")));
+			brotService.save(new BrotBestand("124", "Dinkelbaguette Vollkorn", true, 0, bd("2.00")));
+			brotService.save(new BrotBestand("125", "Brötchen-Rad, verziert", true, 0, bd("7.70")));
+			brotService.save(new BrotBestand("130", "Mohnbrötchen", true, 0, bd("0.60")));
+			brotService.save(new BrotBestand("131", "Sonnenblumenbrötchen", true, 0, bd("0.60")));
+			brotService.save(new BrotBestand("132", "Sesambrötchen", true, 0, bd("0.60")));
+			brotService.save(new BrotBestand("133", "Kürbiskernbrötchen", true, 0, bd("0.60")));
+			brotService.save(new BrotBestand("135", "Thomasbrötchen", true, 0, bd("0.55")));
+			brotService.save(new BrotBestand("139", "Fladen Weizen-Vollkorn", true, 0, bd("1.00")));
+			brotService.save(new BrotBestand("142", "Sesambaguette, Vollkorn", true, 0, bd("2.20")));
+			brotService.save(new BrotBestand("146", "Dinkel-Krusti", true, 0, bd("1.20")));
+			brotService.save(new BrotBestand("147", "Dinkel-Bauernbaguette", true, 0, bd("2.35")));
+			brotService.save(new BrotBestand("150", "Elsässer Doppelweck", true, 0, bd("0.85")));
+			brotService.save(new BrotBestand("151", "Roggenweck", true, 0, bd("0.60")));
+			brotService.save(new BrotBestand("156", "Dinkel-Kamut-Panini", true, 0, bd("1.10")));
+			brotService.save(new BrotBestand("157", "Dinkel-Kamut Seele", true, 0, bd("1.30")));
+			brotService.save(new BrotBestand("158", "Dinkel-Kamut Ciabatta", true, 0, bd("2.35")));
+			brotService.save(new BrotBestand("159", "Dinkel-Kamut Ciabatta Olive", true, 0, bd("2.65")));
 
-			brotService.save(new BrotBestand("370", "Berliner", false, 0, 1.55f));
-			brotService.save(new BrotBestand("331", "Faschingsmaske", false, 0, 1.55f));
-			brotService.save(new BrotBestand("332", "Osterhase", true, 0, 1.55f));
-			brotService.save(new BrotBestand("339", "Osterbrot", true, 0, 3.5f));
-			brotService.save(new BrotBestand("334", "Martinsgans", false, 0, 1.7f));
-			brotService.save(new BrotBestand("335", "Dambedei", false, 0, 1.7f));
-			brotService.save(new BrotBestand("336", "Neujahrsbr 110g", false, 110, 1.7f));
-			brotService.save(new BrotBestand("337", "Neujahrsbr 600g", true, 600, 10.4f));
-			brotService.save(new BrotBestand("463", "Honig-Lebkuchen Platte", false, 0, 1.7f));
-			brotService.save(new BrotBestand("464", "Honig-Lebkuchen Herz", false, 0, 1.7f));
-			brotService.save(new BrotBestand("467", "Hutzelbrot", false, 0, 4.55f));
+			brotService.save(new BrotBestand("370", "Berliner", false, 0, bd("1.55")));
+			brotService.save(new BrotBestand("331", "Faschingsmaske", false, 0, bd("1.55")));
+			brotService.save(new BrotBestand("332", "Osterhase", true, 0, bd("1.55")));
+			brotService.save(new BrotBestand("339", "Osterbrot", true, 0, bd("3.50")));
+			brotService.save(new BrotBestand("334", "Martinsgans", false, 0, bd("1.70")));
+			brotService.save(new BrotBestand("335", "Dambedei", false, 0, bd("1.70")));
+			brotService.save(new BrotBestand("336", "Neujahrsbr 110g", false, 110, bd("1.70")));
+			brotService.save(new BrotBestand("337", "Neujahrsbr 600g", true, 600, bd("10.40")));
+			brotService.save(new BrotBestand("463", "Honig-Lebkuchen Platte", false, 0, bd("1.70")));
+			brotService.save(new BrotBestand("464", "Honig-Lebkuchen Herz", false, 0, bd("1.70")));
+			brotService.save(new BrotBestand("467", "Hutzelbrot", false, 0, bd("4.55")));
 
-			brotService.save(new BrotBestand("160", "Dinkellaugen-Ring Vollkorn", true, 0, 0.9f));
-			brotService.save(new BrotBestand("162", "Dinkellaugen-Brezel ab 5 St", true, 0, 0.95f));
-			brotService.save(new BrotBestand("163", "Laugen-Brezel Salz ab 5 St", true, 0, 1f));
-			brotService.save(new BrotBestand("164", "Schlemmerschleife", true, 0, 1.85f));
-			brotService.save(new BrotBestand("165", "Laugen-Brezel Sesam ab 5 St", true, 0, 1f));
-			brotService.save(new BrotBestand("166", "Käse-Laugenweck", true, 0, 1.3f));
-			brotService.save(new BrotBestand("167", "Laugenknoten", true, 0, 0.95f));
-			brotService.save(new BrotBestand("168", "Laugenstange", true, 0, 0.95f));
-			brotService.save(new BrotBestand("169", "Laugenbaguette", true, 0, 2.55f));
-			brotService.save(new BrotBestand("171", "Baguette Tradition", true, 0, 2.2f));
-			brotService.save(new BrotBestand("172", "Baguette Campaillou", true, 0, 2.2f));
-			brotService.save(new BrotBestand("175", "Petite", true, 0, 0.85f));
-			brotService.save(new BrotBestand("201", "Gemüsekuchen rund 12 St", true, 0, 25.45f));
-			brotService.save(new BrotBestand("202", "Zwiebelkuchen", false, 0, 22.5f));
-			brotService.save(new BrotBestand("203", "Zwiebelkuchen m. Speck", false, 0, 23.75f));
-			brotService.save(new BrotBestand("211", "Pizza-Schnecke", true, 0, 2f));
-			brotService.save(new BrotBestand("214", "Napoli", true, 0, 2.2f));
-			brotService.save(new BrotBestand("215", "Spinaci", true, 0, 2.2f));
-			brotService.save(new BrotBestand("252", "6-Korn Laugencroissant", true, 0, 1.55f));
-			brotService.save(new BrotBestand("290", "Schokofranzbrötchen vegan", true, 0, 2f));
-			brotService.save(new BrotBestand("301", "Franzbrötchen (Zimtschnecke)", true, 0, 1.75f));
-			brotService.save(new BrotBestand("302", "Rosinenbrötchen", true, 0, 1f));
-			brotService.save(new BrotBestand("303", "Dinkel-Apfelschnecke", true, 0, 2.1f));
-			brotService.save(new BrotBestand("304", "Dinkel-Mohnschnecke", true, 0, 2.15f));
-			brotService.save(new BrotBestand("305", "Topfen/Quarktasche", true, 0, 2.15f));
-			brotService.save(new BrotBestand("306", "Kirschplunder vegan", true, 0, 2.2f));
-			brotService.save(new BrotBestand("308", "Apfeltasche", true, 0, 2.2f));
-			brotService.save(new BrotBestand("309", "Rosinenschnecke la Créme", true, 0, 1.85f));
-			brotService.save(new BrotBestand("310", "Schoko Croissant", true, 0, 1.55f));
-			brotService.save(new BrotBestand("313", "Dinkel-Croissant hell", true, 0, 1.65f));
-			brotService.save(new BrotBestand("315", "Croissant französisch", true, 0, 1.5f));
-			brotService.save(new BrotBestand("322", "Stutenseer Zopf", true, 0, 3.25f));
-			brotService.save(new BrotBestand("323", "Mohn Zopf", true, 0, 3.5f));
-			brotService.save(new BrotBestand("324", "Dinkel Mohn Tartes", true, 0, 2.5f));
-			brotService.save(new BrotBestand("325", "Dinkel Apfel Tartes", true, 0, 2.5f));
-			brotService.save(new BrotBestand("326", "Dinkel Käse Tartes", true, 0, 2.5f));
-			brotService.save(new BrotBestand("327", "Dinkel Gemüse Tartes", true, 0, 2.5f));
-			brotService.save(new BrotBestand("328", "Quarkbällchen ab 3 St", true, 0, 0.8f));
-			brotService.save(new BrotBestand("341", "Apfel-Blech-Kuchen", true, 0, 2.1f));
-			brotService.save(new BrotBestand("342", "Schoko-Kirsch-Kuchen", true, 0, 2.1f));
-			brotService.save(new BrotBestand("343", "Schwarze Johannisbeer-Kuchen", true, 0, 2.1f));
-			brotService.save(new BrotBestand("351", "Rhabarberkuchen", true, 0, 2.1f));
-			brotService.save(new BrotBestand("352", "Zwetschgenkuchen", false, 0, 2.1f));
-			brotService.save(new BrotBestand("353", "Mohnkuchen", true, 0, 2.2f));
-			brotService.save(new BrotBestand("401", "18 Amaranth-Taler vegan", true, 0, 26.4f));
-			brotService.save(new BrotBestand("402", "Linzer-Torte", true, 0, 10.45f));
-			brotService.save(new BrotBestand("405", "16 Dinkel-Mandel-Zungen", true, 0, 28.4f));
-			brotService.save(new BrotBestand("406", "16 Dinkel-Nougat-Ring", true, 0, 28.4f));
-			brotService.save(new BrotBestand("407", "18 Schoko-Peanuts Vollm.", true, 0, 30.3f));
-			brotService.save(new BrotBestand("422", "12 Kernbeißer", true, 0, 21.2f));
+			brotService.save(new BrotBestand("160", "Dinkellaugen-Ring Vollkorn", true, 0, bd("0.90")));
+			brotService.save(new BrotBestand("162", "Dinkellaugen-Brezel ab 5 St", true, 0, bd("0.95")));
+			brotService.save(new BrotBestand("163", "Laugen-Brezel Salz ab 5 St", true, 0, bd("1.00")));
+			brotService.save(new BrotBestand("164", "Schlemmerschleife", true, 0, bd("1.85")));
+			brotService.save(new BrotBestand("165", "Laugen-Brezel Sesam ab 5 St", true, 0, bd("1.00")));
+			brotService.save(new BrotBestand("166", "Käse-Laugenweck", true, 0, bd("1.30")));
+			brotService.save(new BrotBestand("167", "Laugenknoten", true, 0, bd("0.95")));
+			brotService.save(new BrotBestand("168", "Laugenstange", true, 0, bd("0.95")));
+			brotService.save(new BrotBestand("169", "Laugenbaguette", true, 0, bd("2.55")));
+			brotService.save(new BrotBestand("171", "Baguette Tradition", true, 0, bd("2.20")));
+			brotService.save(new BrotBestand("172", "Baguette Campaillou", true, 0, bd("2.20")));
+			brotService.save(new BrotBestand("175", "Petite", true, 0, bd("0.85")));
+			brotService.save(new BrotBestand("201", "Gemüsekuchen rund 12 St", true, 0, bd("25.45")));
+			brotService.save(new BrotBestand("202", "Zwiebelkuchen", false, 0, bd("22.50")));
+			brotService.save(new BrotBestand("203", "Zwiebelkuchen m. Speck", false, 0, bd("23.75")));
+			brotService.save(new BrotBestand("211", "Pizza-Schnecke", true, 0, bd("2.00")));
+			brotService.save(new BrotBestand("214", "Napoli", true, 0, bd("2.20")));
+			brotService.save(new BrotBestand("215", "Spinaci", true, 0, bd("2.20")));
+			brotService.save(new BrotBestand("252", "6-Korn Laugencroissant", true, 0, bd("1.55")));
+			brotService.save(new BrotBestand("290", "Schokofranzbrötchen vegan", true, 0, bd("2.00")));
+			brotService.save(new BrotBestand("301", "Franzbrötchen (Zimtschnecke)", true, 0, bd("1.75")));
+			brotService.save(new BrotBestand("302", "Rosinenbrötchen", true, 0, bd("1.00")));
+			brotService.save(new BrotBestand("303", "Dinkel-Apfelschnecke", true, 0, bd("2.10")));
+			brotService.save(new BrotBestand("304", "Dinkel-Mohnschnecke", true, 0, bd("2.15")));
+			brotService.save(new BrotBestand("305", "Topfen/Quarktasche", true, 0, bd("2.15")));
+			brotService.save(new BrotBestand("306", "Kirschplunder vegan", true, 0, bd("2.20")));
+			brotService.save(new BrotBestand("308", "Apfeltasche", true, 0, bd("2.20")));
+			brotService.save(new BrotBestand("309", "Rosinenschnecke la Créme", true, 0, bd("1.85")));
+			brotService.save(new BrotBestand("310", "Schoko Croissant", true, 0, bd("1.55")));
+			brotService.save(new BrotBestand("313", "Dinkel-Croissant hell", true, 0, bd("1.65")));
+			brotService.save(new BrotBestand("315", "Croissant französisch", true, 0, bd("1.50")));
+			brotService.save(new BrotBestand("322", "Stutenseer Zopf", true, 0, bd("3.25")));
+			brotService.save(new BrotBestand("323", "Mohn Zopf", true, 0, bd("3.50")));
+			brotService.save(new BrotBestand("324", "Dinkel Mohn Tartes", true, 0, bd("2.50")));
+			brotService.save(new BrotBestand("325", "Dinkel Apfel Tartes", true, 0, bd("2.50")));
+			brotService.save(new BrotBestand("326", "Dinkel Käse Tartes", true, 0, bd("2.50")));
+			brotService.save(new BrotBestand("327", "Dinkel Gemüse Tartes", true, 0, bd("2.50")));
+			brotService.save(new BrotBestand("328", "Quarkbällchen ab 3 St", true, 0, bd("0.80")));
+			brotService.save(new BrotBestand("341", "Apfel-Blech-Kuchen", true, 0, bd("2.10")));
+			brotService.save(new BrotBestand("342", "Schoko-Kirsch-Kuchen", true, 0, bd("2.10")));
+			brotService.save(new BrotBestand("343", "Schwarze Johannisbeer-Kuchen", true, 0, bd("2.10")));
+			brotService.save(new BrotBestand("351", "Rhabarberkuchen", true, 0, bd("2.10")));
+			brotService.save(new BrotBestand("352", "Zwetschgenkuchen", false, 0, bd("2.10")));
+			brotService.save(new BrotBestand("353", "Mohnkuchen", true, 0, bd("2.20")));
+			brotService.save(new BrotBestand("401", "18 Amaranth-Taler vegan", true, 0, bd("26.40")));
+			brotService.save(new BrotBestand("402", "Linzer-Torte", true, 0, bd("10.45")));
+			brotService.save(new BrotBestand("405", "16 Dinkel-Mandel-Zungen", true, 0, bd("28.40")));
+			brotService.save(new BrotBestand("406", "16 Dinkel-Nougat-Ring", true, 0, bd("28.40")));
+			brotService.save(new BrotBestand("407", "18 Schoko-Peanuts Vollm.", true, 0, bd("30.30")));
+			brotService.save(new BrotBestand("422", "12 Kernbeißer", true, 0, bd("21.20")));
 
-			produktService.save(new Produkt("Backhefe 7g", "Biovegan Meister Backhefe", backmittel, new Lagerbestand(g, 0d, 0d), 0.65f));
-			produktService.save(new Produkt("Backhefe 9g", "Rapunzel", backmittel, new Lagerbestand(g, 0d, 0d), 0.70f));
-			produktService.save(new Produkt("Backpulver 3x17g", "Biovegan Meister Backhefe", backmittel, new Lagerbestand(g, 0d, 0d), 0.90f));
-			produktService.save(new Produkt("Vanillezucker 5x8g", "Biovegan Vanillezucker", backmittel, new Lagerbestand(g, 0d, 0d), 3.45f));
-			produktService.save(new Produkt("Kakao 125g", "Naturata Kakao schwach entölt", backmittel, new Lagerbestand(g, 0d, 0d), 2.05f));
-			produktService.save(new Produkt("Puderzucker 200g", "Naturata Puderzucker aus Rohrohrzucker", backmittel, new Lagerbestand(g, 0d, 0d), 1.8f));
-			produktService.save(new Produkt("Speisestärke 250g", "Bauk/Spielberger Speisestärke (Mais) sehr fein", backmittel, new Lagerbestand(g, 0d, 0d), 1.6f));
+			produktService.save(new Produkt("Backhefe 7g", "Biovegan Meister Backhefe", backmittel, new Lagerbestand(g, 0d, 0d), bd("0.65")));
+			produktService.save(new Produkt("Backhefe 9g", "Rapunzel", backmittel, new Lagerbestand(g, 0d, 0d), bd("0.70")));
+			produktService.save(new Produkt("Backpulver 3x17g", "Biovegan Meister Backhefe", backmittel, new Lagerbestand(g, 0d, 0d), bd("0.90")));
+			produktService.save(new Produkt("Vanillezucker 5x8g", "Biovegan Vanillezucker", backmittel, new Lagerbestand(g, 0d, 0d), bd("3.45")));
+			produktService.save(new Produkt("Kakao 125g", "Naturata Kakao schwach entölt", backmittel, new Lagerbestand(g, 0d, 0d), bd("2.05")));
+			produktService.save(new Produkt("Puderzucker 200g", "Naturata Puderzucker aus Rohrohrzucker", backmittel, new Lagerbestand(g, 0d, 0d), bd("1.80")));
+			produktService.save(new Produkt("Speisestärke 250g", "Bauk/Spielberger Speisestärke (Mais) sehr fein", backmittel, new Lagerbestand(g, 0d, 0d), bd("1.60")));
 
-			produktService.save(new Produkt("Rot/weiß-weinessig 0,5l", "Byodo", essigoel, new Lagerbestand(l, 0d, 0d), 2.60f));
-			produktService.save(new Produkt("Apfelessig 0,5l", "Byodo", essigoel, new Lagerbestand(l, 0d, 0d), 3.00f));
-			produktService.save(new Produkt("Bratöl (Sonnenblumenkerne) 0,75l", "Byodo", essigoel, new Lagerbestand(l, 0d, 0d), 6.00f));
-			produktService.save(new Produkt("Bratöl (Sonnenblumenkerne) 1l", "Rapunzel Brat und Backöl ", essigoel, new Lagerbestand(l, 0d, 0d), 6.75f));
-			produktService.save(new Produkt("Bratöl (Raps) 0,75l", "Byodo", essigoel, new Lagerbestand(l, 0d, 0d), 4.60f));
+			produktService.save(new Produkt("Rot/weiß-weinessig 0,5l", "Byodo", essigoel, new Lagerbestand(l, 0d, 0d), bd("2.60")));
+			produktService.save(new Produkt("Apfelessig 0,5l", "Byodo", essigoel, new Lagerbestand(l, 0d, 0d), bd("3.00")));
+			produktService.save(new Produkt("Bratöl (Sonnenblumenkerne) 0,75l", "Byodo", essigoel, new Lagerbestand(l, 0d, 0d), bd("6.00")));
+			produktService.save(new Produkt("Bratöl (Sonnenblumenkerne) 1l", "Rapunzel Brat und Backöl ", essigoel, new Lagerbestand(l, 0d, 0d), bd("6.75")));
+			produktService.save(new Produkt("Bratöl (Raps) 0,75l", "Byodo", essigoel, new Lagerbestand(l, 0d, 0d), bd("4.60")));
 
-			produktService.save(new Produkt("Basmati Reis 1kg", "Rapunzel Himalaya Basmati Reis", reis, new Lagerbestand(kg, 0d, 0d), 5.00f));
-			produktService.save(new Produkt("Milchreis 500g", "Burgermühle", reis, new Lagerbestand(g, 0d, 0d), 3.10f));
-			produktService.save(new Produkt("Milchreis 1kg", "Burgermühle", reis, new Lagerbestand(kg, 0d, 0d), 5.20f));
-			produktService.save(new Produkt("Parboiled Reis 1kg weiß", "Spielberger/Burger", reis, new Lagerbestand(kg, 0d, 0d), 5.40f));
-			produktService.save(new Produkt("Camarque Reis 500g rot", "Rapunzel", reis, new Lagerbestand(g, 0d, 0d), 4.50f));
+			produktService.save(new Produkt("Basmati Reis 1kg", "Rapunzel Himalaya Basmati Reis", reis, new Lagerbestand(kg, 0d, 0d), bd("5.00")));
+			produktService.save(new Produkt("Milchreis 500g", "Burgermühle", reis, new Lagerbestand(g, 0d, 0d), bd("3.10")));
+			produktService.save(new Produkt("Milchreis 1kg", "Burgermühle", reis, new Lagerbestand(kg, 0d, 0d), bd("5.20")));
+			produktService.save(new Produkt("Parboiled Reis 1kg weiß", "Spielberger/Burger", reis, new Lagerbestand(kg, 0d, 0d), bd("5.40")));
+			produktService.save(new Produkt("Camarque Reis 500g rot", "Rapunzel", reis, new Lagerbestand(g, 0d, 0d), bd("4.50")));
 
-			produktService.save(new Produkt("Grünkern 160g", "Bauckhof demeter", bratlinge, new Lagerbestand(g, 0d, 0d), 1.70f));
-			produktService.save(new Produkt("Falafel 160g", "Bauckhof glutenfrei", bratlinge, new Lagerbestand(g, 0d, 0d), 1.80f));
+			produktService.save(new Produkt("Grünkern 160g", "Bauckhof demeter", bratlinge, new Lagerbestand(g, 0d, 0d), bd("1.70")));
+			produktService.save(new Produkt("Falafel 160g", "Bauckhof glutenfrei", bratlinge, new Lagerbestand(g, 0d, 0d), bd("1.80")));
 
-			produktService.save(new Produkt("Bulgur 500g", "Rapunzel", griesGetreide, new Lagerbestand(g, 0d, 0d), 3.10f));
-			produktService.save(new Produkt("Cous Cous 500g", "Rapunzel", griesGetreide, new Lagerbestand(g, 0d, 0d), 2.70f));
-			produktService.save(new Produkt("Minutenpolenta 500g", "Rapunzel", griesGetreide, new Lagerbestand(g, 0d, 0d), 2.50f));
-			produktService.save(new Produkt("Haferflocken Zartblatt 1kg", "Spielgerber", griesGetreide, new Lagerbestand(kg, 0d, 0d), 3.40f));
-			produktService.save(new Produkt("Speisehirse 500g", "Rapunzel", griesGetreide, new Lagerbestand(g, 0d, 0d), 2.20f));
-			produktService.save(new Produkt("Speisehirse 1kg", "Rapunzel", griesGetreide, new Lagerbestand(kg, 0d, 0d), 5.40f));
-			produktService.save(new Produkt("Quinoa weiß 500g", "Rapunzel", griesGetreide, new Lagerbestand(g, 0d, 0d), 4.50f));
-			produktService.save(new Produkt("Leinsaat 500g", "Rapunzel", griesGetreide, new Lagerbestand(g, 0d, 0d), 3.50f));
-			produktService.save(new Produkt("Sonnenblumenkerne 500g", "Rapunzel", griesGetreide, new Lagerbestand(g, 0d, 0d), 3.00f));
-			produktService.save(new Produkt("Sesam 250g", "Rapunzel ungeschält", griesGetreide, new Lagerbestand(g, 0d, 0d), 2.25f));
-			produktService.save(new Produkt("Dinkelgrieß 500g", "Spielberger demeter", griesGetreide, new Lagerbestand(g, 0d, 0d), 2.50f));
-			produktService.save(new Produkt("Dinkelmehl 630 1kg", "Burgermühle", griesGetreide, new Lagerbestand(kg, 0d, 0d), 2.50f));
-			produktService.save(new Produkt("Weizenmehl 550 1kg", "Spielberger", griesGetreide, new Lagerbestand(kg, 0d, 0d), 1.50f));
-			produktService.save(new Produkt("Weizen-Spätzle-Mehl 1kg", "Spielberger", griesGetreide, new Lagerbestand(kg, 0d, 0d), 2.35f));
-			produktService.save(new Produkt("Dinkelmehl 1050", "", griesGetreide, new Lagerbestand(g, 0d, 0d), 2.60f));
-			produktService.save(new Produkt("Weizenmehl 1050 1kg", "Burgermühle", griesGetreide, new Lagerbestand(kg, 0d, 0d), 1.50f));
-			produktService.save(new Produkt("Kürbiskerne 500g", "Rapunzel", griesGetreide, new Lagerbestand(g, 0d, 0d), 9.90f));
+			produktService.save(new Produkt("Bulgur 500g", "Rapunzel", griesGetreide, new Lagerbestand(g, 0d, 0d), bd("3.10")));
+			produktService.save(new Produkt("Cous Cous 500g", "Rapunzel", griesGetreide, new Lagerbestand(g, 0d, 0d), bd("2.70")));
+			produktService.save(new Produkt("Minutenpolenta 500g", "Rapunzel", griesGetreide, new Lagerbestand(g, 0d, 0d), bd("2.50")));
+			produktService.save(new Produkt("Haferflocken Zartblatt 1kg", "Spielgerber", griesGetreide, new Lagerbestand(kg, 0d, 0d), bd("3.40")));
+			produktService.save(new Produkt("Speisehirse 500g", "Rapunzel", griesGetreide, new Lagerbestand(g, 0d, 0d), bd("2.20")));
+			produktService.save(new Produkt("Speisehirse 1kg", "Rapunzel", griesGetreide, new Lagerbestand(kg, 0d, 0d), bd("5.40")));
+			produktService.save(new Produkt("Quinoa weiß 500g", "Rapunzel", griesGetreide, new Lagerbestand(g, 0d, 0d), bd("4.50")));
+			produktService.save(new Produkt("Leinsaat 500g", "Rapunzel", griesGetreide, new Lagerbestand(g, 0d, 0d), bd("3.50")));
+			produktService.save(new Produkt("Sonnenblumenkerne 500g", "Rapunzel", griesGetreide, new Lagerbestand(g, 0d, 0d), bd("3.00")));
+			produktService.save(new Produkt("Sesam 250g", "Rapunzel ungeschält", griesGetreide, new Lagerbestand(g, 0d, 0d), bd("2.25")));
+			produktService.save(new Produkt("Dinkelgrieß 500g", "Spielberger demeter", griesGetreide, new Lagerbestand(g, 0d, 0d), bd("2.50")));
+			produktService.save(new Produkt("Dinkelmehl 630 1kg", "Burgermühle", griesGetreide, new Lagerbestand(kg, 0d, 0d), bd("2.50")));
+			produktService.save(new Produkt("Weizenmehl 550 1kg", "Spielberger", griesGetreide, new Lagerbestand(kg, 0d, 0d), bd("1.50")));
+			produktService.save(new Produkt("Weizen-Spätzle-Mehl 1kg", "Spielberger", griesGetreide, new Lagerbestand(kg, 0d, 0d), bd("2.35")));
+			produktService.save(new Produkt("Dinkelmehl 1050", "", griesGetreide, new Lagerbestand(g, 0d, 0d), bd("2.60")));
+			produktService.save(new Produkt("Weizenmehl 1050 1kg", "Burgermühle", griesGetreide, new Lagerbestand(kg, 0d, 0d), bd("1.50")));
+			produktService.save(new Produkt("Kürbiskerne 500g", "Rapunzel", griesGetreide, new Lagerbestand(g, 0d, 0d), bd("9.90")));
 
-			produktService.save(new Produkt("Vollmilch / ganze Mandel", "Rapunzel", sueskram, new Lagerbestand(p, 0d, 0d), 2.10f));
-			produktService.save(new Produkt("Cristallino Nougat", "Rapunzel", sueskram, new Lagerbestand(p, 0d, 0d), 2.30f));
-			produktService.save(new Produkt("Krachnuss Schokolade/Nirvana", "Rapunzel", sueskram, new Lagerbestand(p, 0d, 0d), 2.30f));
-			produktService.save(new Produkt("Capuccino", "Vivani", sueskram, new Lagerbestand(p, 0d, 0d), 1.90f));
-			produktService.save(new Produkt("Nougat / Praline", "Vivani", sueskram, new Lagerbestand(p, 0d, 0d), 2.30f));
-			produktService.save(new Produkt("Vollmilch", "Vivani", sueskram, new Lagerbestand(p, 0d, 0d), 2.10f));
-			produktService.save(new Produkt("Gummibärchen", "", sueskram, new Lagerbestand(p, 0d, 0d), 1.80f));
-			produktService.save(new Produkt("Kartoffelchips mit Salz", "Plural", sueskram, new Lagerbestand(p, 0d, 0d), 1.9f));
-			produktService.save(new Produkt("Geröstete Erdnüsse 150g", "Morgenland", sueskram, new Lagerbestand(p, 0d, 0d), 2.40f));
-			produktService.save(new Produkt("Doppelkekse Schoko/Vanille", "Plural", sueskram, new Lagerbestand(p, 0d, 0d), 2.10f));
-			produktService.save(new Produkt("Doppelkekse Schoko Dinkel", "Plural", sueskram, new Lagerbestand(p, 0d, 0d), 2.30f));
+			produktService.save(new Produkt("Vollmilch / ganze Mandel", "Rapunzel", sueskram, new Lagerbestand(p, 0d, 0d), bd("2.10")));
+			produktService.save(new Produkt("Cristallino Nougat", "Rapunzel", sueskram, new Lagerbestand(p, 0d, 0d), bd("2.30")));
+			produktService.save(new Produkt("Krachnuss Schokolade/Nirvana", "Rapunzel", sueskram, new Lagerbestand(p, 0d, 0d), bd("2.30")));
+			produktService.save(new Produkt("Capuccino", "Vivani", sueskram, new Lagerbestand(p, 0d, 0d), bd("1.90")));
+			produktService.save(new Produkt("Nougat / Praline", "Vivani", sueskram, new Lagerbestand(p, 0d, 0d), bd("2.30")));
+			produktService.save(new Produkt("Vollmilch", "Vivani", sueskram, new Lagerbestand(p, 0d, 0d), bd("2.10")));
+			produktService.save(new Produkt("Gummibärchen", "", sueskram, new Lagerbestand(p, 0d, 0d), bd("1.80")));
+			produktService.save(new Produkt("Kartoffelchips mit Salz", "Plural", sueskram, new Lagerbestand(p, 0d, 0d), bd("1.90")));
+			produktService.save(new Produkt("Geröstete Erdnüsse 150g", "Morgenland", sueskram, new Lagerbestand(p, 0d, 0d), bd("2.40")));
+			produktService.save(new Produkt("Doppelkekse Schoko/Vanille", "Plural", sueskram, new Lagerbestand(p, 0d, 0d), bd("2.10")));
+			produktService.save(new Produkt("Doppelkekse Schoko Dinkel", "Plural", sueskram, new Lagerbestand(p, 0d, 0d), bd("2.30")));
 
-			produktService.save(new Produkt("Linsen braun 500g", "Rapunzel", huelsenfruechte, new Lagerbestand(g, 0d, 0d), 3.6f));
-			produktService.save(new Produkt("Linsen rot 500g", "Rapunzel", huelsenfruechte, new Lagerbestand(g, 0d, 0d), 3.5f));
-			produktService.save(new Produkt("Linsen beluga 500g", "Rapunzel", huelsenfruechte, new Lagerbestand(g, 0d, 0d), 4.0f));
-			produktService.save(new Produkt("Kichererbsen trocken 500g", "Rapunzel", huelsenfruechte, new Lagerbestand(g, 0d, 0d), 3.20f));
+			produktService.save(new Produkt("Linsen braun 500g", "Rapunzel", huelsenfruechte, new Lagerbestand(g, 0d, 0d), bd("3.60")));
+			produktService.save(new Produkt("Linsen rot 500g", "Rapunzel", huelsenfruechte, new Lagerbestand(g, 0d, 0d), bd("3.50")));
+			produktService.save(new Produkt("Linsen beluga 500g", "Rapunzel", huelsenfruechte, new Lagerbestand(g, 0d, 0d), bd("4.00")));
+			produktService.save(new Produkt("Kichererbsen trocken 500g", "Rapunzel", huelsenfruechte, new Lagerbestand(g, 0d, 0d), bd("3.20")));
 
-			produktService.save(new Produkt("Earl Grey", "", tee, new Lagerbestand(p, 0d, 0d), 3.4f));
-			produktService.save(new Produkt("Sandorn-Cranbery / Granatapfel-Orange", "", tee, new Lagerbestand(p, 0d, 0d), 2.8f));
-			produktService.save(new Produkt("Sweet Chai", "", tee, new Lagerbestand(p, 0d, 0d), 3.3f));
-			produktService.save(new Produkt("Lebensbaum Rooibusch", "", tee, new Lagerbestand(p, 0d, 0d), 3.30f));
+			produktService.save(new Produkt("Earl Grey", "", tee, new Lagerbestand(p, 0d, 0d), bd("3.40")));
+			produktService.save(new Produkt("Sandorn-Cranbery / Granatapfel-Orange", "", tee, new Lagerbestand(p, 0d, 0d), bd("2.80")));
+			produktService.save(new Produkt("Sweet Chai", "", tee, new Lagerbestand(p, 0d, 0d), bd("3.30")));
+			produktService.save(new Produkt("Lebensbaum Rooibusch", "", tee, new Lagerbestand(p, 0d, 0d), bd("3.30")));
 
-			produktService.save(new Produkt("Thunfisch", "", fisch, new Lagerbestand(k, 0d, 0d), 2.7f));
-			produktService.save(new Produkt("Sardinen", "", fisch, new Lagerbestand(k, 0d, 0d), 0f));
+			produktService.save(new Produkt("Thunfisch", "", fisch, new Lagerbestand(k, 0d, 0d), bd("2.70")));
+			produktService.save(new Produkt("Sardinen", "", fisch, new Lagerbestand(k, 0d, 0d), bd("0.00")));
 
-			produktService.save(new Produkt("Basis-Müsli 750g", "Rapunzel", muesli, new Lagerbestand(g, 0d, 0d), 2.5f));
-			produktService.save(new Produkt("Mond und Sterne 1kg", "Rapunzel", muesli, new Lagerbestand(g, 0d, 0d), 8.05f));
-			produktService.save(new Produkt("Allos Hildegard Dinkel", "Allos", muesli, new Lagerbestand(g, 0d, 0d), 4.10f));
-			produktService.save(new Produkt("Rapunzel Früchte 750g", "Rapunzel", muesli, new Lagerbestand(g, 0d, 0d), 4.95f));
+			produktService.save(new Produkt("Basis-Müsli 750g", "Rapunzel", muesli, new Lagerbestand(g, 0d, 0d), bd("2.50")));
+			produktService.save(new Produkt("Mond und Sterne 1kg", "Rapunzel", muesli, new Lagerbestand(g, 0d, 0d), bd("8.05")));
+			produktService.save(new Produkt("Allos Hildegard Dinkel", "Allos", muesli, new Lagerbestand(g, 0d, 0d), bd("4.10")));
+			produktService.save(new Produkt("Rapunzel Früchte 750g", "Rapunzel", muesli, new Lagerbestand(g, 0d, 0d), bd("4.95")));
 
-			produktService.save(new Produkt("Vollrohrzucker 1kg", "Rapunzel Rapadura", suessmittel, new Lagerbestand(kg, 0d, 0d), 7.05f));
-			produktService.save(new Produkt("Rohrzucker 1kg", "Rapunzel Cristallino", suessmittel, new Lagerbestand(kg, 0d, 0d), 4.10f));
-			produktService.save(new Produkt("Roh-Rohrzucker 1kg", "Burgermühle", suessmittel, new Lagerbestand(kg, 0d, 0d), 2.60f));
+			produktService.save(new Produkt("Vollrohrzucker 1kg", "Rapunzel Rapadura", suessmittel, new Lagerbestand(kg, 0d, 0d), bd("7.05")));
+			produktService.save(new Produkt("Rohrzucker 1kg", "Rapunzel Cristallino", suessmittel, new Lagerbestand(kg, 0d, 0d), bd("4.10")));
+			produktService.save(new Produkt("Roh-Rohrzucker 1kg", "Burgermühle", suessmittel, new Lagerbestand(kg, 0d, 0d), bd("2.60")));
 
-			produktService.save(new Produkt("Vanille/Schoko", "Rapunzel", pudding, new Lagerbestand(kg, 0d, 0d), 0.90f));
+			produktService.save(new Produkt("Vanille/Schoko", "Rapunzel", pudding, new Lagerbestand(kg, 0d, 0d), bd("0.90")));
 
-			produktService.save(new Produkt("Shoyu 500ml", "Lima Shoyu mild", wuerze, new Lagerbestand(ml, 0d, 0d), 6.10f));
-			produktService.save(new Produkt("Meersalz fein 1kg", "Byodo ohne Riesenhilfe", wuerze, new Lagerbestand(kg, 0d, 0d), 1.90f));
-			produktService.save(new Produkt("Kräutersalz Nachfüllpack", "Byodo", wuerze, new Lagerbestand(p, 0d, 0d), 4.10f));
-			produktService.save(new Produkt("klare Suppe Nachfüllpack", "Rapunzel", wuerze, new Lagerbestand(p, 0d, 0d), 5.30f));
-			produktService.save(new Produkt("Grill / Fondue Senf 200ml", "Byodo", wuerze, new Lagerbestand(ml, 0d, 0d), 2.10f));
-			produktService.save(new Produkt("Ganzkorn Senf 160ml", "Zwergenwiese", wuerze, new Lagerbestand(ml, 0d, 0d), 2.00f));
-			produktService.save(new Produkt("Mittelscharfer Senf 200ml", "Byodo", wuerze, new Lagerbestand(ml, 0d, 0d), 2.00f));
-			produktService.save(new Produkt("Kräuter der Provence 30g", "Lebensbaum", wuerze, new Lagerbestand(g, 0d, 0d), 2.50f));
-			produktService.save(new Produkt("Zimt", "Lebensbaumr", wuerze, new Lagerbestand(p, 0d, 0d), 2.50f));
-			produktService.save(new Produkt("Paprika edelsüß", "Lebensbaum", wuerze, new Lagerbestand(p, 0d, 0d), 2.30f));
-			produktService.save(new Produkt("Koriander gemahlen", "Lebensbaum", wuerze, new Lagerbestand(p, 0d, 0d), 2.00f));
-			produktService.save(new Produkt("Curry mild", "Lebensbaum", wuerze, new Lagerbestand(p, 0d, 0d), 3.00f));
-			produktService.save(new Produkt("Oregano /Tymian", "Lebensbaum", wuerze, new Lagerbestand(p, 0d, 0d), 1.70f));
-			produktService.save(new Produkt("Basilikum gerebelt", "Lebensbaum", wuerze, new Lagerbestand(p, 0d, 0d), 1.90f));
-			produktService.save(new Produkt("Pfeffer", "Lebensbaum", wuerze, new Lagerbestand(p, 0d, 0d), 2.60f));
+			produktService.save(new Produkt("Shoyu 500ml", "Lima Shoyu mild", wuerze, new Lagerbestand(ml, 0d, 0d), bd("6.10")));
+			produktService.save(new Produkt("Meersalz fein 1kg", "Byodo ohne Riesenhilfe", wuerze, new Lagerbestand(kg, 0d, 0d), bd("1.90")));
+			produktService.save(new Produkt("Kräutersalz Nachfüllpack", "Byodo", wuerze, new Lagerbestand(p, 0d, 0d), bd("4.10")));
+			produktService.save(new Produkt("klare Suppe Nachfüllpack", "Rapunzel", wuerze, new Lagerbestand(p, 0d, 0d), bd("5.30")));
+			produktService.save(new Produkt("Grill / Fondue Senf 200ml", "Byodo", wuerze, new Lagerbestand(ml, 0d, 0d), bd("2.10")));
+			produktService.save(new Produkt("Ganzkorn Senf 160ml", "Zwergenwiese", wuerze, new Lagerbestand(ml, 0d, 0d), bd("2.00")));
+			produktService.save(new Produkt("Mittelscharfer Senf 200ml", "Byodo", wuerze, new Lagerbestand(ml, 0d, 0d), bd("2.00")));
+			produktService.save(new Produkt("Kräuter der Provence 30g", "Lebensbaum", wuerze, new Lagerbestand(g, 0d, 0d), bd("2.50")));
+			produktService.save(new Produkt("Zimt", "Lebensbaumr", wuerze, new Lagerbestand(p, 0d, 0d), bd("2.50")));
+			produktService.save(new Produkt("Paprika edelsüß", "Lebensbaum", wuerze, new Lagerbestand(p, 0d, 0d), bd("2.30")));
+			produktService.save(new Produkt("Koriander gemahlen", "Lebensbaum", wuerze, new Lagerbestand(p, 0d, 0d), bd("2.00")));
+			produktService.save(new Produkt("Curry mild", "Lebensbaum", wuerze, new Lagerbestand(p, 0d, 0d), bd("3.00")));
+			produktService.save(new Produkt("Oregano /Tymian", "Lebensbaum", wuerze, new Lagerbestand(p, 0d, 0d), bd("1.70")));
+			produktService.save(new Produkt("Basilikum gerebelt", "Lebensbaum", wuerze, new Lagerbestand(p, 0d, 0d), bd("1.90")));
+			produktService.save(new Produkt("Pfeffer", "Lebensbaum", wuerze, new Lagerbestand(p, 0d, 0d), bd("2.60")));
 
-			produktService.save(new Produkt("Arrabbiata 340g", "Rapunzel", pastasosen, new Lagerbestand(g, 0d, 0d), 3.50f));
-			produktService.save(new Produkt("Ratatouille 350g", "Rapunzel", pastasosen, new Lagerbestand(g, 0d, 0d), 3.70f));
-			produktService.save(new Produkt("Toskana 550g", "Rapunzel", pastasosen, new Lagerbestand(g, 0d, 0d), 3.00f));
-			produktService.save(new Produkt("Familia 550g", "Rapunzel", pastasosen, new Lagerbestand(g, 0d, 0d), 2.80f));
-			produktService.save(new Produkt("Ricotta  350g", "Zwergenwiese", pastasosen, new Lagerbestand(g, 0d, 0d), 2.70f));
-			produktService.save(new Produkt("Tomatensauce Olivia 370g", "Rapunzel Tomatensauce", pastasosen, new Lagerbestand(g, 0d, 0d), 3.50f));
-			produktService.save(new Produkt("Pesto grün", "Byodo", pastasosen, new Lagerbestand(p, 0d, 0d), 3.60f));
-			produktService.save(new Produkt("Pesto rot", "Rapunzel", pastasosen, new Lagerbestand(p, 0d, 0d), 3.70f));
+			produktService.save(new Produkt("Arrabbiata 340g", "Rapunzel", pastasosen, new Lagerbestand(g, 0d, 0d), bd("3.50")));
+			produktService.save(new Produkt("Ratatouille 350g", "Rapunzel", pastasosen, new Lagerbestand(g, 0d, 0d), bd("3.70")));
+			produktService.save(new Produkt("Toskana 550g", "Rapunzel", pastasosen, new Lagerbestand(g, 0d, 0d), bd("3.00")));
+			produktService.save(new Produkt("Familia 550g", "Rapunzel", pastasosen, new Lagerbestand(g, 0d, 0d), bd("2.80")));
+			produktService.save(new Produkt("Ricotta  350g", "Zwergenwiese", pastasosen, new Lagerbestand(g, 0d, 0d), bd("2.70")));
+			produktService.save(new Produkt("Tomatensauce Olivia 370g", "Rapunzel Tomatensauce", pastasosen, new Lagerbestand(g, 0d, 0d), bd("3.50")));
+			produktService.save(new Produkt("Pesto grün", "Byodo", pastasosen, new Lagerbestand(p, 0d, 0d), bd("3.60")));
+			produktService.save(new Produkt("Pesto rot", "Rapunzel", pastasosen, new Lagerbestand(p, 0d, 0d), bd("3.70")));
 
-			produktService.save(new Produkt("Tomaten-Ketchup", "Byodo", tomaten, new Lagerbestand(p, 0d, 0d), 3.70f));
-			produktService.save(new Produkt("Passata 680g", "Rapunzel", tomaten, new Lagerbestand(g, 0d, 0d), 2.50f));
-			produktService.save(new Produkt("Pizzatomaten 330g", "Rapunzel", tomaten, new Lagerbestand(g, 0d, 0d), 2.30f));
+			produktService.save(new Produkt("Tomaten-Ketchup", "Byodo", tomaten, new Lagerbestand(p, 0d, 0d), bd("3.70")));
+			produktService.save(new Produkt("Passata 680g", "Rapunzel", tomaten, new Lagerbestand(g, 0d, 0d), bd("2.50")));
+			produktService.save(new Produkt("Pizzatomaten 330g", "Rapunzel", tomaten, new Lagerbestand(g, 0d, 0d), bd("2.30")));
 
-			produktService.save(new Produkt("Spaghetti 500g", "Rapunzel", nudeln, new Lagerbestand(g, 0d, 0d), 1.90f));
-			produktService.save(new Produkt("Spirelli 2kg", "Rapunzel", nudeln, new Lagerbestand(kg, 0d, 0d), 6.20f));
-			produktService.save(new Produkt("Penne 1kg", "Rapunzel", nudeln, new Lagerbestand(kg, 0d, 0d), 3.40f));
-			produktService.save(new Produkt("Farfalle 500g", "Rapunzel", nudeln, new Lagerbestand(g, 0d, 0d), 2.10f));
-			produktService.save(new Produkt("Lasagne-Platten 250g", "Rapunzel", nudeln, new Lagerbestand(g, 0d, 0d), 2.30f));
-			produktService.save(new Produkt("Tagliatelle Semola 500g", "Rapunzel", nudeln, new Lagerbestand(g, 0d, 0d), 1.90f));
-			produktService.save(new Produkt("Penne 500g", "Rapunzel", nudeln, new Lagerbestand(g, 0d, 0d), 1.90f));
+			produktService.save(new Produkt("Spaghetti 500g", "Rapunzel", nudeln, new Lagerbestand(g, 0d, 0d), bd("1.90")));
+			produktService.save(new Produkt("Spirelli 2kg", "Rapunzel", nudeln, new Lagerbestand(kg, 0d, 0d), bd("6.20")));
+			produktService.save(new Produkt("Penne 1kg", "Rapunzel", nudeln, new Lagerbestand(kg, 0d, 0d), bd("3.40")));
+			produktService.save(new Produkt("Farfalle 500g", "Rapunzel", nudeln, new Lagerbestand(g, 0d, 0d), bd("2.10")));
+			produktService.save(new Produkt("Lasagne-Platten 250g", "Rapunzel", nudeln, new Lagerbestand(g, 0d, 0d), bd("2.30")));
+			produktService.save(new Produkt("Tagliatelle Semola 500g", "Rapunzel", nudeln, new Lagerbestand(g, 0d, 0d), bd("1.90")));
+			produktService.save(new Produkt("Penne 500g", "Rapunzel", nudeln, new Lagerbestand(g, 0d, 0d), bd("1.90")));
 
-			produktService.save(new Produkt("Samba Jumbo", "Rapunzel", brotaufstrich, new Lagerbestand(p, 0d, 0d), 12.00f));
-			produktService.save(new Produkt("Samba Dark / Kokos 250g", "Rapunzel", brotaufstrich, new Lagerbestand(g, 0d, 0d), 4.50f));
-			produktService.save(new Produkt("Erdnussmus fein / crun.", "Rapunzel", brotaufstrich, new Lagerbestand(p, 0d, 0d), 5.90f));
-			produktService.save(new Produkt("Arrabitom, Mango-Curry, Rucola-Senf, Meditom, Sendi", "Zwergenwiese", brotaufstrich, new Lagerbestand(p, 0d, 0d), 2.60f));
-			produktService.save(new Produkt("Fenchel Toskana", "Fenchel Toskana", brotaufstrich, new Lagerbestand(p, 0d, 0d), 3.00f));
-			produktService.save(new Produkt("Gelbe Linse Grillgemüse, Hofgemüse Paprika Trio", "Allos", brotaufstrich, new Lagerbestand(p, 0d, 0d), 2.80f));
+			produktService.save(new Produkt("Samba Jumbo", "Rapunzel", brotaufstrich, new Lagerbestand(p, 0d, 0d), bd("12.00")));
+			produktService.save(new Produkt("Samba Dark / Kokos 250g", "Rapunzel", brotaufstrich, new Lagerbestand(g, 0d, 0d), bd("4.50")));
+			produktService.save(new Produkt("Erdnussmus fein / crun.", "Rapunzel", brotaufstrich, new Lagerbestand(p, 0d, 0d), bd("5.90")));
+			produktService.save(new Produkt("Arrabitom, Mango-Curry, Rucola-Senf, Meditom, Sendi", "Zwergenwiese", brotaufstrich, new Lagerbestand(p, 0d, 0d), bd("2.60")));
+			produktService.save(new Produkt("Fenchel Toskana", "Fenchel Toskana", brotaufstrich, new Lagerbestand(p, 0d, 0d), bd("3.00")));
+			produktService.save(new Produkt("Gelbe Linse Grillgemüse, Hofgemüse Paprika Trio", "Allos", brotaufstrich, new Lagerbestand(p, 0d, 0d), bd("2.80")));
 
-			produktService.save(new Produkt("Kokosmilch", "Morgenland", milch, new Lagerbestand(p, 0d, 0d), 2.40f));
-			produktService.save(new Produkt("Provamel", "Provamel", milch, new Lagerbestand(p, 0d, 0d), 1.90f));
-			produktService.save(new Produkt("Haferdrink natural 1l", "Natumi", milch, new Lagerbestand(l, 0d, 0d), 2.00f));
+			produktService.save(new Produkt("Kokosmilch", "Morgenland", milch, new Lagerbestand(p, 0d, 0d), bd("2.40")));
+			produktService.save(new Produkt("Provamel", "Provamel", milch, new Lagerbestand(p, 0d, 0d), bd("1.90")));
+			produktService.save(new Produkt("Haferdrink natural 1l", "Natumi", milch, new Lagerbestand(l, 0d, 0d), bd("2.00")));
 
-			produktService.save(new Produkt("Sauerkirsche 360g", "Morgenland", gemuese, new Lagerbestand(p, 0d, 0d), 2.75f));
-			produktService.save(new Produkt("Apfelmark groß 700g", "Bauckhof", gemuese, new Lagerbestand(g, 0d, 0d), 2.70f));
-			produktService.save(new Produkt("rote KidneyBohnen 350g", "De Rit", gemuese, new Lagerbestand(p, 0d, 0d), 1.40f));
-			produktService.save(new Produkt("rote KidneyBohnen 400g", "Rapunzel", gemuese, new Lagerbestand(p, 0d, 0d), 1.65f));
-			produktService.save(new Produkt("Mais 340g", "Rapunzel", gemuese, new Lagerbestand(p, 0d, 0d), 1.80f));
-			produktService.save(new Produkt("Mais 160g", "Rapunzel", gemuese, new Lagerbestand(p, 0d, 0d), 1.35f));
-			produktService.save(new Produkt("Kichererbsen", "Rapunzel", gemuese, new Lagerbestand(p, 0d, 0d), 1.20f));
-			produktService.save(new Produkt("Kichererbsen Glas 400g", "", gemuese, new Lagerbestand(p, 0d, 0d), 1.25f));
-			produktService.save(new Produkt("Gewürzgurken 670g", "Marschland", gemuese, new Lagerbestand(p, 0d, 0d), 3.90f));
+			produktService.save(new Produkt("Sauerkirsche 360g", "Morgenland", gemuese, new Lagerbestand(p, 0d, 0d), bd("2.75")));
+			produktService.save(new Produkt("Apfelmark groß 700g", "Bauckhof", gemuese, new Lagerbestand(g, 0d, 0d), bd("2.70")));
+			produktService.save(new Produkt("rote KidneyBohnen 350g", "De Rit", gemuese, new Lagerbestand(p, 0d, 0d), bd("1.40")));
+			produktService.save(new Produkt("rote KidneyBohnen 400g", "Rapunzel", gemuese, new Lagerbestand(p, 0d, 0d), bd("1.65")));
+			produktService.save(new Produkt("Mais 340g", "Rapunzel", gemuese, new Lagerbestand(p, 0d, 0d), bd("1.80")));
+			produktService.save(new Produkt("Mais 160g", "Rapunzel", gemuese, new Lagerbestand(p, 0d, 0d), bd("1.35")));
+			produktService.save(new Produkt("Kichererbsen", "Rapunzel", gemuese, new Lagerbestand(p, 0d, 0d), bd("1.20")));
+			produktService.save(new Produkt("Kichererbsen Glas 400g", "", gemuese, new Lagerbestand(p, 0d, 0d), bd("1.25")));
+			produktService.save(new Produkt("Gewürzgurken 670g", "Marschland", gemuese, new Lagerbestand(p, 0d, 0d), bd("3.90")));
 
-			produktService.save(new Produkt("Espresso italienische Röstung 250g", "", kaffee, new Lagerbestand(p, 0d, 0d), 0f));
-			produktService.save(new Produkt("Espresso italienische Röstung 500g", "", kaffee, new Lagerbestand(p, 0d, 0d), 0f));
-			produktService.save(new Produkt("Espresso Bohne", "La cortadora (verfallen)", kaffee, new Lagerbestand(p, 0d, 0d), 0f));
-			produktService.save(new Produkt("Espresso entkoffeiniert", "La cortadora (verfallen)", kaffee, new Lagerbestand(p, 0d, 0d), 0f));
+			produktService.save(new Produkt("Espresso italienische Röstung 250g", "", kaffee, new Lagerbestand(p, 0d, 0d), bd("0.00")));
+			produktService.save(new Produkt("Espresso italienische Röstung 500g", "", kaffee, new Lagerbestand(p, 0d, 0d), bd("0.00")));
+			produktService.save(new Produkt("Espresso Bohne", "La cortadora (verfallen)", kaffee, new Lagerbestand(p, 0d, 0d), bd("0.00")));
+			produktService.save(new Produkt("Espresso entkoffeiniert", "La cortadora (verfallen)", kaffee, new Lagerbestand(p, 0d, 0d), bd("0.00")));
 		}
 	}
 }

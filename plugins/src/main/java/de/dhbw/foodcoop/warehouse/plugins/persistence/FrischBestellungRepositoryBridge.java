@@ -29,10 +29,7 @@ public class FrischBestellungRepositoryBridge implements FrischBestellungReposit
         return springDataFrischBestellungRepository.findByDateAfterAndPerson(date, person_id);
     }
 
-    @Override
-    public List<FrischBestellung> findeMitDatumNachUndSum(LocalDateTime date){
-        return springDataFrischBestellungRepository.findByDateAfterAndSum(date);
-    }
+
 
     @Override
     public List<FrischBestellung> findeMitDatumZwischen(LocalDateTime date1, LocalDateTime date2, String person_id){
@@ -68,4 +65,30 @@ public class FrischBestellungRepositoryBridge implements FrischBestellungReposit
 	public List<FrischBestellung> findeMitDatumZwischen(LocalDateTime datum1, LocalDateTime datum2) {
 		return springDataFrischBestellungRepository.findByDateBetween(datum1, datum2);
 	}
+
+    @Override
+    public List<FrischBestellung>
+    findeVonPersonUndDeadline(
+            String personId,
+            String deadlineId
+    ) {
+
+        return springDataFrischBestellungRepository
+                .findAllByPersonIdAndDeadline_Id(
+                        personId,
+                        deadlineId
+                );
+    }
+
+    @Override
+    public List<FrischBestellung>
+    findeAlleVonDeadline(
+            String deadlineId
+    ) {
+
+        return springDataFrischBestellungRepository
+                .findAllByDeadline_Id(
+                        deadlineId
+                );
+    }
 }

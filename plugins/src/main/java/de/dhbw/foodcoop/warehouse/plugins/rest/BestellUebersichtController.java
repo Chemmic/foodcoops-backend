@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.dhbw.foodcoop.warehouse.application.bestellungsliste.BestellÜbersichtService;
 import de.dhbw.foodcoop.warehouse.domain.entities.BestellUebersicht;
-import de.dhbw.foodcoop.warehouse.domain.entities.Deadline;
+import de.dhbw.foodcoop.warehouse.domain.entities.DeadlineEntity;
 import de.dhbw.foodcoop.warehouse.plugins.pdf.PdfService;
 
 @RestController
@@ -36,7 +36,7 @@ public class BestellUebersichtController {
 	}
 
 	@GetMapping("/bestellUebersicht/getByDeadline")
-	public BestellUebersicht getByDeadline(@RequestBody Deadline deadline) {
+	public BestellUebersicht getByDeadline(@RequestBody DeadlineEntity deadline) {
 		return bueService.getByDeadline(deadline);
 	}
 

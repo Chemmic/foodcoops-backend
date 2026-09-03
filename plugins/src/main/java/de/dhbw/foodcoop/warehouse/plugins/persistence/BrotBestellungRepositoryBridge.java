@@ -69,4 +69,31 @@ public class BrotBestellungRepositoryBridge implements BrotBestellungRepository{
 	public List<BrotBestellung> findeMitDatumZwischen(LocalDateTime datum1, LocalDateTime datum2) {
 		return springDataBrotBestellungRepository.findByDateBetween(datum1, datum2);
 	}
+
+    @Override
+    public List<BrotBestellung>
+    findeVonPersonUndDeadline(
+            String personId,
+            String deadlineId
+    ) {
+
+        return springDataBrotBestellungRepository
+                .findAllByPersonIdAndDeadline_Id(
+                        personId,
+                        deadlineId
+                );
+    }
+
+
+    @Override
+    public List<BrotBestellung>
+    findeAlleVonDeadline(
+            String deadlineId
+    ) {
+
+        return springDataBrotBestellungRepository
+                .findAllByDeadline_Id(
+                        deadlineId
+                );
+    }
 }

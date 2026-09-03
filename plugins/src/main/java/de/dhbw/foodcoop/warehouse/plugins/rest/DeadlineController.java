@@ -21,7 +21,7 @@ import de.dhbw.foodcoop.warehouse.adapters.representations.DeadlineRepresentatio
 import de.dhbw.foodcoop.warehouse.adapters.representations.mappers.DeadlineToRepresentationMapper;
 import de.dhbw.foodcoop.warehouse.adapters.representations.mappers.RepresentationToDeadlineMapper;
 import de.dhbw.foodcoop.warehouse.application.deadline.DeadlineService;
-import de.dhbw.foodcoop.warehouse.domain.entities.Deadline;
+import de.dhbw.foodcoop.warehouse.domain.entities.DeadlineEntity;
 import de.dhbw.foodcoop.warehouse.domain.exceptions.DeadlineInUseException;
 import de.dhbw.foodcoop.warehouse.domain.exceptions.DeadlineNotFoundException;
 
@@ -44,7 +44,7 @@ public class DeadlineController {
 
     @GetMapping("/deadline/{id}")
     public DeadlineRepresentation one(@PathVariable String id) {
-        Deadline deadline = service.findById(id)
+        DeadlineEntity deadline = service.findById(id)
                 .orElseThrow(() -> new DeadlineNotFoundException(id));
 
         return toPresentation.apply(deadline);
@@ -52,7 +52,7 @@ public class DeadlineController {
 
     @GetMapping("/deadline/getEndDateOfDeadline/{id}")
     public LocalDateTime getEndDate(@PathVariable String id) {
-        Deadline deadline = service.findById(id)
+        DeadlineEntity deadline = service.findById(id)
                 .orElseThrow(() -> new DeadlineNotFoundException(id));
 
         return service.calculateDateFromDeadline(deadline);
@@ -60,7 +60,7 @@ public class DeadlineController {
 
     @GetMapping("/deadline/lookForUpdate")
     public DeadlineRepresentation update() {
-        Optional<Deadline> deadline = service.updateDeadline();
+        Optional<DeadlineEntity> deadline = service.updateDeadline();
 
         if (deadline.isEmpty()) {
             return null;
@@ -71,7 +71,7 @@ public class DeadlineController {
 
     @GetMapping("/deadline/getByPosition/{id}")
     public DeadlineRepresentation getByPosition(@PathVariable int id) {
-        Optional<Deadline> deadline = service.getByPosition(id);
+        Optional<DeadlineEntity> deadline = service.getByPosition(id);
 
         if (deadline.isEmpty()) {
             return null;
@@ -89,7 +89,7 @@ public class DeadlineController {
 
     @GetMapping("/deadline/last")
     public DeadlineRepresentation last() {
-        Deadline deadline = service.last();
+        DeadlineEntity deadline = service.last();
 
         return toPresentation.apply(deadline);
     }
@@ -107,7 +107,7 @@ public class DeadlineController {
         newDeadline.setId(id);
         newDeadline.setDatum(LocalDateTime.now());
 
-        Deadline saved = service.save(toDeadline.apply(newDeadline));
+        DeadlineEntity saved = service.save(toDeadline.apply(newDeadline));
         DeadlineRepresentation response = toPresentation.apply(saved);
 
         return ResponseEntity
@@ -120,11 +120,11 @@ public class DeadlineController {
             @RequestBody DeadlineRepresentation deadline,
             @PathVariable String id) {
 
-        Deadline oldDeadline = service.findById(id)
+        DeadlineEntity oldDeadline = service.findById(id)
                 .orElseThrow(() -> new DeadlineNotFoundException(id));
 
-        Deadline updatedDeadline = toDeadline.update(oldDeadline, deadline);
-        Deadline saved = service.save(updatedDeadline);
+        DeadlineEntity updatedDeadline = toDeadline.update(oldDeadline, deadline);
+        DeadlineEntity saved = service.save(updatedDeadline);
 
         return ResponseEntity.ok(toPresentation.apply(saved));
     }
@@ -136,5 +136,15 @@ public class DeadlineController {
         service.deleteById(id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/deadline/debug/expire")
+    public ResponseEntity<DeadlineRepresentation> expireDeadline() {
+        System.out.println("Updating deadline");
+        DeadlineEntity deadline = service.forceNextDeadline();
+
+        return ResponseEntity.ok(
+                toPresentation.apply(deadline)
+        );
     }
 }

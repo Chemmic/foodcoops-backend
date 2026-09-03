@@ -11,15 +11,16 @@ public interface BrotBestellungRepository {
     List<BrotBestellung> alle();
 
     List<BrotBestellung> alleVonPerson(String person_id); 
-    
+
+    @Deprecated
     List<BrotBestellung> findeMitDatumNachUndPerson(LocalDateTime datum, String person_id);
-
+    @Deprecated
     List<BrotBestellung> findeMitDatumNachUndSum(LocalDateTime datum);
-   
+    @Deprecated
     List<BrotBestellung> findAllOrdersAfterDate(LocalDateTime datum);
-
+    @Deprecated
     List<BrotBestellung> findeMitDatumZwischen(LocalDateTime datum1, LocalDateTime datum2, String person_id);
-    
+    @Deprecated
     List<BrotBestellung> findeMitDatumZwischen(LocalDateTime datum1, LocalDateTime datum2);
 
     BrotBestellung speichern(BrotBestellung brotBestellung);
@@ -27,4 +28,14 @@ public interface BrotBestellungRepository {
     Optional<BrotBestellung> findeMitId(String id);
 
     void deleteById(String id);
+
+    List<BrotBestellung> findeVonPersonUndDeadline(
+            String personId,
+            String deadlineId
+    );
+
+
+    List<BrotBestellung> findeAlleVonDeadline(
+            String deadlineId
+    );
 }

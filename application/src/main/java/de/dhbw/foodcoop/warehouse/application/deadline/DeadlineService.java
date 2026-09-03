@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import de.dhbw.foodcoop.warehouse.domain.entities.Deadline;
+import de.dhbw.foodcoop.warehouse.domain.entities.DeadlineEntity;
 import de.dhbw.foodcoop.warehouse.domain.exceptions.DeadlineNotFoundException;
 import de.dhbw.foodcoop.warehouse.domain.repositories.DeadlineRepository;
 
@@ -34,17 +34,17 @@ public class DeadlineService {
         this.eventPublisher = eventPublisher;
     }
 
-    public List<Deadline> all() {
+    public List<DeadlineEntity> all() {
         return repository.alle();
     }
 
-    public Deadline last() {
+    public DeadlineEntity last() {
         return repository.letzte()
                 .orElseThrow(DeadlineNotFoundException::new);
     }
 
-    public Deadline save(Deadline deadline) {
-        Deadline saved = repository.speichern(deadline);
+    public DeadlineEntity save(DeadlineEntity deadline) {
+        DeadlineEntity saved = repository.speichern(deadline);
 
         eventPublisher.publishEvent(
                 new DeadlineSavedEvent(saved));
@@ -52,7 +52,7 @@ public class DeadlineService {
         return saved;
     }
 
-    public Optional<Deadline> findById(String id) {
+    public Optional<DeadlineEntity> findById(String id) {
         return repository.findeMitId(id);
     }
 
@@ -60,29 +60,29 @@ public class DeadlineService {
         repository.deleteById(id);
     }
 
-    public Optional<Deadline> getByPosition(int position) {
+    public Optional<DeadlineEntity> getByPosition(int position) {
         return repository.findeNachReihenfolge(position);
     }
 
-    public Deadline coldStart(Deadline deadline) {
+    public DeadlineEntity coldStart(DeadlineEntity deadline) {
         return repository.speichern(deadline);
     }
 
-    public Optional<Deadline> updateDeadline() {
-        Optional<Deadline> optionalDeadline = repository.letzte();
+    public Optional<DeadlineEntity> updateDeadline() {
+        Optional<DeadlineEntity> optionalDeadline = repository.letzte();
 
         if (optionalDeadline.isEmpty()) {
             return Optional.empty();
         }
 
-        Deadline currentDeadline = optionalDeadline.get();
+        DeadlineEntity currentDeadline = optionalDeadline.get();
 
         LocalDateTime dateForDeadline =
                 calculateDateFromDeadline(currentDeadline);
 
         if (LocalDateTime.now().isAfter(dateForDeadline)) {
 
-            Deadline newDeadline = new Deadline(
+            DeadlineEntity newDeadline = new DeadlineEntity(
                     UUID.randomUUID().toString(),
                     currentDeadline.getWeekday(),
                     currentDeadline.getTime(),
@@ -110,7 +110,7 @@ public class DeadlineService {
                                     TextStyle.FULL,
                                     Locale.GERMAN)));
 
-    public LocalDateTime calculateDateFromDeadline(Deadline deadline) {
+    public LocalDateTime calculateDateFromDeadline(DeadlineEntity deadline) {
 
         LocalDateTime date = deadline.getDatum();
         LocalTime currentTime = date.toLocalTime();
@@ -138,5 +138,19 @@ public class DeadlineService {
                                 TemporalAdjusters.next(targetDay))
                         .toLocalDate(),
                 targetTime);
+    }
+
+    //For Debugging
+    public DeadlineEntity forceNextDeadline() {
+        DeadlineEntity currentDeadline = repository.letzte()
+                .orElseThrow(DeadlineNotFoundException::new);
+
+        DeadlineEntity newDeadline = new DeadlineEntity(
+                UUID.randomUUID().toString(),
+                currentDeadline.getWeekday(),
+                currentDeadline.getTime(),
+                LocalDateTime.now());
+
+        return save(newDeadline);
     }
 }

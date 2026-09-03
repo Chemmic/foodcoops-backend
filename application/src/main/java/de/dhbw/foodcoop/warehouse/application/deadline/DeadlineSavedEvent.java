@@ -1,6 +1,6 @@
 package de.dhbw.foodcoop.warehouse.application.deadline;
 
-import de.dhbw.foodcoop.warehouse.domain.entities.Deadline;
+import de.dhbw.foodcoop.warehouse.domain.entities.DeadlineEntity;
 
-public record DeadlineSavedEvent(Deadline deadline) {
+public record DeadlineSavedEvent(DeadlineEntity deadline) {
 }
