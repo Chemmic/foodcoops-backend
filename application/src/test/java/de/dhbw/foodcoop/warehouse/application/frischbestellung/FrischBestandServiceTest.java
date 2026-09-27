@@ -1,5 +1,9 @@
 package de.dhbw.foodcoop.warehouse.application.frischbestellung;
 
+import de.dhbw.foodcoop.warehouse.application.preishistorie.PreisHistorieService;
+
+import java.math.BigDecimal;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
@@ -29,24 +33,28 @@ public class FrischBestandServiceTest {
     FrischBestandService toBeTested;
     @Mock
     FrischBestandRepository mockRepository;
+    @Mock
+    PreisHistorieService preisHistorieService;
 
     @Test
     void testAll() {
-        FrischBestand f0 = new FrischBestand("1234", "Kopfsalat", true, "DE", 20, e1, k1, (float) 1.5, "e.E.", false);
-        FrischBestand f1 = new FrischBestand("2345", "Eisbergsalat", true, "DE", 10, e1, k1, (float) 2.0, "e.E.", false);
-        FrischBestand f2 = new FrischBestand("3456", "Endiviensalat", false, "DE", 25, e1, k1, (float) 2.5, "e.E.", false);
+        FrischBestand f0 = new FrischBestand("1234", "Kopfsalat", true, "DE", 20, e1, k1, new BigDecimal("1.5"), "e.E.", false);
+        FrischBestand f1 = new FrischBestand("2345", "Eisbergsalat", true, "DE", 10, e1, k1, new BigDecimal("2.0"), "e.E.", false);
+        FrischBestand f2 = new FrischBestand("3456", "Endiviensalat", false, "DE", 25, e1, k1, new BigDecimal("2.5"), "e.E.", false);
 
         when(mockRepository.alle()).thenReturn(Arrays.asList(f0, f1, f2));
         List<FrischBestand> whenReturn = toBeTested.all();
 
-        Assertions.assertEquals("1234", whenReturn.get(0).getId());
-        Assertions.assertEquals("2345", whenReturn.get(1).getId());
-        Assertions.assertEquals("3456", whenReturn.get(2).getId());
+        // ohne festen Platz alphabetisch
+
+        Assertions.assertEquals("2345", whenReturn.get(0).getId());
+        Assertions.assertEquals("3456", whenReturn.get(1).getId());
+        Assertions.assertEquals("1234", whenReturn.get(2).getId());
     }
 
     @Test
     void testDeleteById() {
-        FrischBestand frischBestand = new FrischBestand("1234", "Kopfsalat", true, "DE", 20, e1, k1, (float) 1.5, "e.E.", false);
+        FrischBestand frischBestand = new FrischBestand("1234", "Kopfsalat", true, "DE", 20, e1, k1, new BigDecimal("1.5"), "e.E.", false);
 
         when(mockRepository.findeMitId(frischBestand.getId())).thenReturn(Optional.empty());
         toBeTested.deleteById(frischBestand.getId());
@@ -56,7 +64,7 @@ public class FrischBestandServiceTest {
 
     @Test
     void testFindById() {
-        FrischBestand frischBestand = new FrischBestand("1234", "Kopfsalat", true, "DE", 20, e1, k1, (float) 1.5, "e.E.", false);
+        FrischBestand frischBestand = new FrischBestand("1234", "Kopfsalat", true, "DE", 20, e1, k1, new BigDecimal("1.5"), "e.E.", false);
 
         when(mockRepository.findeMitId(frischBestand.getId())).thenReturn(Optional.of(frischBestand));
         Optional<FrischBestand> whenReturn = toBeTested.findById(frischBestand.getId());
@@ -66,9 +74,9 @@ public class FrischBestandServiceTest {
 
     @Test
     void testSave() {
-        FrischBestand newFrischBestand = new FrischBestand("1234", "Kopfsalat", true, "DE", 20, e1, k1, (float) 1.5, "e.E.", false);
+        FrischBestand newFrischBestand = new FrischBestand("1234", "Kopfsalat", true, "DE", 20, e1, k1, new BigDecimal("1.5"), "e.E.", false);
         
-        lenient().when(mockRepository.alle()).thenReturn(List.of(new FrischBestand("1234", "Kopfsalat", true, "DE", 20, e1, k1, (float) 1.5, "e.E.", false)));
+        lenient().when(mockRepository.alle()).thenReturn(List.of(new FrischBestand("1234", "Kopfsalat", true, "DE", 20, e1, k1, new BigDecimal("1.5"), "e.E.", false)));
         lenient().when(mockRepository.speichern(newFrischBestand)).thenReturn(newFrischBestand);
         FrischBestand returnVal = toBeTested.save(newFrischBestand);
 
@@ -79,7 +87,7 @@ public class FrischBestandServiceTest {
         Assertions.assertEquals(20, returnVal.getGebindegroesse());
         Assertions.assertEquals(new Einheit("111", "Stück"), returnVal.getEinheit());
         Assertions.assertEquals(new Kategorie("222", "Salat", true), returnVal.getKategorie());
-        Assertions.assertEquals((float)1.5, returnVal.getPreis());
+        Assertions.assertEquals(new BigDecimal("1.5"), returnVal.getPreis());
     }
 
     Einheit e1 = new Einheit("111", "Stück");

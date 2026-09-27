@@ -1,5 +1,7 @@
 package de.dhbw.foodcoop.warehouse.application.lager;
 
+import java.math.BigDecimal;
+
 import de.dhbw.foodcoop.warehouse.domain.entities.Kategorie;
 import de.dhbw.foodcoop.warehouse.domain.entities.Produkt;
 import de.dhbw.foodcoop.warehouse.domain.exceptions.ProduktInUseException;
@@ -33,7 +35,7 @@ class ProduktServiceTest {
        Einheit einheit = new Einheit(TestUtils.EINHEIT_TEST_ID, "shilling");
        Lagerbestand lagerbestand = new Lagerbestand(einheit, 0.01, 1.6);
        Kategorie kategorie = new Kategorie("1234", "Kartoffel", false);
-       Produkt test = new Produkt(TestUtils.PRODUKT_TEST_ID,"test", kategorie, lagerbestand, 3f);
+       Produkt test = new Produkt(TestUtils.PRODUKT_TEST_ID,"test", kategorie, lagerbestand, new BigDecimal("3"));
 
        when(mockRepository.findeMitId(test.getId())).thenReturn(Optional.empty());
        toBeTested.deleteById(test.getId());
@@ -46,7 +48,7 @@ class ProduktServiceTest {
        Einheit einheit = new Einheit(TestUtils.EINHEIT_TEST_ID, "shilling");
        Lagerbestand lagerbestand = new Lagerbestand(einheit, 0.1, 1.6);
        Kategorie kategorie = new Kategorie("1234", "Kartoffel", false);
-       Produkt produkt = new Produkt(TestUtils.PRODUKT_TEST_ID, "test", kategorie, lagerbestand, 3f);
+       Produkt produkt = new Produkt(TestUtils.PRODUKT_TEST_ID, "test", kategorie, lagerbestand, new BigDecimal("3"));
 
        when(mockRepository.findeMitId(produkt.getId())).thenReturn(Optional.of(produkt));
 
@@ -60,7 +62,7 @@ class ProduktServiceTest {
        Einheit einheit = new Einheit(TestUtils.EINHEIT_TEST_ID, "shilling");
        Lagerbestand lagerbestand = new Lagerbestand(einheit, 0.001, 1.6);
        Kategorie kategorie = new Kategorie("1234", "Kartoffel", false);
-       Produkt produkt = new Produkt(TestUtils.PRODUKT_TEST_ID,"test", kategorie, lagerbestand,3f);
+       Produkt produkt = new Produkt(TestUtils.PRODUKT_TEST_ID,"test", kategorie, lagerbestand,new BigDecimal("3"));
 
        when(mockRepository.findeMitId(produkt.getId())).thenReturn(Optional.of(produkt));
        toBeTested.deleteById(produkt.getId());

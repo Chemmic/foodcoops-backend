@@ -1,5 +1,9 @@
 package de.dhbw.foodcoop.warehouse.application.frischbestellung;
 
+import de.dhbw.foodcoop.warehouse.application.deadline.DeadlineService;
+
+import java.math.BigDecimal;
+
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
@@ -27,6 +31,8 @@ public class FrischBestellungServiceTest {
     FrischBestellungService toBeTested;
     @Mock
     FrischBestellungRepository mockRepository;
+    @Mock
+    DeadlineService deadlineService;
 
     @Test
     void testAll() {
@@ -68,24 +74,20 @@ public class FrischBestellungServiceTest {
         when(mockRepository.speichern(newFrischBestellung))
                 .thenReturn(newFrischBestellung);
 
-        LocalDateTime beforeSave = LocalDateTime.now();
-
         FrischBestellung returnVal =
                 toBeTested.save(newFrischBestellung);
-
-        LocalDateTime afterSave = LocalDateTime.now();
 
         Assertions.assertEquals("1234", returnVal.getId());
         Assertions.assertEquals("Peter_Meier", returnVal.getPersonId());
         Assertions.assertEquals(fb, returnVal.getFrischbestand());
         Assertions.assertEquals(4, returnVal.getBestellmenge());
 
-        Assertions.assertFalse(returnVal.getDatum().isBefore(beforeSave));
-        Assertions.assertFalse(returnVal.getDatum().isAfter(afterSave));
+        // Vorhandenes Datum bleibt erhalten
+        Assertions.assertEquals(ts, returnVal.getDatum());
     }
 
     Einheit e1 = new Einheit("111", "Stück");
     Kategorie k1 = new Kategorie("222", "Salat", true);
-    FrischBestand fb = new FrischBestand("1234", "Kopfsalat", true, "DE", 20, e1, k1, (float) 1.5, "e.E.", false);
+    FrischBestand fb = new FrischBestand("1234", "Kopfsalat", true, "DE", 20, e1, k1, new BigDecimal("1.5"), "e.E.", false);
     LocalDateTime ts= LocalDateTime.now();  
 }

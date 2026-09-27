@@ -1,5 +1,9 @@
 package de.dhbw.foodcoop.warehouse.application.brot;
 
+import de.dhbw.foodcoop.warehouse.application.deadline.DeadlineService;
+
+import java.math.BigDecimal;
+
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
@@ -27,6 +31,8 @@ public class BrotBestellungServiceTest {
     BrotBestellungService toBeTested;
     @Mock
     BrotBestellungRepository mockRepository;
+    @Mock
+    DeadlineService deadlineService;
 
     @Test
     void testAll() {
@@ -61,22 +67,18 @@ public class BrotBestellungServiceTest {
         when(mockRepository.speichern(newBrotBestellung))
                 .thenReturn(newBrotBestellung);
 
-        LocalDateTime beforeSave = LocalDateTime.now();
-
         BrotBestellung returnVal =
                 toBeTested.save(newBrotBestellung);
-
-        LocalDateTime afterSave = LocalDateTime.now();
 
         Assertions.assertEquals("1234", returnVal.getId());
         Assertions.assertEquals("Peter_Meier", returnVal.getPersonId());
         Assertions.assertEquals(bb, returnVal.getBrotBestand());
         Assertions.assertEquals(4, returnVal.getBestellmenge());
 
-        Assertions.assertFalse(returnVal.getDatum().isBefore(beforeSave));
-        Assertions.assertFalse(returnVal.getDatum().isAfter(afterSave));
+        // Vorhandenes Datum bleibt erhalten
+        Assertions.assertEquals(ts, returnVal.getDatum());
     }
 
-    BrotBestand bb = new BrotBestand("1234", "Bauernbrot", true, 500, (float) 1.5);
+    BrotBestand bb = new BrotBestand("1234", "Bauernbrot", true, 500, new BigDecimal("1.5"));
     LocalDateTime ts= LocalDateTime.now();
 }

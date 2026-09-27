@@ -1,5 +1,7 @@
 package de.dhbw.foodcoop.warehouse.application.lager;
 
+import java.math.BigDecimal;
+
 import de.dhbw.foodcoop.warehouse.domain.entities.Kategorie;
 import de.dhbw.foodcoop.warehouse.domain.entities.Produkt;
 import de.dhbw.foodcoop.warehouse.domain.exceptions.EinheitInUseException;
@@ -59,7 +61,7 @@ class EinheitServiceTest {
        Produkt produkt = new Produkt(TestUtils.PRODUKT_TEST_ID
                , "Blutwurst"
                , kategorie
-               , lagerbestand, 3f);
+               , lagerbestand, new BigDecimal("3"));
        when(mockRepository.findeMitId(TestUtils.EINHEIT_TEST_ID))
                .thenReturn(Optional.of(oldEinheint));
        when(mockProduktService.all())

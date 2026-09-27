@@ -1,5 +1,9 @@
 package de.dhbw.foodcoop.warehouse.application.brot;
 
+import de.dhbw.foodcoop.warehouse.application.preishistorie.PreisHistorieService;
+
+import java.math.BigDecimal;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
@@ -27,24 +31,28 @@ public class BrotBestandServiceTest {
     BrotBestandService toBeTested;
     @Mock
     BrotBestandRepository mockRepository;
+    @Mock
+    PreisHistorieService preisHistorieService;
 
     @Test
     void testAll() {
-        BrotBestand b0 = new BrotBestand("1234", "Bauernbrot", true, 500, (float) 1.5);
-        BrotBestand b1 = new BrotBestand("2345", "Laugenbrot", true, 750, (float) 2.0);
-        BrotBestand b2 = new BrotBestand("3456", "Durlacherbrot", false, 1000, (float) 2.5);
+        BrotBestand b0 = new BrotBestand("1234", "Bauernbrot", true, 500, new BigDecimal("1.5"));
+        BrotBestand b1 = new BrotBestand("2345", "Laugenbrot", true, 750, new BigDecimal("2.0"));
+        BrotBestand b2 = new BrotBestand("3456", "Durlacherbrot", false, 1000, new BigDecimal("2.5"));
 
         when(mockRepository.alle()).thenReturn(Arrays.asList(b0, b1, b2));
         List<BrotBestand> whenReturn = toBeTested.all();
 
+        // ohne festen Platz alphabetisch
+
         Assertions.assertEquals("1234", whenReturn.get(0).getId());
-        Assertions.assertEquals("2345", whenReturn.get(1).getId());
-        Assertions.assertEquals("3456", whenReturn.get(2).getId());
+        Assertions.assertEquals("3456", whenReturn.get(1).getId());
+        Assertions.assertEquals("2345", whenReturn.get(2).getId());
     }
 
     @Test
     void testDeleteById() {
-        BrotBestand frischBestand = new BrotBestand("1234", "Bauernbrot", true, 500, (float) 1.5);
+        BrotBestand frischBestand = new BrotBestand("1234", "Bauernbrot", true, 500, new BigDecimal("1.5"));
 
         when(mockRepository.findeMitId(frischBestand.getId())).thenReturn(Optional.empty());
         toBeTested.deleteById(frischBestand.getId());
@@ -54,7 +62,7 @@ public class BrotBestandServiceTest {
 
     @Test
     void testFindById() {
-        BrotBestand frischBestand = new BrotBestand("1234", "Bauernbrot", true, 500, (float) 1.5);
+        BrotBestand frischBestand = new BrotBestand("1234", "Bauernbrot", true, 500, new BigDecimal("1.5"));
 
         when(mockRepository.findeMitId(frischBestand.getId())).thenReturn(Optional.of(frischBestand));
         Optional<BrotBestand> whenReturn = toBeTested.findById(frischBestand.getId());
@@ -64,9 +72,9 @@ public class BrotBestandServiceTest {
 
     @Test
     void testSave() {
-        BrotBestand newBrotBestand = new BrotBestand("1234", "Bauernbrot", true, 500, (float) 1.5);
+        BrotBestand newBrotBestand = new BrotBestand("1234", "Bauernbrot", true, 500, new BigDecimal("1.5"));
         
-        lenient().when(mockRepository.alle()).thenReturn(List.of(new BrotBestand("1234", "Bauernbrot", true, 500, (float) 1.5)));
+        lenient().when(mockRepository.alle()).thenReturn(List.of(new BrotBestand("1234", "Bauernbrot", true, 500, new BigDecimal("1.5"))));
         lenient().when(mockRepository.speichern(newBrotBestand)).thenReturn(newBrotBestand);
         BrotBestand returnVal = toBeTested.save(newBrotBestand);
 
@@ -74,7 +82,7 @@ public class BrotBestandServiceTest {
         Assertions.assertEquals("Bauernbrot", returnVal.getName());
         Assertions.assertEquals(true, returnVal.getVerfuegbarkeit());
         Assertions.assertEquals(500, returnVal.getGewicht());
-        Assertions.assertEquals((float)1.5, returnVal.getPreis());
+        Assertions.assertEquals(new BigDecimal("1.5"), returnVal.getPreis());
     }
         
 }
