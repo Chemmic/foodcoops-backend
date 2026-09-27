@@ -41,12 +41,21 @@ public class RepresentationToBestandMapper implements Function<BestandRepresenta
     	
     	if(newBestand instanceof BrotBestandRepresentation) {
     		BrotBestandRepresentation bb = (BrotBestandRepresentation) newBestand;
-    		return new BrotBestand(oldBestand.getId(), pickNewIfDefined(oldBestand.getName(), newBestand.getName()), newBestand.getVerfuegbarkeit(), bb.getGewicht(), BigDecimal.valueOf(bb.getPreis()));
+    		BrotBestand brot = new BrotBestand(oldBestand.getId(), pickNewIfDefined(oldBestand.getName(), newBestand.getName()), newBestand.getVerfuegbarkeit(), bb.getGewicht(), BigDecimal.valueOf(bb.getPreis()));
+    		if (oldBestand instanceof BrotBestand alt) {
+    			brot.setSortierung(alt.getSortierung());
+    		}
+    		return brot;
     	} if(newBestand instanceof FrischBestandRepresentation) {
     		FrischBestandRepresentation fb = (FrischBestandRepresentation) newBestand;
     		Einheit einheit = einheitService.findById(fb.getEinheit().getId()).orElseThrow();
 			Kategorie kategorie = kategorieService.findById(fb.getKategorie().getId()).orElseThrow();
-    		return new FrischBestand(oldBestand.getId(), pickNewIfDefined(oldBestand.getName(), newBestand.getName()), newBestand.getVerfuegbarkeit(), fb.getHerkunftsland(), fb.getGebindegroesse(), einheit, kategorie, BigDecimal.valueOf(fb.getPreis()), fb.getVerband(), fb.isSpezialfallBestelleinheit());
+    		FrischBestand frisch = new FrischBestand(oldBestand.getId(), pickNewIfDefined(oldBestand.getName(), newBestand.getName()), newBestand.getVerfuegbarkeit(), fb.getHerkunftsland(), fb.getGebindegroesse(), einheit, kategorie, BigDecimal.valueOf(fb.getPreis()), fb.getVerband(), fb.isSpezialfallBestelleinheit());
+    		// Platz bleibt beim Ändern erhalten – verschoben wird über /frischBestand/reihenfolge
+    		if (oldBestand instanceof FrischBestand alt) {
+    			frisch.setSortierung(alt.getSortierung());
+    		}
+    		return frisch;
     	}
     	if(newBestand instanceof ProduktRepresentation) {
     		ProduktRepresentation pr = (ProduktRepresentation) newBestand;
@@ -54,6 +63,9 @@ public class RepresentationToBestandMapper implements Function<BestandRepresenta
     		Produkt p = new Produkt(oldBestand.getId(), pickNewIfDefined(oldBestand.getName(), newBestand.getName()), pr.getProduktBezeichnung(), kategorie, lagerbestandMapper.apply(pr.getLagerbestand()), BigDecimal.valueOf(pr.getPreis()));
     		p.setPreis(BigDecimal.valueOf(pr.getPreis()));
     		p.setVerfuegbarkeit(pr.getVerfuegbarkeit());
+    		if (oldBestand instanceof Produkt alt) {
+    			p.setSortierung(alt.getSortierung());
+    		}
     		return p;
     	}
     	
@@ -73,12 +85,16 @@ public class RepresentationToBestandMapper implements Function<BestandRepresenta
 		
 		if(t instanceof BrotBestandRepresentation) {
 			BrotBestandRepresentation bbr = (BrotBestandRepresentation) t;
-			return new BrotBestand(bbr.getId(), bbr.getName(), bbr.getVerfuegbarkeit(), bbr.getGewicht(), BigDecimal.valueOf(bbr.getPreis()));
+			BrotBestand brot = new BrotBestand(bbr.getId(), bbr.getName(), bbr.getVerfuegbarkeit(), bbr.getGewicht(), BigDecimal.valueOf(bbr.getPreis()));
+			brot.setSortierung(bbr.getSortierung());
+			return brot;
 		}  if(t instanceof FrischBestandRepresentation) {
 			FrischBestandRepresentation bbr = (FrischBestandRepresentation) t;
 			Einheit einheit = einheitService.findById(bbr.getEinheit().getId()).orElseThrow();
 			Kategorie kategorie = kategorieService.findById(bbr.getKategorie().getId()).orElseThrow();
-			return new FrischBestand(bbr.getId(), bbr.getName(), bbr.getVerfuegbarkeit(), bbr.getHerkunftsland(), bbr.getGebindegroesse(), einheit, kategorie, BigDecimal.valueOf(bbr.getPreis()), bbr.getVerband(), bbr.isSpezialfallBestelleinheit());
+			FrischBestand frisch = new FrischBestand(bbr.getId(), bbr.getName(), bbr.getVerfuegbarkeit(), bbr.getHerkunftsland(), bbr.getGebindegroesse(), einheit, kategorie, BigDecimal.valueOf(bbr.getPreis()), bbr.getVerband(), bbr.isSpezialfallBestelleinheit());
+			frisch.setSortierung(bbr.getSortierung());
+			return frisch;
 		}
 		if(t instanceof ProduktRepresentation) {
 			ProduktRepresentation pr = (ProduktRepresentation) t;
@@ -86,6 +102,7 @@ public class RepresentationToBestandMapper implements Function<BestandRepresenta
     		Produkt p = new Produkt(pr.getId(), pr.getName(), pr.getProduktBezeichnung(), kategorie, lagerbestandMapper.apply(pr.getLagerbestand()), BigDecimal.valueOf(pr.getPreis()));
     		p.setPreis(BigDecimal.valueOf(pr.getPreis()));
     		p.setVerfuegbarkeit(pr.getVerfuegbarkeit());
+    		p.setSortierung(pr.getSortierung());
     		return p;
 		}
 		

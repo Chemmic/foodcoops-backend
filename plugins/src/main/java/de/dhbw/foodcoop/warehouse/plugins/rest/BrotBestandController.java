@@ -78,6 +78,16 @@ public class BrotBestandController {
                 .body(response);
     }
 
+    /** Reihenfolge der Brote setzen. Body: IDs von oben nach unten. */
+    @PutMapping("/brotBestand/reihenfolge")
+    public List<BrotBestandRepresentation> reihenfolge(
+            @RequestBody List<String> ids) {
+
+        return service.reihenfolgeSetzen(ids).stream()
+                .map(b -> (BrotBestandRepresentation) toPresentation.apply(b))
+                .collect(Collectors.toList());
+    }
+
     @PutMapping("/brotBestand/{id}")
     public ResponseEntity<BrotBestandRepresentation> update(
             @RequestBody BrotBestandRepresentation changedBrotBestand,

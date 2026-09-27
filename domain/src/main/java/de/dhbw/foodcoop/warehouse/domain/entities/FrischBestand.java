@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "frischbestand")
-public class FrischBestand extends BestandEntity{
+public class FrischBestand extends BestandEntity implements Sortierbar {
 
 	
     @Column
@@ -30,6 +30,13 @@ public class FrischBestand extends BestandEntity{
     
     @Column
     private boolean spezialfallBestelleinheit;
+
+    /**
+     * Platz in der Liste (1 = oben). Entspricht der Frischwaren-Liste des
+     * Händlers, damit Bestellung, Einkauf und PDF gleich sortiert sind.
+     */
+    @Column
+    private Integer sortierung;
 
 
     public FrischBestand(String id, String name, boolean verfuegbarkeit, String herkunftsland, float gebindegroesse, Einheit einheit, Kategorie kategorie, BigDecimal preis, String verband, boolean spezialfallBestelleinheit) {
@@ -106,6 +113,16 @@ public class FrischBestand extends BestandEntity{
 
     public void setKategorie(Kategorie kategorie){
         this.kategorie = kategorie;
+    }
+
+    @Override
+    public Integer getSortierung() {
+        return sortierung;
+    }
+
+    @Override
+    public void setSortierung(Integer sortierung) {
+        this.sortierung = sortierung;
     }
 
 

@@ -9,10 +9,14 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "brotbestand")
-public class BrotBestand extends BestandEntity{
+public class BrotBestand extends BestandEntity implements Sortierbar {
 
     @Column
     private double gewicht;
+
+    /** Platz in der Liste (1 = oben). */
+    @Column
+    private Integer sortierung;
 
     @Embedded
     private AllergenInfo allergenInfo = AllergenInfo.empty();;
@@ -82,4 +86,15 @@ public class BrotBestand extends BestandEntity{
                 ", preis=" + preis +
                 '}';
     }
+
+    @Override
+    public Integer getSortierung() {
+        return sortierung;
+    }
+
+    @Override
+    public void setSortierung(Integer sortierung) {
+        this.sortierung = sortierung;
+    }
+
 }

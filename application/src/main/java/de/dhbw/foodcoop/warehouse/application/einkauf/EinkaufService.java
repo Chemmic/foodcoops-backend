@@ -1,5 +1,8 @@
 package de.dhbw.foodcoop.warehouse.application.einkauf;
 
+import java.util.Map;
+import de.dhbw.foodcoop.warehouse.application.lager.ProduktService;
+import de.dhbw.foodcoop.warehouse.application.lager.LagerChargenService;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -55,6 +58,12 @@ public class EinkaufService {
 	@Autowired
 	private ConfigurationService configService;
 
+	@Autowired
+	private ProduktService produktService;
+
+	@Autowired
+	private LagerChargenService chargenService;
+
     public BestandBuyEntity createBestandBuyEntityForPersonOrder(Produkt bestand, double amount) {
     	BestandBuyEntity bbe = new BestandBuyEntity();
     	bbe.setId(UUID.randomUUID().toString());
@@ -73,17 +82,34 @@ public class EinkaufService {
         einkauf.setDate(LocalDateTime.now());
         einkauf = einkaufRepository.speichern(einkauf);
         if(bestandBuy != null) {
+        	// Aktuellen Stand aus der Datenbank nehmen, nicht den vom Browser geschickten
+        	for(BestandBuyEntity bbe : bestandBuy) {
+        		bbe.setBestand(produktService.findById(bbe.getBestand().getId()).orElse(bbe.getBestand()));
+        	}
+
+        	// Erst alles prüfen, dann entnehmen – sonst bliebe bei einem Fehler ein Teil entnommen
+        	Map<String, Double> gesamtJeProdukt = new HashMap<>();
+        	for(BestandBuyEntity bbe : bestandBuy) {
+        		double gesamt = gesamtJeProdukt.merge(bbe.getBestand().getId(), bbe.getAmount(), Double::sum);
+        		if(bbe.getBestand().getLagerbestand().getIstLagerbestand() - gesamt < -1.E-6) {
+        			einkaufRepository.deleteById(einkauf.getId());
+        			throw new Exception("Insufficient Lagerbestand!");
+        		}
+        	}
+
 	        for(BestandBuyEntity bbe : bestandBuy) {
-	        	//bbe.setEinkauf(einkauf);
-	        //	bestandBuyRepository.speichern(bbe);
 	            if(einkauf.getBestandEinkauf() == null) {
 	            	einkauf.setBestandEinkauf(new ArrayList<BestandBuyEntity>());
 	            }
-	            	if(bbe.getBestand().getLagerbestand().getIstLagerbestand() - bbe.getAmount() < 0) {
-	            		einkaufRepository.deleteById(einkauf.getId());
-	            		throw new Exception("Insufficient Lagerbestand!");
-	            	}
-	            	bbe.getBestand().getLagerbestand().setIstLagerbestand(bbe.getBestand().getLagerbestand().getIstLagerbestand() - bbe.getAmount());
+	            	Produkt produkt = bbe.getBestand();
+	            	double ist = produkt.getLagerbestand().getIstLagerbestand();
+
+	            	// Ältere Lieferungen zuerst – ggf. zu unterschiedlichen Preisen
+	            	LagerChargenService.Entnahme entnahme =
+	            			chargenService.entnehmen(produkt.getId(), ist, produkt.getPreis(), bbe.getAmount());
+	            	bbe.setBetrag(entnahme.betrag());
+
+	            	produkt.getLagerbestand().setIstLagerbestand(ist - bbe.getAmount());
 	        		einkauf.getBestandEinkauf().add(bbe);
 	        }
         }
@@ -119,7 +145,9 @@ public class EinkaufService {
         
         
         
-        BestellUebersicht be = service.getLastUebersicht();
+        // Zu viel / zu wenig nur anpassen, wenn Bestellungen abgeholt werden.
+        // Reine Lagerware ist jederzeit einkaufbar – auch ohne Deadline oder Übersicht.
+        final BestellUebersicht be = letzteUebersichtFuer(vergleiche);
         if(be != null) {
         	List<DiscrepancyEntity> discrepancies = be.getDiscrepancy();
         	List<BestellungBuyEntity> bestellungen = einkauf.getBestellungsEinkauf();
@@ -260,6 +288,18 @@ public class EinkaufService {
     	return einkaufRepository.findeMitId(id).orElseThrow();
     }
     
+    /** Bestellübersicht nur, wenn Bestellungen abgeholt werden; sonst oder ohne eindeutige Übersicht null. */
+    private BestellUebersicht letzteUebersichtFuer(List<BestellungBuyEntity> vergleiche) {
+    	if(vergleiche == null || vergleiche.isEmpty()) {
+    		return null;
+    	}
+    	try {
+    		return service.getLastUebersicht();
+    	} catch (RuntimeException e) {
+    		return null;
+    	}
+    }
+
     public void deleteById(String id) {
     	einkaufRepository.deleteById(id);
     }
@@ -288,7 +328,10 @@ public class EinkaufService {
     		return price.doubleValue();
     	}
     	for(BestandBuyEntity be : einkauf.getBestandEinkauf()) {
-    		if(be.getBestand() instanceof Produkt) {
+    		if(be.getBetrag() != null) {
+    			// Tatsächlich bezahlt (ältere Lieferungen zum alten Preis)
+    			price = price.add(be.getBetrag());
+    		} else if(be.getBestand() instanceof Produkt) {
     			price = price.add(be.getBestand().getPreis().multiply( BigDecimal.valueOf(be.getAmount())));
     		}
     	}

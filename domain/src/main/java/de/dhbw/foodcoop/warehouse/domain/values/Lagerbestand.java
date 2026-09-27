@@ -29,7 +29,6 @@ public class Lagerbestand {
         Validate.notNull(einheit);
         Validate.isTrue(istLagerbestand >= 0);
         Validate.isTrue(sollLagerbestand >= 0);
-        Validate.isTrue(istLagerbestand <= sollLagerbestand);
         this.id = UUID.randomUUID().toString();
         this.einheit = einheit;
         this.istLagerbestand = istLagerbestand;

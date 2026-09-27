@@ -1,5 +1,6 @@
 package de.dhbw.foodcoop.warehouse.plugins.pdf;
 
+import org.springframework.beans.factory.annotation.Value;
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -65,6 +66,10 @@ import de.dhbw.foodcoop.warehouse.domain.entities.FrischBestellung;
 
 @Service
 public class PdfService {
+
+    /** Name der Foodcoop auf den Bestell-PDFs (FOODCOOP_NAME). */
+    @Value("${foodcoops.name:FoodCoop MiKa}")
+    private String foodcoopName = "FoodCoop MiKa";
 
 
     private final GebindemanagementService gebindemanagementService;
@@ -311,7 +316,9 @@ public class PdfService {
             	
             	 RowBuilder rowBuilder = Row.builder()
             			 .add(TextCell.builder().text(item.getBestand().getName()).borderWidth(1).build())
-                         .add(TextCell.builder().text(String.valueOf(item.getBestand().getPreis())).borderWidth(1).build())
+                         .add(TextCell.builder().text(String.valueOf((item.getBetrag() != null && item.getAmount() > 0
+                                 ? item.getBetrag().divide(java.math.BigDecimal.valueOf(item.getAmount()), 2, java.math.RoundingMode.HALF_UP)
+                                 : item.getBestand().getPreis()))).borderWidth(1).build())
                          .add(TextCell.builder().text(item.getBestand().getLagerbestand().getEinheit().getName()).borderWidth(1).build())
                          .add(TextCell.builder().text(String.valueOf(item.getAmount())).borderWidth(1).build());
                         
@@ -651,7 +658,7 @@ public class PdfService {
                   contentStream.setFont(arial, 14);
                   contentStream.newLineAtOffset(2f * toPx + 8f * toPx + 0.5f*toPx + toPx * 1.2f, page.getBBox().getHeight() - 1.8f - (1.6f*toPx)/2 + 0.1f * toPx);
                   contentStream.setNonStrokingColor(Color.black);
-                  contentStream.showText("MIKA-FOODCOOP");
+                  contentStream.showText(foodcoopName);
                   contentStream.endText();
                   
                   contentStream.beginText();
@@ -857,7 +864,7 @@ public class PdfService {
                   contentStream.setFont(arialBold, 11);
                   contentStream.newLineAtOffset(2.2f * toPx, page.getBBox().getHeight() - 1.1f * toPx);
                   
-                  contentStream.showText("Gemüsebestellung Food-Coop Mika");
+                  contentStream.showText("Gemüsebestellung " + foodcoopName);
                   contentStream.endText();
                   
                   contentStream.beginText();
@@ -1137,7 +1144,7 @@ public class PdfService {
                               contentStream.setFont(arialBold, 11);
                               contentStream.newLineAtOffset(2.2f*toPx, page.getBBox().getHeight() - 1.1f * toPx);
                               
-                              contentStream.showText("Gemüsebestellung Food-Coop Mika");
+                              contentStream.showText("Gemüsebestellung " + foodcoopName);
                               contentStream.endText();
                               
                               contentStream.beginText();

@@ -21,6 +21,8 @@ public class ConstantsUtils {
 	public final static String PLACEHOLDER_LAGER_KOSTEN = "%lagerKosten%";
 	public final static String PLACEHOLDER_LIEFER_KOSTEN = "%lieferKosten%";
 	public final static String PLACEHOLDER_GESAMT_KOSTEN = "%gesamtKosten%";
+	/** Aufstellung Frisch, Brot, Lager, Zu viel, Lieferkosten und Gesamt. */
+	public final static String PLACEHOLDER_KOSTEN_UEBERSICHT = "%kostenUebersicht%";
 	
 	public final static String EMAIL_TEXT_EINKAUF_UEBERSICHT =  "Hallo " + ConstantsUtils.PLACEHOLDER_PERSONID + ",\n"
       		+ "\n"
@@ -43,6 +45,19 @@ public class ConstantsUtils {
 		      												+ "Eure Foodcoop Mika";
 	
 	public final static String EMAIL_TEXT_EINKAUFSMANAGEMENT = "Hallo " + ConstantsUtils.PLACEHOLDER_PERSONID + ",\n"
+			+ "\n"
+			+ ConstantsUtils.PLACEHOLDER_SHOPPER_PERSONID + " hat am " + ConstantsUtils.EINKAUF_PLACEHOLDER_DATE + " eingekauft.\n"
+			+ "Diesen Betrag muss " + ConstantsUtils.PLACEHOLDER_SHOPPER_PERSONID + " überweisen:\n"
+			+ "\n"
+			+ ConstantsUtils.PLACEHOLDER_KOSTEN_UEBERSICHT + "\n"
+			+ "\n"
+			+ "Die einzelnen Produkte stehen im Beleg, den " + ConstantsUtils.PLACEHOLDER_SHOPPER_PERSONID + " per Mail bekommen hat.\n"
+			+ "\n"
+			+ "Viele Grüße\n"
+			+ "Deine Foodcoop MIKA";
+
+	/** Bisheriger Standardtext – wird beim Start durch den neuen ersetzt, falls unverändert. */
+	public final static String EMAIL_TEXT_EINKAUFSMANAGEMENT_ALT = "Hallo " + ConstantsUtils.PLACEHOLDER_PERSONID + ",\n"
 			+ "\n"
 			+ "Mitglied " + ConstantsUtils.PLACEHOLDER_SHOPPER_PERSONID + " hat einen Einkauf am " + ConstantsUtils.EINKAUF_PLACEHOLDER_DATE + " durchgeführt.\n"
 					+ "Folgender Betrag muss von " + ConstantsUtils.PLACEHOLDER_SHOPPER_PERSONID + " überwiesen werden:" + "\n"

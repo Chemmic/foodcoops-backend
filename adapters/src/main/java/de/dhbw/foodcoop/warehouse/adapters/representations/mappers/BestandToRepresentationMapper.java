@@ -41,7 +41,7 @@ public class BestandToRepresentationMapper
 		if (t instanceof BrotBestand) {
 			BrotBestand bb = (BrotBestand) t;
 
-			return new BrotBestandRepresentation(
+			BrotBestandRepresentation brot = new BrotBestandRepresentation(
 					bb.getId(),
 					bb.getName(),
 					bb.getVerfuegbarkeit(),
@@ -51,12 +51,16 @@ public class BestandToRepresentationMapper
 							bb.getAllergenInfo()
 					)
 			);
+
+			brot.setSortierung(bb.getSortierung());
+
+			return brot;
 		}
 
 		if (t instanceof FrischBestand) {
 			FrischBestand bb = (FrischBestand) t;
 
-			return new FrischBestandRepresentation(
+			FrischBestandRepresentation frisch = new FrischBestandRepresentation(
 					bb.getId(),
 					bb.getName(),
 					bb.getVerfuegbarkeit(),
@@ -68,12 +72,16 @@ public class BestandToRepresentationMapper
 					bb.getVerband(),
 					bb.isSpezialfallBestelleinheit()
 			);
+
+			frisch.setSortierung(bb.getSortierung());
+
+			return frisch;
 		}
 
 		if (t instanceof Produkt) {
 			Produkt p = (Produkt) t;
 
-			return new ProduktRepresentation(
+			ProduktRepresentation produkt = new ProduktRepresentation(
 					p.getId(),
 					p.getName(),
 					p.getProduktBezeichnung(),
@@ -81,6 +89,10 @@ public class BestandToRepresentationMapper
 					lagerbestandMapper.apply(p.getLagerbestand()),
 					p.getPreis().floatValue()
 			);
+
+			produkt.setSortierung(p.getSortierung());
+
+			return produkt;
 		}
 
 		return null;

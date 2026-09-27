@@ -28,129 +28,357 @@ public class DeadlineService {
 
     public DeadlineService(
             DeadlineRepository repository,
-            ApplicationEventPublisher eventPublisher) {
-
+            ApplicationEventPublisher eventPublisher
+    ) {
         this.repository = repository;
         this.eventPublisher = eventPublisher;
     }
+
+
+    // =========================================================================
+    // Lesen
+    // =========================================================================
 
     public List<DeadlineEntity> all() {
         return repository.alle();
     }
 
+
     public DeadlineEntity last() {
-        return repository.letzte()
-                .orElseThrow(DeadlineNotFoundException::new);
+
+        return repository
+                .letzte()
+                .orElseThrow(
+                        DeadlineNotFoundException::new
+                );
     }
 
-    public DeadlineEntity save(DeadlineEntity deadline) {
-        DeadlineEntity saved = repository.speichern(deadline);
+
+    public Optional<DeadlineEntity> findById(
+            String id
+    ) {
+
+        return repository
+                .findeMitId(
+                        id
+                );
+    }
+
+
+    public Optional<DeadlineEntity> getByPosition(
+            int position
+    ) {
+
+        return repository
+                .findeNachReihenfolge(
+                        position
+                );
+    }
+
+
+    // =========================================================================
+    // Neue Deadline speichern
+    // =========================================================================
+
+    /**
+     * Speichert eine NEUE Deadline.
+     *
+     * Danach werden die Listener für die neue Bestellrunde
+     * synchron ausgeführt:
+     *
+     * - Preis-Historie
+     * - Bestellübersicht
+     */
+    public DeadlineEntity save(
+            DeadlineEntity deadline
+    ) {
+
+        DeadlineEntity saved =
+                repository.speichern(
+                        deadline
+                );
+
+        long start =
+                System.currentTimeMillis();
 
         eventPublisher.publishEvent(
-                new DeadlineSavedEvent(saved));
+                new DeadlineSavedEvent(
+                        saved
+                )
+        );
+
+        long dauer =
+                System.currentTimeMillis()
+                        - start;
+
+        System.out.println(
+                "[DeadlineService] Alle DeadlineSavedEvent-Listener "
+                        + "für Deadline "
+                        + saved.getId()
+                        + " in "
+                        + dauer
+                        + " ms abgeschlossen."
+        );
 
         return saved;
     }
 
-    public Optional<DeadlineEntity> findById(String id) {
-        return repository.findeMitId(id);
+
+    // =========================================================================
+    // Bestehende Deadline aktualisieren
+    // =========================================================================
+
+    /**
+     * Aktualisiert eine bereits vorhandene Deadline.
+     *
+     * Hier wird absichtlich KEIN DeadlineSavedEvent
+     * veröffentlicht.
+     *
+     * Ein normales Bearbeiten einer Deadline soll nicht
+     * erneut Preis-Snapshots oder Bestellübersichten erzeugen.
+     */
+    public DeadlineEntity update(
+            DeadlineEntity deadline
+    ) {
+
+        return repository.speichern(
+                deadline
+        );
     }
 
-    public void deleteById(String id) {
-        repository.deleteById(id);
+
+    // =========================================================================
+    // Löschen
+    // =========================================================================
+
+    public void deleteById(
+            String id
+    ) {
+
+        repository.deleteById(
+                id
+        );
     }
 
-    public Optional<DeadlineEntity> getByPosition(int position) {
-        return repository.findeNachReihenfolge(position);
+
+    // =========================================================================
+    // Cold Start
+    // =========================================================================
+
+    /**
+     * Initiale Deadline beim erstmaligen Start.
+     *
+     * Kein Event, weil beim Datenbank-Initializer die
+     * einzelnen Produkte ohnehin nach und nach angelegt
+     * werden.
+     */
+    public DeadlineEntity coldStart(
+            DeadlineEntity deadline
+    ) {
+
+        return repository.speichern(
+                deadline
+        );
     }
 
-    public DeadlineEntity coldStart(DeadlineEntity deadline) {
-        return repository.speichern(deadline);
-    }
+
+    // =========================================================================
+    // Automatisch nächste Deadline erzeugen
+    // =========================================================================
 
     public Optional<DeadlineEntity> updateDeadline() {
-        Optional<DeadlineEntity> optionalDeadline = repository.letzte();
+
+        Optional<DeadlineEntity> optionalDeadline =
+                repository.letzte();
 
         if (optionalDeadline.isEmpty()) {
             return Optional.empty();
         }
 
-        DeadlineEntity currentDeadline = optionalDeadline.get();
+        DeadlineEntity currentDeadline =
+                optionalDeadline.get();
 
         LocalDateTime dateForDeadline =
-                calculateDateFromDeadline(currentDeadline);
+                calculateDateFromDeadline(
+                        currentDeadline
+                );
 
-        if (LocalDateTime.now().isAfter(dateForDeadline)) {
+        if (
+                LocalDateTime.now()
+                        .isAfter(
+                                dateForDeadline
+                        )
+        ) {
 
-            DeadlineEntity newDeadline = new DeadlineEntity(
-                    UUID.randomUUID().toString(),
-                    currentDeadline.getWeekday(),
-                    currentDeadline.getTime(),
-                    LocalDateTime.now());
+            DeadlineEntity newDeadline =
+                    new DeadlineEntity(
+                            UUID.randomUUID().toString(),
+                            currentDeadline.getWeekday(),
+                            currentDeadline.getTime(),
+                            LocalDateTime.now()
+                    );
 
-            return Optional.of(save(newDeadline));
+            /*
+             * save() ist hier korrekt:
+             *
+             * Neue Bestellrunde
+             * -> Preis-Snapshot
+             * -> Bestellübersicht
+             */
+            return Optional.of(
+                    save(
+                            newDeadline
+                    )
+            );
         }
 
         return Optional.empty();
     }
 
-    public static final Map<String, DayOfWeek> germanDaysOfWeek =
-            Arrays.stream(DayOfWeek.values())
-                    .collect(Collectors.toMap(
-                            day -> day.getDisplayName(
-                                    TextStyle.FULL,
-                                    Locale.GERMAN),
-                            day -> day));
 
-    public static final Map<DayOfWeek, String> germanDaysOfWeekReversed =
-            Arrays.stream(DayOfWeek.values())
-                    .collect(Collectors.toMap(
-                            day -> day,
-                            day -> day.getDisplayName(
-                                    TextStyle.FULL,
-                                    Locale.GERMAN)));
+    // =========================================================================
+    // Wochentage
+    // =========================================================================
 
-    public LocalDateTime calculateDateFromDeadline(DeadlineEntity deadline) {
+    public static final Map<String, DayOfWeek>
+            germanDaysOfWeek =
+            Arrays
+                    .stream(
+                            DayOfWeek.values()
+                    )
+                    .collect(
+                            Collectors.toMap(
+                                    day ->
+                                            day.getDisplayName(
+                                                    TextStyle.FULL,
+                                                    Locale.GERMAN
+                                            ),
 
-        LocalDateTime date = deadline.getDatum();
-        LocalTime currentTime = date.toLocalTime();
-        LocalTime targetTime = deadline.getTime().toLocalTime();
+                                    day ->
+                                            day
+                            )
+                    );
+
+
+    public static final Map<DayOfWeek, String>
+            germanDaysOfWeekReversed =
+            Arrays
+                    .stream(
+                            DayOfWeek.values()
+                    )
+                    .collect(
+                            Collectors.toMap(
+                                    day ->
+                                            day,
+
+                                    day ->
+                                            day.getDisplayName(
+                                                    TextStyle.FULL,
+                                                    Locale.GERMAN
+                                            )
+                            )
+                    );
+
+
+    // =========================================================================
+    // Tatsächliches Deadline-Datum berechnen
+    // =========================================================================
+
+    public LocalDateTime calculateDateFromDeadline(
+            DeadlineEntity deadline
+    ) {
+
+        LocalDateTime date =
+                deadline.getDatum();
+
+        LocalTime currentTime =
+                date.toLocalTime();
+
+        LocalTime targetTime =
+                deadline
+                        .getTime()
+                        .toLocalTime();
 
         DayOfWeek targetDay =
-                germanDaysOfWeek.get(deadline.getWeekday());
+                germanDaysOfWeek
+                        .get(
+                                deadline.getWeekday()
+                        );
 
-        if (targetDay.getValue()
-                == date.getDayOfWeek().getValue()) {
+        if (
+                targetDay.getValue()
+                        ==
+                        date
+                                .getDayOfWeek()
+                                .getValue()
+        ) {
 
-            if (currentTime.isBefore(targetTime)) {
+            if (
+                    currentTime
+                            .isBefore(
+                                    targetTime
+                            )
+            ) {
+
                 return LocalDateTime.of(
                         date.toLocalDate(),
-                        targetTime);
+                        targetTime
+                );
             }
 
             return LocalDateTime.of(
-                    date.toLocalDate().plusDays(7),
-                    targetTime);
+                    date
+                            .toLocalDate()
+                            .plusDays(7),
+
+                    targetTime
+            );
         }
 
         return LocalDateTime.of(
-                date.with(
-                                TemporalAdjusters.next(targetDay))
+                date
+                        .with(
+                                TemporalAdjusters
+                                        .next(
+                                                targetDay
+                                        )
+                        )
                         .toLocalDate(),
-                targetTime);
+
+                targetTime
+        );
     }
 
-    //For Debugging
+
+    // =========================================================================
+    // Debugging
+    // =========================================================================
+
     public DeadlineEntity forceNextDeadline() {
-        DeadlineEntity currentDeadline = repository.letzte()
-                .orElseThrow(DeadlineNotFoundException::new);
 
-        DeadlineEntity newDeadline = new DeadlineEntity(
-                UUID.randomUUID().toString(),
-                currentDeadline.getWeekday(),
-                currentDeadline.getTime(),
-                LocalDateTime.now());
+        DeadlineEntity currentDeadline =
+                repository
+                        .letzte()
+                        .orElseThrow(
+                                DeadlineNotFoundException::new
+                        );
 
-        return save(newDeadline);
+        DeadlineEntity newDeadline =
+                new DeadlineEntity(
+                        UUID.randomUUID().toString(),
+                        currentDeadline.getWeekday(),
+                        currentDeadline.getTime(),
+                        LocalDateTime.now()
+                );
+
+        /*
+         * Absichtlich save():
+         *
+         * Der Debug-Endpoint soll sich genau wie
+         * eine echte neue Bestellrunde verhalten.
+         */
+        return save(
+                newDeadline
+        );
     }
 }

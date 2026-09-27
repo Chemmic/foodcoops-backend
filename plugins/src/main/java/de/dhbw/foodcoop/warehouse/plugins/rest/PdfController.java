@@ -1,5 +1,6 @@
 package de.dhbw.foodcoop.warehouse.plugins.rest;
 
+import de.dhbw.foodcoop.warehouse.plugins.email.MailTexte;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.DayOfWeek;
@@ -33,6 +34,7 @@ public class PdfController {
     private final PdfService pdf;
     private final DeadlineService deadlineService;
     private final BestellÜbersichtService bueService;
+    private final MailTexte texte;
 
     //TODO: Es muss alles mit Keycloak abgesichert werden.
     // Wenn dies geschehen ist, kann man sich über das Authentification Objekt den Token ziehen
@@ -42,12 +44,14 @@ public class PdfController {
             EmailService service,
             PdfService pdf,
             DeadlineService deadlineService,
-            BestellÜbersichtService bueService) {
+            BestellÜbersichtService bueService,
+            MailTexte texte) {
 
         this.service = service;
         this.pdf = pdf;
         this.deadlineService = deadlineService;
         this.bueService = bueService;
+        this.texte = texte;
     }
 
     @PostMapping("/email/send/bestellUebersicht")
@@ -58,10 +62,10 @@ public class PdfController {
         try {
             service.sendEmailWithPDF(
                     email,
-                    "Foodcoop MIKA - Bestellübersicht vom " + date,
+                    texte.betreff("Bestellübersicht vom " + date),
                     "Hallo, \nim Anhang befindet sich die Bestellübersicht vom "
                             + date
-                            + ".\n\nViele Grüße \nDeine Foodcoop MIKA",
+                            + ".\n\n" + texte.gruss(),
                     pdf.createUebersicht(bueService.getLastUebersicht()),
                     "Bestelluebersicht-" + date + ".pdf");
         } catch (MessagingException e) {
@@ -79,10 +83,10 @@ public class PdfController {
         try {
             service.sendEmailWithPDF(
                     email,
-                    "Foodcoop MIKA - zu bestellende Brote vom " + date,
+                    texte.betreff("zu bestellende Brote vom " + date),
                     "Hallo, \nim Anhang befindet sich die Liste der zu bestellenden Brote für die Deadline vom "
                             + date
-                            + ".\n\nViele Grüße \nDeine Foodcoop MIKA",
+                            + ".\n\n" + texte.gruss(),
                     pdf.createBrotUebersicht(),
                     "Brotbestellungen-" + date + ".pdf");
         } catch (MessagingException e) {
@@ -100,10 +104,10 @@ public class PdfController {
         try {
             service.sendEmailWithPDF(
                     email,
-                    "Foodcoop MIKA - Brotbestellungen der Mitglieder " + date,
+                    texte.betreff("Brotbestellungen der Mitglieder " + date),
                     "Hallo, \nim Anhang befindet sich die Liste der einzelnen Brotbestellungen für die Deadline vom "
                             + date
-                            + ".\n\nViele Grüße \nDeine Foodcoop MIKA",
+                            + ".\n\n" + texte.gruss(),
                     pdf.createBrotUebersichtWithPersons(),
                     "BrotbestellungenPersonen-" + date + ".pdf");
         } catch (MessagingException e) {
@@ -124,8 +128,8 @@ public class PdfController {
         try {
             service.sendEmailWithPDF(
                     email,
-                    "Foodcoop MIKA - aktueller Lagerbestand " + date,
-                    "Hallo, \nim Anhang befindet sich der aktuelle Lagerbestand.\n\nViele Grüße \nDeine Foodcoop MIKA",
+                    texte.betreff("aktueller Lagerbestand " + date),
+                    "Hallo, \nim Anhang befindet sich der aktuelle Lagerbestand.\n\n" + texte.gruss(),
                     pdf.createByteArrayFromBase64String(base64Pdf),
                     "Lagerbestand-" + date + ".pdf");
         } catch (MessagingException e) {
@@ -143,10 +147,10 @@ public class PdfController {
         try {
             service.sendEmailWithPDF(
                     email,
-                    "Foodcoop MIKA - zu bestellende Frischware vom " + date,
+                    texte.betreff("zu bestellende Frischware vom " + date),
                     "Hallo, \nim Anhang befindet sich die Liste der zu bestellenden Frischware für die Deadline vom "
                             + date
-                            + ".\n\nViele Grüße \nDeine Foodcoop MIKA",
+                            + ".\n\n" + texte.gruss(),
                     pdf.createFrischUebersicht(),
                     "Frischbestellungen-" + date + ".pdf");
         } catch (MessagingException e) {

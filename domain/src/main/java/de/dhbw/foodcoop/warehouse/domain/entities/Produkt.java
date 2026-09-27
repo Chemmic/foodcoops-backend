@@ -17,7 +17,12 @@ import de.dhbw.foodcoop.warehouse.domain.values.Lagerbestand;
 
 @Entity
 @Table(name = "lagerprodukt")
-public class Produkt extends BestandEntity {
+public class Produkt extends BestandEntity implements Sortierbar {
+
+    /** Platz in der Liste (1 = oben). */
+    @Column
+    private Integer sortierung;
+
 
 	@Column
 	private String produktBezeichnung;
@@ -103,4 +108,15 @@ public class Produkt extends BestandEntity {
                 ", lagerbestand=" + lagerbestand +
                 '}';
     }
+
+    @Override
+    public Integer getSortierung() {
+        return sortierung;
+    }
+
+    @Override
+    public void setSortierung(Integer sortierung) {
+        this.sortierung = sortierung;
+    }
+
 }

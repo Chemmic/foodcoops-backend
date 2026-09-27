@@ -77,6 +77,19 @@ public class FrischBestandController {
                 .body(response);
     }
 
+    /**
+     * Reihenfolge der Liste setzen (wie die Frischwaren-Liste des Händlers).
+     * Body: Produkt-IDs von oben nach unten.
+     */
+    @PutMapping("/frischBestand/reihenfolge")
+    public List<FrischBestandRepresentation> reihenfolge(
+            @RequestBody List<String> ids) {
+
+        return service.reihenfolgeSetzen(ids).stream()
+                .map(f -> (FrischBestandRepresentation) toPresentation.apply(f))
+                .collect(Collectors.toList());
+    }
+
     @PutMapping("/frischBestand/{id}")
     public ResponseEntity<FrischBestandRepresentation> update(
             @RequestBody FrischBestandRepresentation changedProdukt,

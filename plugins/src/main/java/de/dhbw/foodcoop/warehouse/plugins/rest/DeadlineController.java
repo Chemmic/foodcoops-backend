@@ -36,115 +36,304 @@ public class DeadlineController {
     public DeadlineController(
             DeadlineService service,
             RepresentationToDeadlineMapper toDeadline,
-            DeadlineToRepresentationMapper toPresentation) {
+            DeadlineToRepresentationMapper toPresentation
+    ) {
         this.service = service;
         this.toDeadline = toDeadline;
         this.toPresentation = toPresentation;
     }
 
+
+    // =========================================================================
+    // Eine Deadline
+    // =========================================================================
+
     @GetMapping("/deadline/{id}")
-    public DeadlineRepresentation one(@PathVariable String id) {
-        DeadlineEntity deadline = service.findById(id)
-                .orElseThrow(() -> new DeadlineNotFoundException(id));
+    public DeadlineRepresentation one(
+            @PathVariable String id
+    ) {
 
-        return toPresentation.apply(deadline);
+        DeadlineEntity deadline =
+                service
+                        .findById(id)
+                        .orElseThrow(
+                                () ->
+                                        new DeadlineNotFoundException(
+                                                id
+                                        )
+                        );
+
+        return toPresentation.apply(
+                deadline
+        );
     }
 
-    @GetMapping("/deadline/getEndDateOfDeadline/{id}")
-    public LocalDateTime getEndDate(@PathVariable String id) {
-        DeadlineEntity deadline = service.findById(id)
-                .orElseThrow(() -> new DeadlineNotFoundException(id));
 
-        return service.calculateDateFromDeadline(deadline);
+    // =========================================================================
+    // Tatsächliches Deadline-Datum
+    // =========================================================================
+
+    @GetMapping(
+            "/deadline/getEndDateOfDeadline/{id}"
+    )
+    public LocalDateTime getEndDate(
+            @PathVariable String id
+    ) {
+
+        DeadlineEntity deadline =
+                service
+                        .findById(id)
+                        .orElseThrow(
+                                () ->
+                                        new DeadlineNotFoundException(
+                                                id
+                                        )
+                        );
+
+        return service
+                .calculateDateFromDeadline(
+                        deadline
+                );
     }
 
-    @GetMapping("/deadline/lookForUpdate")
+
+    // =========================================================================
+    // Prüfen, ob neue Deadline benötigt wird
+    // =========================================================================
+
+    @GetMapping(
+            "/deadline/lookForUpdate"
+    )
     public DeadlineRepresentation update() {
-        Optional<DeadlineEntity> deadline = service.updateDeadline();
+
+        Optional<DeadlineEntity> deadline =
+                service.updateDeadline();
 
         if (deadline.isEmpty()) {
             return null;
         }
 
-        return toPresentation.apply(deadline.get());
+        return toPresentation.apply(
+                deadline.get()
+        );
     }
 
-    @GetMapping("/deadline/getByPosition/{id}")
-    public DeadlineRepresentation getByPosition(@PathVariable int id) {
-        Optional<DeadlineEntity> deadline = service.getByPosition(id);
+
+    // =========================================================================
+    // Deadline nach Position
+    // =========================================================================
+
+    @GetMapping(
+            "/deadline/getByPosition/{id}"
+    )
+    public DeadlineRepresentation getByPosition(
+            @PathVariable int id
+    ) {
+
+        Optional<DeadlineEntity> deadline =
+                service.getByPosition(
+                        id
+                );
 
         if (deadline.isEmpty()) {
             return null;
         }
 
-        return toPresentation.apply(deadline.get());
+        return toPresentation.apply(
+                deadline.get()
+        );
     }
+
+
+    // =========================================================================
+    // Alle Deadlines
+    // =========================================================================
 
     @GetMapping("/deadline")
     public List<DeadlineRepresentation> all() {
-        return service.all().stream()
-                .map(toPresentation)
-                .collect(Collectors.toList());
+
+        return service
+                .all()
+                .stream()
+                .map(
+                        toPresentation
+                )
+                .collect(
+                        Collectors.toList()
+                );
     }
+
+
+    // =========================================================================
+    // Letzte Deadline
+    // =========================================================================
 
     @GetMapping("/deadline/last")
     public DeadlineRepresentation last() {
-        DeadlineEntity deadline = service.last();
 
-        return toPresentation.apply(deadline);
+        DeadlineEntity deadline =
+                service.last();
+
+        return toPresentation.apply(
+                deadline
+        );
     }
+
+
+    // =========================================================================
+    // Neue Deadline
+    // =========================================================================
 
     @PostMapping("/deadline")
-    public ResponseEntity<DeadlineRepresentation> newDeadline(
-            @RequestBody DeadlineRepresentation newDeadline) {
+    public ResponseEntity<DeadlineRepresentation>
+    newDeadline(
+            @RequestBody
+            DeadlineRepresentation newDeadline
+    ) {
 
-        String id = newDeadline.getId() == null
-                || newDeadline.getId().isBlank()
-                || newDeadline.getId().equals("undefined")
-                ? UUID.randomUUID().toString()
-                : newDeadline.getId();
+        String id =
+                newDeadline.getId() == null
+                        || newDeadline.getId().isBlank()
+                        || newDeadline
+                        .getId()
+                        .equals("undefined")
 
-        newDeadline.setId(id);
-        newDeadline.setDatum(LocalDateTime.now());
+                        ? UUID.randomUUID().toString()
+                        : newDeadline.getId();
 
-        DeadlineEntity saved = service.save(toDeadline.apply(newDeadline));
-        DeadlineRepresentation response = toPresentation.apply(saved);
+        newDeadline.setId(
+                id
+        );
+
+        newDeadline.setDatum(
+                LocalDateTime.now()
+        );
+
+        /*
+         * Neue Deadline:
+         *
+         * save() veröffentlicht DeadlineSavedEvent.
+         */
+        DeadlineEntity saved =
+                service.save(
+                        toDeadline.apply(
+                                newDeadline
+                        )
+                );
+
+        DeadlineRepresentation response =
+                toPresentation.apply(
+                        saved
+                );
 
         return ResponseEntity
-                .created(URI.create("/deadline/" + response.getId()))
-                .body(response);
+                .created(
+                        URI.create(
+                                "/deadline/"
+                                        + response.getId()
+                        )
+                )
+                .body(
+                        response
+                );
     }
+
+
+    // =========================================================================
+    // Bestehende Deadline bearbeiten
+    // =========================================================================
 
     @PutMapping("/deadline/{id}")
-    public ResponseEntity<DeadlineRepresentation> update(
-            @RequestBody DeadlineRepresentation deadline,
-            @PathVariable String id) {
+    public ResponseEntity<DeadlineRepresentation>
+    update(
+            @RequestBody
+            DeadlineRepresentation deadline,
 
-        DeadlineEntity oldDeadline = service.findById(id)
-                .orElseThrow(() -> new DeadlineNotFoundException(id));
+            @PathVariable
+            String id
+    ) {
 
-        DeadlineEntity updatedDeadline = toDeadline.update(oldDeadline, deadline);
-        DeadlineEntity saved = service.save(updatedDeadline);
+        DeadlineEntity oldDeadline =
+                service
+                        .findById(id)
+                        .orElseThrow(
+                                () ->
+                                        new DeadlineNotFoundException(
+                                                id
+                                        )
+                        );
 
-        return ResponseEntity.ok(toPresentation.apply(saved));
-    }
+        DeadlineEntity updatedDeadline =
+                toDeadline.update(
+                        oldDeadline,
+                        deadline
+                );
 
-    @DeleteMapping("/deadline/{id}")
-    public ResponseEntity<Void> delete(@PathVariable String id)
-            throws DeadlineInUseException {
-
-        service.deleteById(id);
-
-        return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("/deadline/debug/expire")
-    public ResponseEntity<DeadlineRepresentation> expireDeadline() {
-        System.out.println("Updating deadline");
-        DeadlineEntity deadline = service.forceNextDeadline();
+        /*
+         * WICHTIG:
+         *
+         * Kein service.save() mehr!
+         *
+         * Sonst würde ein PUT wieder:
+         *
+         * - Preis-Snapshot
+         * - Bestellübersicht
+         *
+         * triggern.
+         */
+        DeadlineEntity saved =
+                service.update(
+                        updatedDeadline
+                );
 
         return ResponseEntity.ok(
-                toPresentation.apply(deadline)
+                toPresentation.apply(
+                        saved
+                )
+        );
+    }
+
+
+    // =========================================================================
+    // Löschen
+    // =========================================================================
+
+    @DeleteMapping("/deadline/{id}")
+    public ResponseEntity<Void> delete(
+            @PathVariable String id
+    ) throws DeadlineInUseException {
+
+        service.deleteById(
+                id
+        );
+
+        return ResponseEntity
+                .noContent()
+                .build();
+    }
+
+
+    // =========================================================================
+    // Debug
+    // =========================================================================
+
+    @PostMapping(
+            "/deadline/debug/expire"
+    )
+    public ResponseEntity<DeadlineRepresentation>
+    expireDeadline() {
+
+        System.out.println(
+                "[DeadlineController] Erzwinge neue Deadline..."
+        );
+
+        DeadlineEntity deadline =
+                service.forceNextDeadline();
+
+        return ResponseEntity.ok(
+                toPresentation.apply(
+                        deadline
+                )
         );
     }
 }

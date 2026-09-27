@@ -1,5 +1,6 @@
 package de.dhbw.foodcoop.warehouse.domain.entities;
 
+import java.math.BigDecimal;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,6 +23,13 @@ public class BestandBuyEntity implements BuyType{
 	
 	@Column
 	private double amount;
+
+	/**
+	 * Bezahlter Betrag für diese Menge. Lagerware aus älteren Lieferungen
+	 * wird zuerst zum alten Preis verkauft. Null bei Einkäufen von früher.
+	 */
+	@Column
+	private BigDecimal betrag;
 	
 
 	public String getId() {
@@ -48,6 +56,14 @@ public class BestandBuyEntity implements BuyType{
 		this.id = id;
 		this.bestand = bestand;
 		this.amount = amount;
+	}
+
+	public BigDecimal getBetrag() {
+		return betrag;
+	}
+
+	public void setBetrag(BigDecimal betrag) {
+		this.betrag = betrag;
 	}
 
 	public double getAmount() {

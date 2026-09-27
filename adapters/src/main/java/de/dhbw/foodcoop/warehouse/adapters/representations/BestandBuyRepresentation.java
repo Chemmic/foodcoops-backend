@@ -5,6 +5,8 @@ public class BestandBuyRepresentation {
 	private String id;
 	private ProduktRepresentation bestand;
 	private double amount;
+	/** Tatsächlich bezahlter Betrag (ältere Lieferungen zuerst); null bei alten Einkäufen. */
+	private Double betrag;
 	public BestandBuyRepresentation(String id, ProduktRepresentation bestand, double amount) {
 		super();
 		this.id = id;
@@ -23,6 +25,12 @@ public class BestandBuyRepresentation {
 	}
 	public void setBestand(ProduktRepresentation bestand) {
 		this.bestand = bestand;
+	}
+	public Double getBetrag() {
+		return betrag;
+	}
+	public void setBetrag(Double betrag) {
+		this.betrag = betrag;
 	}
 	public double getAmount() {
 		return amount;

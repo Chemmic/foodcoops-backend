@@ -19,8 +19,10 @@ public class BestandBuyToRepresentationMapper implements Function<BestandBuyEnti
 	@Override
 	public BestandBuyRepresentation apply(BestandBuyEntity t) {
 		// TODO Auto-generated method stub
-		return new BestandBuyRepresentation(t.getId(),
+		BestandBuyRepresentation r = new BestandBuyRepresentation(t.getId(),
 				(ProduktRepresentation)bestandMapper.apply(t.getBestand()), t.getAmount());
+		r.setBetrag(t.getBetrag() == null ? null : t.getBetrag().doubleValue());
+		return r;
 	}
 
 }

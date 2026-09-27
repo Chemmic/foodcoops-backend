@@ -27,24 +27,32 @@ public class PreisHistorieService {
         this.deadlineService = deadlineService;
     }
 
+
+    // =========================================================================
+    // Einzelnen aktuellen Preis speichern
+    // =========================================================================
+
     /**
      * Speichert den Preis eines Bestands für die aktuell
      * gültige Bestellrunde.
      *
      * Existiert für Bestand + Deadline bereits ein Preis,
      * wird dieser aktualisiert.
+     *
+     * Diese Methode wird beispielsweise aufgerufen, wenn ein
+     * Admin während einer laufenden Bestellrunde einen Preis
+     * verändert.
      */
     public PreisHistorieEntity speichereAktuellenPreis(
             BestandEntity bestand
     ) {
 
         /*
-         * Wichtig:
-         * Nicht darauf verlassen, dass das Frontend vorher
+         * Nicht darauf verlassen, dass vorher jemand
          * /deadline/lookForUpdate aufgerufen hat.
          *
-         * Wenn die alte Deadline bereits vorbei ist,
-         * wird hier zuerst eine neue Runde erzeugt.
+         * Ist die alte Deadline bereits vorbei, wird hier
+         * zunächst automatisch die nächste Runde erzeugt.
          */
         deadlineService.updateDeadline();
 
@@ -57,9 +65,20 @@ public class PreisHistorieService {
         );
     }
 
+
+    // =========================================================================
+    // Einzelnen Preis für konkrete Deadline speichern
+    // =========================================================================
+
     /**
-     * Legt einen Snapshot für Bestand + Deadline an
-     * oder aktualisiert den vorhandenen Snapshot.
+     * Legt einen Preis für Bestand + Deadline an oder
+     * aktualisiert einen bereits vorhandenen Eintrag.
+     *
+     * Diese Methode ist weiterhin sinnvoll für einzelne
+     * Preisänderungen.
+     *
+     * Sie wird NICHT mehr zum Erstellen des kompletten
+     * Deadline-Snapshots verwendet.
      */
     public PreisHistorieEntity speicherePreis(
             BestandEntity bestand,
@@ -67,10 +86,11 @@ public class PreisHistorieService {
     ) {
 
         Optional<PreisHistorieEntity> vorhandenerPreis =
-                repository.findeVonBestandUndDeadline(
-                        bestand.getId(),
-                        deadline.getId()
-                );
+                repository
+                        .findeVonBestandUndDeadline(
+                                bestand.getId(),
+                                deadline.getId()
+                        );
 
         if (vorhandenerPreis.isPresent()) {
 
@@ -99,10 +119,49 @@ public class PreisHistorieService {
         );
     }
 
+
+    // =========================================================================
+    // Kompletter Snapshot einer neuen Bestellrunde
+    // =========================================================================
+
+    /**
+     * Erstellt einen Preis-Snapshot aller Bestände für eine
+     * neu angelegte Deadline.
+     *
+     * Wichtig:
+     *
+     * Das geschieht nicht mehr über:
+     *
+     *   Bestand laden
+     *   -> foreach
+     *   -> SELECT
+     *   -> INSERT
+     *
+     * sondern vollständig über ein einziges
+     * INSERT ... SELECT auf Datenbankebene.
+     *
+     * @return Anzahl der neu erzeugten Preis-Einträge
+     */
+    public int erstelleSnapshotFuerDeadline(
+            String deadlineId
+    ) {
+
+        return repository
+                .erstelleSnapshotFuerDeadline(
+                        deadlineId
+                );
+    }
+
+
+    // =========================================================================
+    // Preis lesen
+    // =========================================================================
+
     public Optional<PreisHistorieEntity> findePreis(
             String bestandId,
             String deadlineId
     ) {
+
         return repository
                 .findeVonBestandUndDeadline(
                         bestandId,
@@ -110,39 +169,50 @@ public class PreisHistorieService {
                 );
     }
 
+
     public BigDecimal preisFuer(
             String bestandId,
             String deadlineId
     ) {
+
         return repository
                 .findeVonBestandUndDeadline(
                         bestandId,
                         deadlineId
                 )
                 .orElseThrow(
-                        () -> new IllegalStateException(
-                                "Kein Preis für Bestand "
-                                        + bestandId
-                                        + " und Deadline "
-                                        + deadlineId
-                                        + " vorhanden."
-                        )
+                        () ->
+                                new IllegalStateException(
+                                        "Kein Preis für Bestand "
+                                                + bestandId
+                                                + " und Deadline "
+                                                + deadlineId
+                                                + " vorhanden."
+                                )
                 )
                 .getPreis();
     }
 
+
+    // =========================================================================
+    // Historie lesen
+    // =========================================================================
+
     public List<PreisHistorieEntity> historieVonBestand(
             String bestandId
     ) {
+
         return repository
                 .findeAlleVonBestand(
                         bestandId
                 );
     }
 
+
     public List<PreisHistorieEntity> preiseVonDeadline(
             String deadlineId
     ) {
+
         return repository
                 .findeAlleVonDeadline(
                         deadlineId

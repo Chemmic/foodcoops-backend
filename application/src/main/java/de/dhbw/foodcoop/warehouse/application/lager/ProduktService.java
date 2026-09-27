@@ -1,5 +1,6 @@
 package de.dhbw.foodcoop.warehouse.application.lager;
 
+import de.dhbw.foodcoop.warehouse.application.reihenfolge.Reihenfolge;
 import de.dhbw.foodcoop.warehouse.application.preishistorie.PreisHistorieService;
 import de.dhbw.foodcoop.warehouse.domain.entities.Produkt;
 import de.dhbw.foodcoop.warehouse.domain.exceptions.ProduktInUseException;
@@ -26,13 +27,25 @@ public class ProduktService {
         return repository.findeMitId(id);
     }
 
+    /** Nach Platz in der Liste, dann Name. */
     public List<Produkt> all() {
-        return repository.alle();
+        return Reihenfolge.sortiert(repository.alle());
     }
 
     public Produkt save(
             Produkt newProdukt
     ) {
+        Optional<Produkt> vorhanden =
+                newProdukt.getId() == null
+                        ? Optional.empty()
+                        : repository.findeMitId(newProdukt.getId());
+
+        if (vorhanden.isEmpty()) {
+            Reihenfolge.einordnen(all(), newProdukt, repository::speichern);
+        } else if (newProdukt.getSortierung() == null) {
+            newProdukt.setSortierung(vorhanden.get().getSortierung());
+        }
+
         Produkt gespeichert =
                 repository.speichern(
                         newProdukt
@@ -45,6 +58,18 @@ public class ProduktService {
 
         return gespeichert;
     }
+
+    /** Reihenfolge übernehmen (z.B. nach Drag & Drop): IDs von oben nach unten. */
+    public List<Produkt> reihenfolgeSetzen(List<String> ids) {
+        return Reihenfolge.setzen(all(), ids, repository::speichern);
+    }
+
+
+    /** Einmalig beim Start: Lagerprodukte ohne Platz bekommen einen. */
+    public int reihenfolgeInitialisieren() {
+        return Reihenfolge.initialisieren(repository.alle(), repository::speichern);
+    }
+
 
     public void deleteById(String id) throws ProduktInUseException {
         Optional<Produkt> toBeDeleted = repository.findeMitId(id);
